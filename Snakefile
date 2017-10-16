@@ -25,8 +25,10 @@ rule get_bam:
         config["gdc-manifest"]
     output:
         temp(gdc_manifest.filename)
+    conda:
+        "envs/gdc-client.yaml"
     shell:
-        "resources/gdc-client {input}"
+        "gdc-client {input}"
 
 
 rule bam2fq:
@@ -41,11 +43,11 @@ rule bam2fq:
 
 rule bowtie2_index:
     input:
-        ftp.remote(config["ref"]["index"], keep_local=True)
+        ftp.remote(config["ref"]["index"], keep_local=True, static=True)
     output:
         "index"
     shell:
-        "tar -C {output} -xf {input}"
+        "mkdir -p index; tar -C {output} -xf {input}"
 
 
 rule qtip:
