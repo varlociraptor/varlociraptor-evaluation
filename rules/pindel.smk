@@ -1,10 +1,10 @@
-
+pindel_types = ["D", "SI", "LI"]
 
 rule pindel_config:
     input:
         bams
     output:
-        "pindel/{dataset}.config.txt"
+        "pindel/{run}.config.txt"
     run:
         with open(output[0], "w") as out:
             for f, t in zip(input, tissues):
@@ -17,33 +17,32 @@ rule pindel:
         # samples to call
         samples=bams,
         # bam configuration file, see http://gmt.genome.wustl.edu/packages/pindel/quick-start.html
-        config="pindel/{dataset}.config.txt"
+        config="pindel/{run}.config.txt"
     output:
-        expand("pindel/{dataset}_{type}", type=pindel_types)
+        expand("pindel/{run}_{type}", type=pindel_types)
     params:
         # prefix must be consistent with output files
-        prefix="pindel/{dataset}",
+        prefix="pindel/{run}",
         extra=""  # optional parameters (except -i, -f, -o)
     log:
-        "logs/pindel.log"
+        "logs/pindel/{run}.log"
     threads: 4
     wrapper:
         "0.17.4/bio/pindel/call"
 
 
-
 rule pindel2bcf:
     input:
         ref="index/hg19.fa",
-        pindel="pindel/{dataset}_{type}",
+        pindel="pindel/{run}_{type}",
         header="resources/contigs.vcf"
     output:
-        "pindel/{dataset}.{type}.bcf"
+        "pindel/{run}.{type}.bcf"
     params:
         refname=config["ref"]["name"],  # mandatory, see pindel manual
         refdate=config["ref"]["date"],  # mandatory, see pindel manual
     log:
-        "logs/pindel/{sample}/{sample}.{contig}.pindel2bcf.{type}.log"
+        "logs/pindel/{run}.{type}.log"
     conda:
         "../envs/pindel2bcf.yaml"
     shell:
@@ -52,3 +51,14 @@ rule pindel2bcf:
         "bcftools annotate -Ou -h {input.header} {output}.vcf | "
         "bcftools view -Ob -l9 -o {output} - && rm {output}.vcf) "
         "> {log} 2>&1"
+
+
+rule pindel_concat:
+    input:
+        expand("pindel/{{run}}.{type}.bcf", vartype=["DEL", "INS"])
+    output:
+        "pindel/{run}.INDEL.bcf"
+    params:
+        "-a"
+    wrapper:
+        "0.17.4/bio/bcftools/concat"

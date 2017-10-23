@@ -1,10 +1,32 @@
 gdc-manifest: gdc_manifest_20171012_060907.txt
 
 
+runs:
+  simulated-qtip:
+    mapper: qtip
+    dataset: simulated
+  simulated-bowtie:
+    mapper: bowtie
+    dataset: simulated
+
+
 datasets:
   simulated:
-    tumor: /export/scratch2/structvar/vaf-experiments/aln/bwamemm/hiseq.Cancer80.wholegenome.bwamemm.cat.sorted.smtag.bam
-    normal: /export/scratch2/structvar/vaf-experiments/aln/bwamemm/hiseq.Control.wholegenome.cov30.bwamemm.sorted.smtag.bam
+    tumor:
+      bam: /export/scratch2/structvar/vaf-experiments/aln/bwamemm/hiseq.Cancer80.wholegenome.bwamemm.cat.sorted.smtag.bam
+      name: Cancer80
+    normal:
+      bam: /export/scratch2/structvar/vaf-experiments/aln/bwamemm/hiseq.Control.wholegenome.cov30.bwamemm.sorted.smtag.bam
+      name: Control
+    isize-mean: 312
+    isize-sd: 15
+  test:
+    tumor:
+      bam: .test/tumor.bam
+      name: Cancer80
+    normal:
+      bam: .test/normal.bam
+      name: Control
     isize-mean: 312
     isize-sd: 15
 
