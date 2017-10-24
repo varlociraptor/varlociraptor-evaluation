@@ -47,7 +47,7 @@ rule delly_adhoc:
     output:
         "adhoc-calls/delly/{run}.bcf"
     conda:
-        "envs/delly.yaml"
+        "../envs/delly.yaml"
     shell:
         "delly filter -m 0 -r 1.0 --samples {input.samples} "
         "-o {output} {input.bcf}"

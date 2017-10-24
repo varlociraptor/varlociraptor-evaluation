@@ -5,6 +5,6 @@ rule adhoc_filter:
     output:
         "adhoc-calls/{caller}/{run}.bcf"
     conda:
-        "envs/cyvcf2.yaml"
+        "../envs/cyvcf2.yaml"
     script:
         "scripts/adhoc-calling.py"

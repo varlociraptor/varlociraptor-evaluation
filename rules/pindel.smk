@@ -45,7 +45,7 @@ rule pindel2bcf:
     log:
         "logs/pindel/{run}.{type}.log"
     conda:
-        "../envs/pindel2bcf.yaml"
+        "../envs/pindel.yaml"
     shell:
         "(pindel2vcf -p {input.pindel} -r {input.ref} -R {params.refname} "
         "-d {params.refdate} -v {output}.vcf && "

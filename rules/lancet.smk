@@ -31,7 +31,7 @@ rule fix_lancet:
     output:
         "lancet/{run}/chr{chrom}.fixed.vcf"
     conda:
-        "envs/tools.yaml"
+        "../envs/tools.yaml"
     shell:
         "sed -r 's/MS\=[0-9]+[ACGT]+/MS/g' {input.vcf} | bcftools annotate -o {output} -h {input.header} -"
 
@@ -42,6 +42,6 @@ rule merge_lancet:
     output:
         "lancet/{run}/all.bcf"
     conda:
-        "envs/tools.yaml"
+        "../envs/tools.yaml"
     shell:
         "bcftools concat -Ob {input} > {output}"

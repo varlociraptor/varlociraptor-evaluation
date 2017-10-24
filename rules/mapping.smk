@@ -16,7 +16,7 @@ rule bam2fq:
         "reads/{dataset}.{tissue}.1.fastq",
         "reads/{dataset}.{tissue}.2.fastq"
     conda:
-        "envs/tools.yaml"
+        "../envs/tools.yaml"
     shell:
         "samtools bam2fq {input} {output}"
 
@@ -29,7 +29,7 @@ rule bowtie2_index:
     params:
         prefix="index/{ref}/genome"
     conda:
-        "envs/qtip.yaml"
+        "../envs/qtip.yaml"
     shell:
         "bowtie2-build {input} {params.prefix}"
 
@@ -44,7 +44,7 @@ rule qtip:
     params:
         index="index/{ref}/genome"
     conda:
-        "envs/qtip.yaml"
+        "../envs/qtip.yaml"
     log:
         "logs/qtip/{dataset}.{tissue}.{ref}.log"
     threads: 8
@@ -67,7 +67,7 @@ rule bowtie2:
         extra=""  # optional parameters
     threads: 8
     wrapper:
-        "0.17.4/bio/bowtie2/align"
+        "0.18.0/bio/bowtie2/align"
 
 
 rule samtools_index:
