@@ -22,7 +22,7 @@ bams = expand("mapped/{{run}}.{tissue}.bam", tissue=tissues)
 
 rule all:
     input:
-        expand("mapped/{unit}.bam", unit=units.index)
+        expand("mapped/{run}.", unit=units.index)
 
 
 include: "rules/mapping.smk"

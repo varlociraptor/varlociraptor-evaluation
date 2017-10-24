@@ -54,7 +54,7 @@ rule bowtie2:
     log:
         "logs/bowtie2/{dataset}.{tissue}.log"
     params:
-        index="index/hg38",  # prefix of reference genome index (built with bowtie2-build)
+        index="index/hg38",  # prefix of reference genome index
         extra=""  # optional parameters
     threads: 8
     wrapper:

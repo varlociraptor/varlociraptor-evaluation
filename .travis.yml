@@ -21,7 +21,7 @@ install:
 script:
   - source activate snakemake
   # run the workflow
-  - snakemake --use-conda
+  - snakemake --use-conda test
 
 cache:
   directories:

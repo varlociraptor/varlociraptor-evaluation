@@ -5,7 +5,7 @@ rule delly:
     output:
         "delly/{run}.{type,(DEL|DUP|INV|TRA|INS)}.bcf"
     params:
-        vartype="{type}", # variant type to call (can be wildcard, hardcoded string or function)
+        vartype="{type}", # variant type to call
         extra=""  # optional parameters for delly (except -t, -g)
     log:
         "logs/delly/{run}.{type}.log"
@@ -18,7 +18,7 @@ rule delly_concat:
     input:
         expand("delly/{{run}}.{type}.bcf", vartype=["DEL", "INS"])
     output:
-        "delly/{run}.INDEL.bcf"
+        "delly/{run}.all.bcf"
     params:
         "-a"
     wrapper:
@@ -37,7 +37,7 @@ rule delly_samples:
 
 rule delly_adhoc:
     input:
-        bcf="delly/{run}.INDEL.bcf",
+        bcf="delly/{run}.all.bcf",
         samples=lambda wc: "resources/{dataset}.delly-samples.txt".format(
             dataset=config["runs"][wc.run]["dataset"])
     output:
@@ -45,4 +45,5 @@ rule delly_adhoc:
     conda:
         "envs/delly.yaml"
     shell:
-        "delly filter -m 0 -r 1.0 --samples {input.samples} -o {output} {input.bcf}"
+        "delly filter -m 0 -r 1.0 --samples {input.samples} "
+        "-o {output} {input.bcf}"
