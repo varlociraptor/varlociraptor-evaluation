@@ -13,12 +13,12 @@ rule bam2fq:
     input:
         lambda wc: config["datasets"][wc.dataset][wc.tissue]["bam"]
     output:
-        "reads/{dataset}.{tissue}.1.fastq",
-        "reads/{dataset}.{tissue}.2.fastq"
+        m1="reads/{dataset}.{tissue}.1.fastq",
+        m2="reads/{dataset}.{tissue}.2.fastq"
     conda:
         "../envs/tools.yaml"
     shell:
-        "samtools bam2fq {input} {output}"
+        "samtools bam2fq {input} -1 {output.m1} -2 {output.m2}"
 
 
 rule bowtie2_index:
