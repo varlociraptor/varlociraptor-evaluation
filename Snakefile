@@ -13,6 +13,7 @@ units = pd.DataFrame({
     "sample": gdc_manifest.filename.str.slice(5, 33),
     "path": expand("gdc-data/{bam}", bam=gdc_manifest.filename)})
 units.index = gdc_manifest.id
+CHROMOSOMES = list(range(1,23)) + ["M", "X", "Y"]
 
 
 def get_bams(wildcards):
@@ -37,8 +38,8 @@ def get_ref(wildcards):
 def get_targets(run):
     t = expand("adhoc-calls/{caller}/{run}.bcf",
                caller=config["caller"],
-               run="test")
-    t.append("lancet/all.bcf")
+               run=run)
+    t.extend(expand("lancet/{run}/all.bcf", run=run))
     return t
 
 
@@ -59,4 +60,5 @@ rule test:
 include: "rules/mapping.smk"
 include: "rules/delly.smk"
 include: "rules/pindel.smk"
+include: "rules/lancet.smk"
 include: "rules/adhoc.smk"

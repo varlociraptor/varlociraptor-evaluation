@@ -15,6 +15,8 @@ rule bam2fq:
     output:
         "reads/{dataset}.{tissue}.1.fastq",
         "reads/{dataset}.{tissue}.2.fastq"
+    conda:
+        "envs/tools.yaml"
     shell:
         "samtools bam2fq {input} {output}"
 

@@ -15,6 +15,8 @@ rule lancet:
         region=get_whole_chrom_region
     log:
         "logs/lancet/{run}.chr{chrom}.log"
+    wildcard_constraints:
+        chrom="[^.]+"
     threads: 24
     shell:
        "lancet --tumor {input.bams[0]} --normal {input.bams[1]} "
@@ -29,7 +31,7 @@ rule fix_lancet:
     output:
         "lancet/{run}/chr{chrom}.fixed.vcf"
     conda:
-        "envs/bcftools.yaml"
+        "envs/tools.yaml"
     shell:
         "sed -r 's/MS\=[0-9]+[ACGT]+/MS/g' {input.vcf} | bcftools annotate -o {output} -h {input.header} -"
 
@@ -38,8 +40,8 @@ rule merge_lancet:
     input:
         expand("lancet/{{run}}/chr{chrom}.fixed.vcf", chrom=CHROMOSOMES)
     output:
-        "lancet/{{run}}/all.bcf"
+        "lancet/{run}/all.bcf"
     conda:
-        "envs/bcftools.yaml"
+        "envs/tools.yaml"
     shell:
         "bcftools concat -Ob {input} > {output}"
