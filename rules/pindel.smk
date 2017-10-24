@@ -13,7 +13,7 @@ rule pindel_config:
 
 rule pindel:
     input:
-        ref="index/hg19.fa",
+        ref=get_ref,
         # samples to call
         samples=get_bams,
         # bam configuration file, see http://gmt.genome.wustl.edu/packages/pindel/quick-start.html
@@ -33,7 +33,7 @@ rule pindel:
 
 rule pindel2bcf:
     input:
-        ref="index/hg19.fa",
+        ref=get_ref,
         pindel="pindel/{run}_{type}",
         header="resources/contigs.vcf"
     output:

@@ -1,6 +1,6 @@
 rule delly:
     input:
-        ref="index/hg19.fa",
+        ref=get_ref,
         samples=get_bams,
     output:
         "delly/{run}.{type,(DEL|DUP|INV|TRA|INS)}.bcf"

@@ -19,8 +19,12 @@ def get_bams(wildcards):
     tissues = ["tumor", "normal"]
     run = config["runs"][wildcards.run]
     return expand("mapped/{dataset}.{tissue}.{ref}.bam", dataset=run["dataset"],
-                                                   tissue=tissues,
-                                                   ref=run["ref"])
+                                                         tissue=tissues,
+                                                         ref=run["ref"])
+
+
+def get_ref(wildcards):
+    return "index/{ref}/genome.fa".format(ref=config["runs"][wildcards.run]["ref"])
 
 
 rule all:

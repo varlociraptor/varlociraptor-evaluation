@@ -19,20 +19,32 @@ rule bam2fq:
         "samtools bam2fq {input} {output}"
 
 
+rule get_ref:
+    input:
+        lambda wc: ftp.remote(config["ref"][wc.ref]["fasta"], keep_local=True, static=True)
+    output:
+        "index/{ref}/genome.fa"
+    shell:
+        "gzip -c -d {input} > {output}; "
+        "samtools faidx {output}"
+
+
 rule bowtie2_index:
     input:
-        lambda wc: ftp.remote(config["ref"][wc.ref]["index"], keep_local=True, static=True)
+        "index/{ref}/genome.fa"
     output:
-        "index/{ref}/genome.fasta"
+        "index/{ref}/genome.1.bt2"
     params:
-        folder="index/{ref}"
+        prefix="index/{ref}/genome"
+    conda:
+        "envs/qtip.yaml"
     shell:
-        "tar -C {params.folder} -xf {input}"
+        "bowtie2-build {input} {params.prefix}"
 
 
 rule qtip:
     input:
-        index="index/{ref}",
+        index="index/{ref}/genome",
         m1="reads/{dataset}.{tissue}.1.fastq",
         m2="reads/{dataset}.{tissue}.2.fastq"
     output:
@@ -57,7 +69,7 @@ rule bowtie2:
     log:
         "logs/bowtie2/{dataset}.{tissue}.{ref}.log"
     params:
-        index="index/{ref}",  # prefix of reference genome index
+        index="index/{ref}/genome",  # prefix of reference genome index
         extra=""  # optional parameters
     threads: 8
     wrapper:
