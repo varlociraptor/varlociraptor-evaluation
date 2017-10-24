@@ -18,13 +18,20 @@ units.index = gdc_manifest.id
 def get_bams(wildcards):
     tissues = ["tumor", "normal"]
     run = config["runs"][wildcards.run]
-    return expand("mapped/{dataset}.{tissue}.{ref}.bam", dataset=run["dataset"],
-                                                         tissue=tissues,
-                                                         ref=run["ref"])
+    return expand("mapped-{mapper}/{dataset}.{tissue}.{ref}.bam",
+                  dataset=run["dataset"],
+                  tissue=tissues,
+                  ref=run["ref"],
+                  mapper=run["mapper"])
 
 
 def get_ref(wildcards):
-    return "index/{ref}/genome.fa".format(ref=config["runs"][wildcards.run]["ref"])
+    ref = config["runs"][wildcards.run]["ref"]
+    return config["ref"][ref]["fasta"]
+
+
+wildcard_constraints:
+    caller="|".join(config["caller"])
 
 
 rule all:
@@ -42,3 +49,4 @@ rule test:
 include: "rules/mapping.smk"
 include: "rules/delly.smk"
 include: "rules/pindel.smk"
+include: "rules/adhoc.smk"

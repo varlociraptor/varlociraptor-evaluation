@@ -11,7 +11,7 @@ rule get_bam:
 
 rule bam2fq:
     input:
-        lambda wc: config["datasets"][wc.dataset][wc.tissue]
+        lambda wc: config["datasets"][wc.dataset][wc.tissue]["bam"]
     output:
         "reads/{dataset}.{tissue}.1.fastq",
         "reads/{dataset}.{tissue}.2.fastq"
@@ -19,19 +19,9 @@ rule bam2fq:
         "samtools bam2fq {input} {output}"
 
 
-rule get_ref:
-    input:
-        lambda wc: ftp.remote(config["ref"][wc.ref]["fasta"], keep_local=True, static=True)
-    output:
-        "index/{ref}/genome.fa"
-    shell:
-        "gzip -c -d {input} > {output}; "
-        "samtools faidx {output}"
-
-
 rule bowtie2_index:
     input:
-        "index/{ref}/genome.fa"
+        lambda wc: config["ref"][wc.ref]["fasta"]
     output:
         "index/{ref}/genome.1.bt2"
     params:
@@ -44,11 +34,13 @@ rule bowtie2_index:
 
 rule qtip:
     input:
-        index="index/{ref}/genome",
+        index="index/{ref}/genome.1.bt2",
         m1="reads/{dataset}.{tissue}.1.fastq",
         m2="reads/{dataset}.{tissue}.2.fastq"
     output:
-        "mapped/{dataset}.{tissue}.{ref}.bam"
+        "mapped-qtip/{dataset}.{tissue}.{ref}.bam"
+    params:
+        index="index/{ref}/genome"
     conda:
         "envs/qtip.yaml"
     log:
@@ -56,20 +48,20 @@ rule qtip:
     threads: 8
     shell:
         "(qtip --bt2-exe 'bowtie2 -p {threads}' "
-        "--m1 {input.m1} --m2 {input.m2} --index {input.index} | "
+        "--m1 {input.m1} --m2 {input.m2} --index {params.index} | "
         "samtools view -Sb - > {output} && samtools index {output}) 2> {log}"
 
 
 rule bowtie2:
     input:
-        index="index/{ref}",
+        index="index/{ref}/genome.1.bt2",
         sample=expand("reads/{{dataset}}.{{tissue}}.{mate}.fastq", mate=[1, 2])
     output:
-        "mapped/{dataset}.{tissue}.{ref}.bam"
+        "mapped-bowtie2/{dataset}.{tissue}.{ref}.bam"
     log:
         "logs/bowtie2/{dataset}.{tissue}.{ref}.log"
     params:
-        index="index/{ref}/genome",  # prefix of reference genome index
+        index="index/{ref}/genome",
         extra=""  # optional parameters
     threads: 8
     wrapper:

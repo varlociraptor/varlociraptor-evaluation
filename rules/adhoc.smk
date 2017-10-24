@@ -1,7 +1,7 @@
 rule adhoc_filter:
     input:
-        vcf="{caller}/{run}.INDEL.bcf",
-        bams=bams
+        vcf="{caller}/{run}.all.bcf",
+        bams=get_bams
     output:
         "adhoc-calls/{caller}/{run}.bcf"
     conda:

@@ -55,7 +55,7 @@ rule pindel2bcf:
 
 rule pindel_concat:
     input:
-        expand("pindel/{{run}}.{vartype}.bcf", vartype=["DEL", "INS"])
+        expand("pindel/{{run}}.{vartype}.bcf", vartype=pindel_types)
     output:
         "pindel/{run}.all.bcf"
     params:

@@ -9,6 +9,10 @@ runs:
     mapper: bowtie
     dataset: simulated
     ref: hg18
+  test:
+    mapper: qtip
+    dataset: test
+    ref: hg18
 
 datasets:
   simulated:
@@ -32,10 +36,10 @@ datasets:
 
 ref:
   hg18:
-    index: ftp://ftp.ccb.jhu.edu/pub/data/bowtie2_indexes/hg18.zip
+    fasta: /export/scratch2/koster/data/ref/hg18.fasta
     date: 2006-03
   hg38:
-    index: ftp://ftp.ncbi.nlm.nih.gov/genomes/archive/old_genbank/Eukaryotes/vertebrates_mammals/Homo_sapiens/GRCh38/seqs_for_alignment_pipelines/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.bowtie_index.tar.gz
+    fasta: "TODO"
     date: 2013-12
 
 caller:

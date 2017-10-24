@@ -35,6 +35,9 @@ rule delly_samples:
             print(ds["normal"]["name"], "control", sep="\t", file=out)
 
 
+ruleorder: delly_adhoc > adhoc_filter
+
+
 rule delly_adhoc:
     input:
         bcf="delly/{run}.all.bcf",
