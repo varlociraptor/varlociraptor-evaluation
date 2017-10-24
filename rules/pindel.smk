@@ -16,6 +16,7 @@ rule pindel:
         ref=get_ref,
         # samples to call
         samples=get_bams,
+        bais=get_bais,
         # bam configuration file, see http://gmt.genome.wustl.edu/packages/pindel/quick-start.html
         config="pindel/{run}.config.txt"
     output:

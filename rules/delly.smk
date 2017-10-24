@@ -2,6 +2,7 @@ rule delly:
     input:
         ref=get_ref,
         samples=get_bams,
+        bais=get_bais
     output:
         "delly/{run}.{type,(DEL|DUP|INV|TRA|INS)}.bcf"
     params:

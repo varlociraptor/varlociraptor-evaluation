@@ -49,7 +49,7 @@ rule qtip:
     shell:
         "(qtip --bt2-exe 'bowtie2 -p {threads}' "
         "--m1 {input.m1} --m2 {input.m2} --index {params.index} | "
-        "samtools view -Sb - > {output} && samtools index {output}) 2> {log}"
+        "samtools view -Sb - > {output}) 2> {log}"
 
 
 rule bowtie2:
@@ -66,3 +66,12 @@ rule bowtie2:
     threads: 8
     wrapper:
         "0.17.4/bio/bowtie2/align"
+
+
+rule samtools_index:
+    input:
+        "{prefix}.bam"
+    output:
+        "{prefix}.bam.bai"
+    wrapper:
+        "0.18.0/bio/samtools/index"

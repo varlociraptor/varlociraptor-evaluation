@@ -25,9 +25,21 @@ def get_bams(wildcards):
                   mapper=run["mapper"])
 
 
+def get_bais(wildcards):
+    return ["{}.bai".format(f) for f in get_bams(wildcards)]
+
+
 def get_ref(wildcards):
     ref = config["runs"][wildcards.run]["ref"]
     return config["ref"][ref]["fasta"]
+
+
+def get_targets(run):
+    t = expand("adhoc-calls/{caller}/{run}.bcf",
+               caller=config["caller"],
+               run="test")
+    t.append("lancet/all.bcf")
+    return t
 
 
 wildcard_constraints:
@@ -36,14 +48,12 @@ wildcard_constraints:
 
 rule all:
     input:
-        expand("adhoc-calls/{caller}/{run}.bcf", caller=config["caller"],
-                                                 run=config["runs"])
+        [get_targets(run) for run in config["runs"]]
 
 
 rule test:
     input:
-        expand("adhoc-calls/{caller}/{run}.bcf", caller=config["caller"],
-                                                 run="test")
+        get_targets("test")
 
 
 include: "rules/mapping.smk"
