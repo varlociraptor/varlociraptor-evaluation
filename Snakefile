@@ -15,14 +15,24 @@ units = pd.DataFrame({
 units.index = gdc_manifest.id
 
 
-tissues = ["tumor", "normal"]
-# pattern for accessing bam files given a run
-bams = expand("mapped/{{run}}.{tissue}.bam", tissue=tissues)
+def get_bams(wildcards):
+    tissues = ["tumor", "normal"]
+    run = config["runs"][wildcards.run]
+    return expand("mapped/{dataset}.{tissue}.{ref}.bam", dataset=run["dataset"],
+                                                   tissue=tissues,
+                                                   ref=run["ref"])
 
 
 rule all:
     input:
-        expand("mapped/{run}.", unit=units.index)
+        expand("adhoc-calls/{caller}/{run}.bcf", caller=config["caller"],
+                                                 run=config["runs"])
+
+
+rule test:
+    input:
+        expand("adhoc-calls/{caller}/{run}.bcf", caller=config["caller"],
+                                                 run="test")
 
 
 include: "rules/mapping.smk"

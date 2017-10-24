@@ -21,24 +21,26 @@ rule bam2fq:
 
 rule bowtie2_index:
     input:
-        ftp.remote(config["ref"]["index"], keep_local=True, static=True)
+        lambda wc: ftp.remote(config["ref"][wc.ref]["index"], keep_local=True, static=True)
     output:
-        "index"
+        "index/{ref}/genome.fasta"
+    params:
+        folder="index/{ref}"
     shell:
-        "mkdir -p index; tar -C {output} -xf {input}"
+        "tar -C {params.folder} -xf {input}"
 
 
 rule qtip:
     input:
-        index="index",
+        index="index/{ref}",
         m1="reads/{dataset}.{tissue}.1.fastq",
         m2="reads/{dataset}.{tissue}.2.fastq"
     output:
-        "mapped/{dataset}.{tissue}.bam"
+        "mapped/{dataset}.{tissue}.{ref}.bam"
     conda:
         "envs/qtip.yaml"
     log:
-        "logs/qtip/{dataset}.{tissue}.log"
+        "logs/qtip/{dataset}.{tissue}.{ref}.log"
     threads: 8
     shell:
         "(qtip --bt2-exe 'bowtie2 -p {threads}' "
@@ -48,13 +50,14 @@ rule qtip:
 
 rule bowtie2:
     input:
+        index="index/{ref}",
         sample=expand("reads/{{dataset}}.{{tissue}}.{mate}.fastq", mate=[1, 2])
     output:
-        "mapped/{dataset}.{tissue}.bam"
+        "mapped/{dataset}.{tissue}.{ref}.bam"
     log:
-        "logs/bowtie2/{dataset}.{tissue}.log"
+        "logs/bowtie2/{dataset}.{tissue}.{ref}.log"
     params:
-        index="index/hg38",  # prefix of reference genome index
+        index="index/{ref}",  # prefix of reference genome index
         extra=""  # optional parameters
     threads: 8
     wrapper:

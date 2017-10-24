@@ -2,7 +2,7 @@ pindel_types = ["D", "SI", "LI"]
 
 rule pindel_config:
     input:
-        bams
+        get_bams
     output:
         "pindel/{run}.config.txt"
     run:
@@ -15,15 +15,15 @@ rule pindel:
     input:
         ref="index/hg19.fa",
         # samples to call
-        samples=bams,
+        samples=get_bams,
         # bam configuration file, see http://gmt.genome.wustl.edu/packages/pindel/quick-start.html
         config="pindel/{run}.config.txt"
     output:
-        expand("pindel/{run}_{type}", type=pindel_types)
+        expand("pindel/{{run}}_{type}", type=pindel_types)
     params:
         # prefix must be consistent with output files
         prefix="pindel/{run}",
-        extra=""  # optional parameters (except -i, -f, -o)
+        extra=config["caller"]["delly"]["params"]
     log:
         "logs/pindel/{run}.log"
     threads: 4
@@ -39,8 +39,8 @@ rule pindel2bcf:
     output:
         "pindel/{run}.{type}.bcf"
     params:
-        refname=config["ref"]["name"],  # mandatory, see pindel manual
-        refdate=config["ref"]["date"],  # mandatory, see pindel manual
+        refname=lambda wc: config["runs"][wc.run]["ref"],
+        refdate=lambda wc: config["ref"][config["runs"][wc.run]["ref"]]["date"]
     log:
         "logs/pindel/{run}.{type}.log"
     conda:
@@ -55,7 +55,7 @@ rule pindel2bcf:
 
 rule pindel_concat:
     input:
-        expand("pindel/{{run}}.{type}.bcf", vartype=["DEL", "INS"])
+        expand("pindel/{{run}}.{vartype}.bcf", vartype=["DEL", "INS"])
     output:
         "pindel/{run}.all.bcf"
     params:

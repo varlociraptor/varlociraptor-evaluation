@@ -1,14 +1,14 @@
 gdc-manifest: gdc_manifest_20171012_060907.txt
 
-
 runs:
   simulated-qtip:
     mapper: qtip
     dataset: simulated
+    ref: hg18
   simulated-bowtie:
     mapper: bowtie
     dataset: simulated
-
+    ref: hg18
 
 datasets:
   simulated:
@@ -31,4 +31,15 @@ datasets:
     isize-sd: 15
 
 ref:
-  index: ftp://ftp.ccb.jhu.edu/pub/data/bowtie2_indexes/hg19.zipftp://ftp.ccb.jhu.edu/pub/data/bowtie2_indexes/hg19.zipftp://ftp.ccb.jhu.edu/pub/data/bowtie2_indexes/hg19.zip
+  hg18:
+    index: ftp://ftp.ccb.jhu.edu/pub/data/bowtie2_indexes/hg18.zip
+    date: 2006-03
+  hg38:
+    index: ftp://ftp.ncbi.nlm.nih.gov/genomes/archive/old_genbank/Eukaryotes/vertebrates_mammals/Homo_sapiens/GRCh38/seqs_for_alignment_pipelines/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.bowtie_index.tar.gz
+    date: 2013-12
+
+caller:
+  delly:
+    params: ""
+  pindel:
+    params: ""

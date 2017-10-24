@@ -1,12 +1,12 @@
 rule delly:
     input:
         ref="index/hg19.fa",
-        samples=bams,
+        samples=get_bams,
     output:
         "delly/{run}.{type,(DEL|DUP|INV|TRA|INS)}.bcf"
     params:
         vartype="{type}", # variant type to call
-        extra=""  # optional parameters for delly (except -t, -g)
+        extra=config["caller"]["delly"]["params"]
     log:
         "logs/delly/{run}.{type}.log"
     threads: 2
@@ -16,7 +16,7 @@ rule delly:
 
 rule delly_concat:
     input:
-        expand("delly/{{run}}.{type}.bcf", vartype=["DEL", "INS"])
+        expand("delly/{{run}}.{vartype}.bcf", vartype=["DEL", "INS"])
     output:
         "delly/{run}.all.bcf"
     params:

@@ -3,7 +3,7 @@ rule adhoc_filter:
         vcf="{caller}/{run}.INDEL.bcf",
         bams=bams
     output:
-        "adhoc-calls/{run}.bcf"
+        "adhoc-calls/{caller}/{run}.bcf"
     conda:
         "envs/cyvcf2.yaml"
     script:
