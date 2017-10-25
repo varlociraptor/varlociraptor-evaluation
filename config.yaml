@@ -5,14 +5,14 @@ runs:
     mapper: qtip
     dataset: simulated
     ref: hg18
-  simulated-bowtie:
-    mapper: bowtie
-    dataset: simulated
-    ref: hg18
-  test:
-    mapper: qtip
-    dataset: test
-    ref: hg18
+  #simulated-bowtie:
+  #  mapper: bowtie2
+  #  dataset: simulated
+  #  ref: hg18
+  #test:
+  #  mapper: qtip
+  #  dataset: test
+  #  ref: hg18
 
 datasets:
   simulated:
