@@ -85,7 +85,7 @@ rule bowtie2:
         "benchmarks/qtip/{dataset}.{tissue}.{ref}.tsv"
     params:
         index="index/{ref}/genome",
-        extra=""  # optional parameters
+        extra="--local"  # optional parameters
     threads: 8
     wrapper:
         "0.18.0/bio/bowtie2/align"
