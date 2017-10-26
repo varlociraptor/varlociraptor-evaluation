@@ -64,7 +64,9 @@ rule qtip:
         "../envs/qtip.yaml"
     log:
         "logs/qtip/{dataset}.{tissue}.{ref}.log"
-    threads: 12
+    benchmark:
+        "benchmarks/qtip/{dataset}.{tissue}.{ref}.tsv"
+    threads: 8
     shell:
         "(qtip --bt2-exe 'bowtie2 --local -p {threads}' --temp-directory {params.tmp} "
         "--m1 {input.m1} --m2 {input.m2} --index {params.index} --ref {input.ref} | "
@@ -79,6 +81,8 @@ rule bowtie2:
         "mapped-bowtie2/{dataset}.{tissue}.{ref}.bam"
     log:
         "logs/bowtie2/{dataset}.{tissue}.{ref}.log"
+    benchmark:
+        "benchmarks/qtip/{dataset}.{tissue}.{ref}.tsv"
     params:
         index="index/{ref}/genome",
         extra=""  # optional parameters

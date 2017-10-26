@@ -10,6 +10,8 @@ rule delly:
         extra=config["caller"]["delly"]["params"]
     log:
         "logs/delly/{run}.{type}.log"
+    benchmark:
+        "benchmarks/delly/{run}.{type}.tsv"
     threads: 2
     wrapper:
         "0.17.4/bio/delly"

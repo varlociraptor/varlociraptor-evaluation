@@ -27,6 +27,8 @@ rule pindel:
         extra=config["caller"]["delly"]["params"]
     log:
         "logs/pindel/{run}.log"
+    benchmark:
+        "benchmarks/pindel/{run}.tsv"
     threads: 4
     wrapper:
         "0.17.4/bio/pindel/call"

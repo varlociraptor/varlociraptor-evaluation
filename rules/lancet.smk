@@ -15,6 +15,8 @@ rule lancet:
         region=get_whole_chrom_region
     log:
         "logs/lancet/{run}.chr{chrom}.log"
+    benchmark:
+        "benchmarks/lancet/{run}.chr{chrom}.tsv"
     wildcard_constraints:
         chrom="[^.]+"
     threads: 24
