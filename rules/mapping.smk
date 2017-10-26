@@ -64,9 +64,9 @@ rule qtip:
         "../envs/qtip.yaml"
     log:
         "logs/qtip/{dataset}.{tissue}.{ref}.log"
-    threads: 8
+    threads: 12
     shell:
-        "(qtip --bt2-exe 'bowtie2 -p {threads}' --temp-directory {params.tmp} "
+        "(qtip --bt2-exe 'bowtie2 --local -p {threads}' --temp-directory {params.tmp} "
         "--m1 {input.m1} --m2 {input.m2} --index {params.index} --ref {input.ref} | "
         "samtools view -Sb - > {output}) 2> {log}"
 
