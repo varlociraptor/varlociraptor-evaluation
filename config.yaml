@@ -5,8 +5,8 @@ runs:
     mapper: qtip
     dataset: simulated
     ref: hg18
-  simulated-bowtie:
-    mapper: bowtie2
+  simulated-bwa:
+    mapper: bwa
     dataset: simulated
     ref: hg18
   #test:
