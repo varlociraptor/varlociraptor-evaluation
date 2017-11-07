@@ -4,4 +4,4 @@ channels:
   - defaults
 dependencies:
   - qtip =1.6.2
-  - bowtie2 =2.3.3.1
+  - samtools =1.6

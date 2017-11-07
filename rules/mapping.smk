@@ -56,7 +56,7 @@ rule qtip:
         m1="reads/{dataset}.{tissue}.1.fastq",
         m2="reads/{dataset}.{tissue}.2.fastq"
     output:
-        "mapped-qtip/{dataset}.{tissue}.{ref}.bam"
+        temp("mapped-qtip/{dataset}.{tissue}.{ref}.bam")
     params:
         index=lambda wc, input: os.path.splitext(input.index)[0],
         tmp="mapped-qtip/{dataset}.{tissue}.{ref}"
@@ -68,7 +68,7 @@ rule qtip:
         "benchmarks/qtip/{dataset}.{tissue}.{ref}.tsv"
     threads: 8
     shell:
-        "(qtip --bwa-exe 'bwa mem -t {threads}' --temp-directory {params.tmp} "
+        "(qtip --bwa-exe 'resources/bwa mem -t {threads}' --temp-directory {params.tmp} "
         "--m1 {input.m1} --m2 {input.m2} --index {params.index} --ref {input.ref} | "
         "samtools view -Sb - > {output}) 2> {log}"
 
@@ -78,25 +78,35 @@ rule bwa:
         index="index/{ref}/genome.bwt",
         sample=expand("reads/{{dataset}}.{{tissue}}.{mate}.fastq", mate=[1, 2])
     output:
-        "mapped-bwa/{dataset}.{tissue}.{ref}.bam"
+        temp("mapped-bwa/{dataset}.{tissue}.{ref}.bam")
     log:
         "logs/bwa/{dataset}.{tissue}.{ref}.log"
     benchmark:
         "benchmarks/bwa/{dataset}.{tissue}.{ref}.tsv"
     params:
         index=lambda wc, input: os.path.splitext(input.index)[0],
-        extra=r"-R '@RG\tID:{sample}\tSM:{sample}'",
-        sort="samtools",
-        sort_order="coordinate",
+        extra=r"-R '@RG\tID:{sample}\tSM:{sample}'"
+    conda:
+        "../envs/qtip.yaml"
     threads: 8
+    shell:
+        "resources/bwa mem -t {threads} {params.extra} {params.index} {input} | "
+        "samtools -Sb -o {output}"
+
+
+rule samtools_sort:
+    input:
+        "{mapper}/{dataset}.{tissue}.{ref}.bam"
+    output:
+        protected("{mapper}/{dataset}.{tissue}.{ref}.sorted.bam")
     wrapper:
-        "0.18.0/bio/bowtie2/align"
+        "0.17.4/bio/samtools/sort"
 
 
 rule samtools_index:
     input:
-        "{prefix}.bam"
+        "{mapper}/{dataset}.{tissue}.{ref}.sorted.bam"
     output:
-        "{prefix}.bam.bai"
+        "{mapper}/{dataset}.{tissue}.{ref}.sorted.bam.bai"
     wrapper:
         "0.18.0/bio/samtools/index"
