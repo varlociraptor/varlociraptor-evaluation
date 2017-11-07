@@ -36,30 +36,30 @@ rule bam2fq:
         #"cat {output.mixed} | grep '^@.*/2$' -A 3 --no-group-separator > {output.m2}"
 
 
-rule bowtie2_index:
+rule bwa_index:
     input:
         lambda wc: config["ref"][wc.ref]["fasta"]
     output:
-        "index/{ref}/genome.1.bt2"
+        "index/{ref}/genome.bwt"
     params:
-        prefix="index/{ref}/genome"
+        prefix=lambda wc, output: os.path.splitext(output[0])[0]
     conda:
         "../envs/qtip.yaml"
     shell:
-        "bowtie2-build {input} {params.prefix}"
+        "bwa index -p {params.prefix} {input}"
 
 
 rule qtip:
     input:
-        index="index/{ref}/genome.1.bt2",
+        index="index/{ref}/genome.bwt",
         ref=lambda wc: config["ref"][wc.ref]["fasta"],
         m1="reads/{dataset}.{tissue}.1.fastq",
         m2="reads/{dataset}.{tissue}.2.fastq"
     output:
         "mapped-qtip/{dataset}.{tissue}.{ref}.bam"
     params:
-        index="index/{ref}/genome",
-        tmp="mapped-qtip"
+        index=lambda wc, input: os.path.splitext(input.index)[0],
+        tmp="mapped-qtip/{dataset}.{tissue}.{ref}"
     conda:
         "../envs/qtip.yaml"
     log:
@@ -68,24 +68,26 @@ rule qtip:
         "benchmarks/qtip/{dataset}.{tissue}.{ref}.tsv"
     threads: 8
     shell:
-        "(qtip --bt2-exe 'bowtie2 --local -p {threads}' --temp-directory {params.tmp} "
+        "(qtip --bwa-exe 'bwa mem -t {threads}' --temp-directory {params.tmp} "
         "--m1 {input.m1} --m2 {input.m2} --index {params.index} --ref {input.ref} | "
         "samtools view -Sb - > {output}) 2> {log}"
 
 
-rule bowtie2:
+rule bwa:
     input:
-        index="index/{ref}/genome.1.bt2",
+        index="index/{ref}/genome.bwt",
         sample=expand("reads/{{dataset}}.{{tissue}}.{mate}.fastq", mate=[1, 2])
     output:
-        "mapped-bowtie2/{dataset}.{tissue}.{ref}.bam"
+        "mapped-bwa/{dataset}.{tissue}.{ref}.bam"
     log:
-        "logs/bowtie2/{dataset}.{tissue}.{ref}.log"
+        "logs/bwa/{dataset}.{tissue}.{ref}.log"
     benchmark:
-        "benchmarks/qtip/{dataset}.{tissue}.{ref}.tsv"
+        "benchmarks/bwa/{dataset}.{tissue}.{ref}.tsv"
     params:
-        index="index/{ref}/genome",
-        extra="--local"  # optional parameters
+        index=lambda wc, input: os.path.splitext(input.index)[0],
+        extra=r"-R '@RG\tID:{sample}\tSM:{sample}'",
+        sort="samtools",
+        sort_order="coordinate",
     threads: 8
     wrapper:
         "0.18.0/bio/bowtie2/align"
