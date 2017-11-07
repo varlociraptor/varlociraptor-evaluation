@@ -19,7 +19,7 @@ CHROMOSOMES = list(range(1,23)) + ["M", "X", "Y"]
 def get_bams(wildcards):
     tissues = ["tumor", "normal"]
     run = config["runs"][wildcards.run]
-    return expand("mapped-{mapper}/{dataset}.{tissue}.{ref}.bam",
+    return expand("mapped-{mapper}/{dataset}.{tissue}.{ref}.sorted.bam",
                   dataset=run["dataset"],
                   tissue=tissues,
                   ref=run["ref"],
