@@ -59,7 +59,7 @@ rule qtip:
         temp("mapped-qtip/{dataset}.{tissue}.{ref}.bam")
     params:
         index=lambda wc, input: os.path.splitext(input.index)[0],
-        tmp="mapped-qtip/{dataset}.{tissue}.{ref}"
+        tmp="mapped-qtip"
     conda:
         "../envs/qtip.yaml"
     log:
