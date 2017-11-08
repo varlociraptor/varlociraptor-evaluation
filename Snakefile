@@ -44,7 +44,9 @@ def get_targets(run):
 
 
 wildcard_constraints:
-    caller="|".join(config["caller"])
+    caller="|".join(config["caller"]),
+    tissue="tumor|normal",
+    ref="|".join(config["ref"])
 
 
 rule all:

@@ -85,28 +85,28 @@ rule bwa:
         "benchmarks/bwa/{dataset}.{tissue}.{ref}.tsv"
     params:
         index=lambda wc, input: os.path.splitext(input.index)[0],
-        extra=r"-R '@RG\tID:{sample}\tSM:{sample}'"
+        extra=r"-R '@RG\tID:{tissue}\tSM:{tissue}'"
     conda:
         "../envs/qtip.yaml"
     threads: 8
     shell:
-        "resources/bwa mem -Y -t {threads} {params.extra} {params.index} {input} | "
-        "samtools -Sb -o {output}"
+        "(resources/bwa mem -Y -t {threads} {params.extra} {params.index} {input.sample} | "
+        "samtools view -Sb - > {output}) 2> {log}"
 
 
 rule samtools_sort:
     input:
-        "{mapper}/{dataset}.{tissue}.{ref}.bam"
+        "mapped-{mapper}/{dataset}.{tissue}.{ref}.bam"
     output:
-        protected("{mapper}/{dataset}.{tissue}.{ref}.sorted.bam")
+        protected("mapped-{mapper}/{dataset}.{tissue}.{ref}.sorted.bam")
     wrapper:
         "0.17.4/bio/samtools/sort"
 
 
 rule samtools_index:
     input:
-        "{mapper}/{dataset}.{tissue}.{ref}.sorted.bam"
+        "mapped-{mapper}/{dataset}.{tissue}.{ref}.sorted.bam"
     output:
-        "{mapper}/{dataset}.{tissue}.{ref}.sorted.bam.bai"
+        "mapped-{mapper}/{dataset}.{tissue}.{ref}.sorted.bam.bai"
     wrapper:
         "0.18.0/bio/samtools/index"
