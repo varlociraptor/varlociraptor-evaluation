@@ -3,5 +3,10 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - qtip =1.6.2
+  #- qtip =1.6.2
   - samtools =1.6
+  - numpy
+  - scikit-learn
+  - pandas
+  pip:
+    - git+https://github.com/johanneskoester/qtip.git
