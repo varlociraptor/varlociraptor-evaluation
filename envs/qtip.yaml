@@ -4,9 +4,9 @@ channels:
   - defaults
 dependencies:
   #- qtip =1.6.2
+  - python
   - samtools =1.6
   - numpy
   - scikit-learn
   - pandas
-  pip:
-    - git+https://github.com/johanneskoester/qtip.git
+  - setuptools
