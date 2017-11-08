@@ -69,7 +69,7 @@ rule qtip:
     threads: 8
     shell:
         "(qtip --bwa-exe 'resources/bwa mem -Y -t {threads}' --temp-directory {params.tmp} "
-        "--m1 {input.m1} --m2 {input.m2} --index {params.index} --ref {input.ref} | "
+        "--aligner bwa-mem --m1 {input.m1} --m2 {input.m2} --index {params.index} --ref {input.ref} | "
         "samtools view -Sb - > {output}) 2> {log}"
 
 
