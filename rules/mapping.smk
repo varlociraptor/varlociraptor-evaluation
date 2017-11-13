@@ -100,6 +100,7 @@ rule samtools_sort:
         "mapped-{mapper}/{dataset}.{tissue}.{ref}.bam"
     output:
         protected("mapped-{mapper}/{dataset}.{tissue}.{ref}.sorted.bam")
+    threads: 8
     wrapper:
         "0.17.4/bio/samtools/sort"
 
