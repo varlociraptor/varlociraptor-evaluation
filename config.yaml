@@ -9,10 +9,10 @@ runs:
     mapper: bwa
     dataset: simulated
     ref: hg18
-  #test:
-  #  mapper: qtip
-  #  dataset: test
-  #  ref: hg18
+  test:
+    mapper: qtip
+    dataset: test
+    ref: hg18
 
 datasets:
   simulated:

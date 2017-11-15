@@ -51,7 +51,7 @@ wildcard_constraints:
 
 rule all:
     input:
-        [get_targets(run) for run in config["runs"]]
+        [get_targets(run) for run in config["runs"] if run != "test"]
 
 
 rule test:

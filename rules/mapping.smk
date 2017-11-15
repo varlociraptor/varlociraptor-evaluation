@@ -47,6 +47,9 @@ rule bwa_index:
         "bwa index -p {params.prefix} {input}"
 
 
+bwa_params = r"-Y -R '@RG\tID:{tissue}\tSM:{tissue}'"
+
+
 rule qtip:
     input:
         index="index/{ref}/genome.bwt",
@@ -57,7 +60,8 @@ rule qtip:
         temp("mapped-qtip/{dataset}.{tissue}.{ref}.bam")
     params:
         index=lambda wc, input: os.path.splitext(input.index)[0],
-        tmp="mapped-qtip"
+        tmp="mapped-qtip",
+        bwa=bwa_params
     #conda:
     #    "../envs/qtip.yaml"
     log:
@@ -67,7 +71,7 @@ rule qtip:
     threads: 8
     shell:
         "set +u; source activate qtip; "
-        "(qtip --bwa-exe 'resources/bwa mem -Y -t {threads}' --temp-directory {params.tmp} "
+        "(qtip --bwa-exe 'resources/bwa mem {params.bwa} -t {threads}' --temp-directory {params.tmp} "
         "--aligner bwa-mem --m1 {input.m1} --m2 {input.m2} --index {params.index} --ref {input.ref} | "
         "samtools view -Sb - > {output}) 2> {log}"
 
@@ -84,12 +88,12 @@ rule bwa:
         "benchmarks/bwa/{dataset}.{tissue}.{ref}.tsv"
     params:
         index=lambda wc, input: os.path.splitext(input.index)[0],
-        extra=r"-R '@RG\tID:{tissue}\tSM:{tissue}'"
+        extra=bwa_params
     conda:
         "../envs/qtip.yaml"
     threads: 8
     shell:
-        "(resources/bwa mem -Y -t {threads} {params.extra} {params.index} {input.sample} | "
+        "(resources/bwa mem -t {threads} {params.extra} {params.index} {input.sample} | "
         "samtools view -Sb - > {output}) 2> {log}"
 
 
