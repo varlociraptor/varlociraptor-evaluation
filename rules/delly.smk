@@ -43,6 +43,7 @@ ruleorder: delly_adhoc > adhoc_filter
 
 rule delly_adhoc:
     input:
+        csi="delly/{run}.all.bcf.csi",
         bcf="delly/{run}.all.bcf",
         samples=lambda wc: "resources/{dataset}.delly-samples.txt".format(
             dataset=config["runs"][wc.run]["dataset"])
