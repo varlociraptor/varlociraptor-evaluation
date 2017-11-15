@@ -32,8 +32,6 @@ rule bam2fq:
         "../envs/tools.yaml"
     shell:
         "samtools bam2fq {input} -1 {output.m1} -2 {output.m2} "
-        #"cat {output.mixed} | grep '^@.*/1$' -A 3 --no-group-separator > {output.m1} && "
-        #"cat {output.mixed} | grep '^@.*/2$' -A 3 --no-group-separator > {output.m2}"
 
 
 rule bwa_index:
@@ -68,7 +66,7 @@ rule qtip:
         "benchmarks/qtip/{dataset}.{tissue}.{ref}.tsv"
     threads: 8
     shell:
-        "source activate qtip; "
+        "set +u; source activate qtip; "
         "(qtip --bwa-exe 'resources/bwa mem -Y -t {threads}' --temp-directory {params.tmp} "
         "--aligner bwa-mem --m1 {input.m1} --m2 {input.m2} --index {params.index} --ref {input.ref} | "
         "samtools view -Sb - > {output}) 2> {log}"

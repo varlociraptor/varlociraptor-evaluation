@@ -8,7 +8,7 @@ rule pindel_config:
     run:
         with open(output[0], "w") as out:
             for f, t in zip(input, tissues):
-                print(f, 312, t)
+                print(f, 312, t, file=out)
 
 
 rule pindel:

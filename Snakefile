@@ -14,10 +14,10 @@ units = pd.DataFrame({
     "path": expand("gdc-data/{bam}", bam=gdc_manifest.filename)})
 units.index = gdc_manifest.id
 CHROMOSOMES = list(range(1,23)) + ["M", "X", "Y"]
+tissues = ["tumor", "normal"]
 
 
 def get_bams(wildcards):
-    tissues = ["tumor", "normal"]
     run = config["runs"][wildcards.run]
     return expand("mapped-{mapper}/{dataset}.{tissue}.{ref}.sorted.bam",
                   dataset=run["dataset"],
@@ -64,3 +64,14 @@ include: "rules/delly.smk"
 include: "rules/pindel.smk"
 include: "rules/lancet.smk"
 include: "rules/adhoc.smk"
+
+
+rule index_bcf:
+    input:
+        "{prefix}.bcf"
+    output:
+        "{prefix}.bcf.csi"
+    conda:
+        "envs/bcftools.yaml"
+    shell:
+        "bcftools index {input}"
