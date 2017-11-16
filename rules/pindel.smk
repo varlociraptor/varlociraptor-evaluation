@@ -31,7 +31,7 @@ rule pindel:
         "benchmarks/pindel/{run}.tsv"
     threads: 4
     wrapper:
-        "0.17.4/bio/pindel/call"
+        "0.19.1/bio/pindel/call"
 
 
 rule pindel2bcf:
