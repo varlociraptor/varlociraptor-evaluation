@@ -47,7 +47,7 @@ rule bwa_index:
         "bwa index -p {params.prefix} {input}"
 
 
-bwa_params = r"-Y -R '@RG\tID:{tissue}\tSM:{tissue}'"
+bwa_params = r'-Y -R "@RG\\tID:{tissue}\\tSM:{tissue}"'
 
 
 rule qtip:
@@ -60,6 +60,7 @@ rule qtip:
         temp("mapped-qtip/{dataset}.{tissue}.{ref}.bam")
     params:
         index=lambda wc, input: os.path.splitext(input.index)[0],
+        out="mapped-qtip/{dataset}.{tissue}.{ref}",
         tmp="mapped-qtip",
         bwa=bwa_params
     #conda:
@@ -71,9 +72,12 @@ rule qtip:
     threads: 8
     shell:
         "set +u; source activate qtip; "
-        "(qtip --bwa-exe 'resources/bwa mem {params.bwa} -t {threads}' --temp-directory {params.tmp} "
-        "--aligner bwa-mem --m1 {input.m1} --m2 {input.m2} --index {params.index} --ref {input.ref} | "
-        "samtools view -Sb - > {output}) 2> {log}"
+        "rm -rf {params.out}; "
+        "(qtip --bwa-exe 'resources/bwa mem {params.bwa} -t {threads}' "
+        "--output-directory {params.out} --temp-directory {params.tmp} "
+        "--aligner bwa-mem --m1 {input.m1} --m2 {input.m2} --index {params.index} --ref {input.ref}; "
+        "samtools view -Sb {params.out}/final.sam > {output}; "
+        "rm -r {params.out}) 2> {log}"
 
 
 rule bwa:
