@@ -24,7 +24,7 @@ rule pindel:
     params:
         # prefix must be consistent with output files
         prefix="pindel/{run}",
-        extra=config["caller"]["delly"]["params"]
+        extra=config["caller"]["pindel"]["params"]
     log:
         "logs/pindel/{run}.log"
     benchmark:

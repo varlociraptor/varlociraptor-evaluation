@@ -12,7 +12,8 @@ rule lancet:
     output:
         temp("lancet/{run}/chr{chrom}.vcf")
     params:
-        region=get_whole_chrom_region
+        region=get_whole_chrom_region,
+        extra=config["caller"]["lancet"]["params"]
     log:
         "logs/lancet/{run}.chr{chrom}.log"
     benchmark:
@@ -23,7 +24,7 @@ rule lancet:
     shell:
        "lancet --tumor {input.bams[0]} --normal {input.bams[1]} "
        "--ref {input.ref} --reg {params.region} --num-threads {threads} "
-       "> {output} 2> {log}"
+       "{params.extra} > {output} 2> {log}"
 
 
 rule fix_lancet:
