@@ -52,6 +52,8 @@ caller:
     params: "--exclusive-end"
   pindel:
     params: ""
+  lancet:
+    params: ""
   prosic:
     params: >
       --pileup-window 342 --omit-snvs --flat-priors --adjust-mapq
