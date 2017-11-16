@@ -46,8 +46,8 @@ ref:
 
 caller:
   delly:
-    params: ""
+    params: "--exclusive-end"
   pindel:
     params: ""
   prosic:
-    params: ""
+    params: "--pileup-window 342"
