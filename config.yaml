@@ -55,6 +55,4 @@ caller:
   lancet:
     params: ""
   prosic:
-    params: >
-      --pileup-window 342 --omit-snvs --flat-priors --adjust-mapq
-      --indel-window 20
+    params: "--pileup-window 342 --omit-snvs --flat-priors --adjust-mapq --indel-window 20"
