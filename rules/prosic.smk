@@ -10,6 +10,8 @@ rule prosic_call:
         "logs/prosic-{caller}/{run}.log"
     benchmark:
         "benchmarks/prosic-{caller}/{run}.tsv"
+    # conda:
+    #     "../envs/prosic.yaml"
     shell:
         "bcftools view {input.calls} {wildcards.chrom} | "
         "prosic call-tumor-normal {input.bams} {input.ref} "
@@ -30,6 +32,8 @@ rule prosic_control_fdr:
         "prosic-{caller}/{run}.all.bcf"
     output:
         "prosic-{caller}/{run}.gamma.{type}.tsv"
+    # conda:
+    #     "../envs/prosic.yaml"
     shell:
         "prosic control-fdr --event SOMATIC --var {wildcards.type} "
         "--method ev {input} > {output}"
