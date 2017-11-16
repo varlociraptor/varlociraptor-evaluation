@@ -5,14 +5,17 @@ runs:
     mapper: qtip
     dataset: simulated
     ref: hg18
+    purity: [0.75]
   simulated-bwa:
     mapper: bwa
     dataset: simulated
     ref: hg18
+    purity: [0.75]
   test:
     mapper: qtip
     dataset: test
     ref: hg18
+    purity: [0.75]
 
 datasets:
   simulated:
