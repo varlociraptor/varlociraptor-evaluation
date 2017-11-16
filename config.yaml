@@ -22,8 +22,9 @@ datasets:
     normal:
       bam: /export/scratch2/structvar/vaf-experiments/aln/bwamemm/hiseq.Control.wholegenome.cov30.bwamemm.sorted.smtag.bam
       name: Control
-    isize-mean: 312
-    isize-sd: 15
+    isize:
+      mean: 312
+      sd: 15
   test:
     tumor:
       bam: .test/tumor.bam
@@ -31,8 +32,9 @@ datasets:
     normal:
       bam: .test/normal.bam
       name: Control
-    isize-mean: 312
-    isize-sd: 15
+    isize:
+      mean: 312
+      sd: 15
 
 ref:
   hg18:

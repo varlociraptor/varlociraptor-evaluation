@@ -6,6 +6,8 @@ rule prosic_call:
         bais=get_bais
     output:
         temp("prosic-{caller}/{run}.{chrom}.bcf")
+    params:
+        isize=lambda wc: config["datasets"][config["runs"][wc.run]["dataset"]]["isize"]
     log:
         "logs/prosic-{caller}/{run}.log"
     benchmark:
@@ -15,7 +17,9 @@ rule prosic_call:
     shell:
         "bcftools view {input.calls} {wildcards.chrom} | "
         "prosic call-tumor-normal {input.bams} {input.ref} "
-        " > {output} 2> {log}"
+        "--isize-mean {params.isize[mean]} --isize-sd {params.isize[sd]} "
+        "{config[caller][prosic][params]} "
+        "> {output} 2> {log}"
 
 
 rule prosic_merge:

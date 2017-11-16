@@ -8,7 +8,7 @@ rule pindel_config:
     run:
         with open(output[0], "w") as out:
             for f, t in zip(input, tissues):
-                print(f, 312, t, file=out)
+                print(f, config["datasets"][config["runs"][wildcards.run]["dataset"]]["isize"]["mean"], t, file=out)
 
 
 rule pindel:
