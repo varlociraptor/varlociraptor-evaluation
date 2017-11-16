@@ -42,7 +42,7 @@ rule merge_lancet:
     input:
         expand("lancet/{{run}}/chr{chrom}.fixed.vcf", chrom=CHROMOSOMES)
     output:
-        "lancet/{run}/all.bcf"
+        "lancet/{run}.all.bcf"
     conda:
         "../envs/tools.yaml"
     shell:

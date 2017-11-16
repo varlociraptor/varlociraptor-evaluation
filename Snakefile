@@ -36,15 +36,18 @@ def get_ref(wildcards):
 
 
 def get_targets(run):
-    t = expand("adhoc-calls/{caller}/{run}.bcf",
+    t = expand("adhoc-{caller}/{run}.all.bcf",
                caller=config["caller"],
                run=run)
-    t.extend(expand("lancet/{run}/all.bcf", run=run))
+    t.extend(expand("lancet/{run}.all.bcf", run=run))
+    t.extend(expand("prosic-{caller}/{run}.all.bcf",
+                    run=run, caller=config["caller"]))
     return t
 
 
 wildcard_constraints:
     caller="|".join(config["caller"])
+    chrom="|".join(CHROMOSOMES)
 
 
 rule all:

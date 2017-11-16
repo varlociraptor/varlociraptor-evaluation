@@ -47,7 +47,7 @@ rule delly_adhoc:
         samples=lambda wc: "resources/{dataset}.delly-samples.txt".format(
             dataset=config["runs"][wc.run]["dataset"])
     output:
-        "adhoc-calls/delly/{run}.bcf"
+        "adhoc-delly/{run}.bcf"
     conda:
         "../envs/delly.yaml"
     shell:
