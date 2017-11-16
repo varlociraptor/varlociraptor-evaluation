@@ -24,3 +24,5 @@ for rec in bcf_in:
         not np.any(np.isnan(normal_gt))):
         # somatic variant
         bcf_out.write_record(rec)
+
+bcf_out.close()
