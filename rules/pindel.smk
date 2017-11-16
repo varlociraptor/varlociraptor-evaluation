@@ -1,4 +1,4 @@
-pindel_types = ["D", "SI", "LI"]
+pindel_types = ["D", "SI"]#, "LI"]
 
 rule pindel_config:
     input:
