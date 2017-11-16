@@ -37,7 +37,7 @@ rule delly_adhoc:
         bcf="delly/{run}.all.bcf",
         samples="resources/delly-samples.txt"
     output:
-        "adhoc-delly/{run}.bcf"
+        "adhoc-delly/{run}.all.bcf"
     conda:
         "../envs/delly.yaml"
     shell:

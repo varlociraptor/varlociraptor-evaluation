@@ -58,10 +58,11 @@ rule pindel2bcf:
 
 rule pindel_concat:
     input:
-        expand("pindel/{{run}}.{vartype}.bcf", vartype=pindel_types)
+        calls=expand("pindel/{{run}}.{vartype}.bcf", vartype=pindel_types),
+        idx=expand("pindel/{{run}}.{vartype}.bcf.csi", vartype=pindel_types)
     output:
         "pindel/{run}.all.bcf"
     params:
         "-a"
     wrapper:
-        "0.17.4/bio/bcftools/concat"
+        "0.19.2/bio/bcftools/concat"
