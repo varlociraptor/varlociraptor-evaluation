@@ -13,7 +13,7 @@ units = pd.DataFrame({
     "sample": gdc_manifest.filename.str.slice(5, 33),
     "path": expand("gdc-data/{bam}", bam=gdc_manifest.filename)})
 units.index = gdc_manifest.id
-CHROMOSOMES = list(range(1,23)) + ["M", "X", "Y"]
+CHROMOSOMES = list(map(str, range(1,23))) + ["M", "X", "Y"]
 tissues = ["tumor", "normal"]
 
 
@@ -36,20 +36,22 @@ def get_ref(wildcards):
 
 
 def get_targets(run):
+    non_prosic = [caller for caller in config["caller"] if caller != "prosic"]
     t = expand("adhoc-{caller}/{run}.all.bcf",
-               caller=config["caller"],
+               caller=non_prosic,
                run=run)
     t.extend(expand("lancet/{run}.all.bcf", run=run))
     t.extend(expand("prosic-{caller}/{run}.all.bcf",
-                    run=run, caller=config["caller"]))
+                    run=run, caller=non_prosic))
     return t
 
 
 wildcard_constraints:
-    chrom="|".join(CHROMOSOMES)
+    chrom="|".join(CHROMOSOMES),
     caller="|".join(config["caller"]),
     tissue="tumor|normal",
-    ref="|".join(config["ref"])
+    ref="|".join(config["ref"]),
+    run="|".join(config["runs"])
 
 
 rule all:

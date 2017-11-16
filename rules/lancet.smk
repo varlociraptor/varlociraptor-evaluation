@@ -10,7 +10,7 @@ rule lancet:
         bams=get_bams,
         bais=get_bais
     output:
-        "lancet/{run}/chr{chrom}.vcf"
+        temp("lancet/{run}/chr{chrom}.vcf")
     params:
         region=get_whole_chrom_region
     log:
@@ -31,7 +31,7 @@ rule fix_lancet:
         header="resources/lancet_header.txt",
         vcf="lancet/{run}/chr{chrom}.vcf"
     output:
-        "lancet/{run}/chr{chrom}.fixed.vcf"
+        temp("lancet/{run}/chr{chrom}.fixed.vcf")
     conda:
         "../envs/tools.yaml"
     shell:

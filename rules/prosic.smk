@@ -1,11 +1,11 @@
 rule prosic_call:
     input:
-        calls="{caller}/{run}.all.bcf"
+        calls="{caller}/{run}.all.bcf",
         ref=get_ref,
         bams=get_bams,
         bais=get_bais
     output:
-        "prosic-{caller}/{run}.{chrom}.bcf"
+        temp("prosic-{caller}/{run}.{chrom}.bcf")
     log:
         "logs/prosic-{caller}/{run}.log"
     benchmark:
@@ -15,7 +15,7 @@ rule prosic_call:
     shell:
         "bcftools view {input.calls} {wildcards.chrom} | "
         "prosic call-tumor-normal {input.bams} {input.ref} "
-        "{config[prosic][params]} > {output} 2> {log}"
+        " > {output} 2> {log}"
 
 
 rule prosic_merge:
