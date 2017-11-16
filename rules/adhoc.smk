@@ -7,4 +7,4 @@ rule adhoc_filter:
     conda:
         "../envs/cyvcf2.yaml"
     script:
-        "scripts/adhoc-calling.py"
+        "../scripts/adhoc-calling.py"

@@ -1,6 +1,7 @@
 rule prosic_call:
     input:
         calls="{caller}/{run}.all.bcf",
+        idx="{caller}/{run}.all.bcf.csi",
         ref=get_ref,
         bams=get_bams,
         bais=get_bais

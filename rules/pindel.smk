@@ -63,6 +63,6 @@ rule pindel_concat:
     output:
         "pindel/{run}.all.bcf"
     params:
-        "-a"
+        "-a -Ob"
     wrapper:
         "0.19.2/bio/bcftools/concat"

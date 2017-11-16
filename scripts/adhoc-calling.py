@@ -1,4 +1,5 @@
 from cyvcf2 import VCF, Writer
+import numpy as np
 
 def get_sample_name(tissue):
     ds = snakemake.config["runs"][snakemake.wildcards.run]["dataset"]
@@ -16,8 +17,8 @@ for rec in bcf_in:
     if rec.FILTER:
         continue
     gt = rec.genotypes
-    tumor_gt = gt[0, :2]
-    normal_gt = gt[1, :2]
+    tumor_gt = gt[0][:2]
+    normal_gt = gt[1][:2]
     if (np.any(tumor_gt) and
         not np.any(normal_gt) and
         not np.any(np.isnan(normal_gt))):
