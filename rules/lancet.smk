@@ -19,7 +19,7 @@ rule lancet:
         "benchmarks/lancet/{run}.chr{chrom}.tsv"
     wildcard_constraints:
         chrom="[^.]+"
-    threads: 24
+    threads: 4
     shell:
        "lancet --tumor {input.bams[0]} --normal {input.bams[1]} "
        "--ref {input.ref} --reg {params.region} --num-threads {threads} "

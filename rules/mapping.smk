@@ -32,69 +32,89 @@ rule bam2fq:
         "../envs/tools.yaml"
     shell:
         "samtools bam2fq {input} -1 {output.m1} -2 {output.m2} "
-        #"cat {output.mixed} | grep '^@.*/1$' -A 3 --no-group-separator > {output.m1} && "
-        #"cat {output.mixed} | grep '^@.*/2$' -A 3 --no-group-separator > {output.m2}"
 
 
-rule bowtie2_index:
+rule bwa_index:
     input:
         lambda wc: config["ref"][wc.ref]["fasta"]
     output:
-        "index/{ref}/genome.1.bt2"
+        "index/{ref}/genome.bwt"
     params:
-        prefix="index/{ref}/genome"
+        prefix=lambda wc, output: os.path.splitext(output[0])[0]
     conda:
         "../envs/qtip.yaml"
     shell:
-        "bowtie2-build {input} {params.prefix}"
+        "bwa index -p {params.prefix} {input}"
+
+
+bwa_params = r'-Y -R "@RG\\tID:{tissue}\\tSM:{tissue}"'
 
 
 rule qtip:
     input:
-        index="index/{ref}/genome.1.bt2",
+        index="index/{ref}/genome.bwt",
         ref=lambda wc: config["ref"][wc.ref]["fasta"],
         m1="reads/{dataset}.{tissue}.1.fastq",
         m2="reads/{dataset}.{tissue}.2.fastq"
     output:
-        "mapped-qtip/{dataset}.{tissue}.{ref}.bam"
+        temp("mapped-qtip/{dataset}.{tissue}.{ref}.bam")
     params:
-        index="index/{ref}/genome",
-        tmp="mapped-qtip"
-    conda:
-        "../envs/qtip.yaml"
+        index=lambda wc, input: os.path.splitext(input.index)[0],
+        out="mapped-qtip/{dataset}.{tissue}.{ref}",
+        tmp="mapped-qtip",
+        bwa=bwa_params
+    #conda:
+    #    "../envs/qtip.yaml"
     log:
         "logs/qtip/{dataset}.{tissue}.{ref}.log"
     benchmark:
         "benchmarks/qtip/{dataset}.{tissue}.{ref}.tsv"
     threads: 8
     shell:
-        "(qtip --bt2-exe 'bowtie2 --local -p {threads}' --temp-directory {params.tmp} "
-        "--m1 {input.m1} --m2 {input.m2} --index {params.index} --ref {input.ref} | "
+        "set +u; source activate qtip; "
+        "rm -rf {params.out}; "
+        "(qtip --bwa-exe 'resources/bwa mem {params.bwa} -t {threads}' "
+        "--output-directory {params.out} --temp-directory {params.tmp} "
+        "--aligner bwa-mem --m1 {input.m1} --m2 {input.m2} --index {params.index} --ref {input.ref}; "
+        "samtools view -Sb {params.out}/final.sam > {output}; "
+        "rm -r {params.out}) 2> {log}"
+
+
+rule bwa:
+    input:
+        index="index/{ref}/genome.bwt",
+        sample=expand("reads/{{dataset}}.{{tissue}}.{mate}.fastq", mate=[1, 2])
+    output:
+        temp("mapped-bwa/{dataset}.{tissue}.{ref}.bam")
+    log:
+        "logs/bwa/{dataset}.{tissue}.{ref}.log"
+    benchmark:
+        "benchmarks/bwa/{dataset}.{tissue}.{ref}.tsv"
+    params:
+        index=lambda wc, input: os.path.splitext(input.index)[0],
+        extra=bwa_params
+    conda:
+        "../envs/qtip.yaml"
+    threads: 8
+    shell:
+        "(resources/bwa mem -t {threads} {params.extra} {params.index} {input.sample} | "
         "samtools view -Sb - > {output}) 2> {log}"
 
 
-rule bowtie2:
+rule samtools_sort:
     input:
-        index="index/{ref}/genome.1.bt2",
-        sample=expand("reads/{{dataset}}.{{tissue}}.{mate}.fastq", mate=[1, 2])
+        "mapped-{mapper}/{dataset}.{tissue}.{ref}.bam"
     output:
-        "mapped-bowtie2/{dataset}.{tissue}.{ref}.bam"
-    log:
-        "logs/bowtie2/{dataset}.{tissue}.{ref}.log"
-    benchmark:
-        "benchmarks/qtip/{dataset}.{tissue}.{ref}.tsv"
-    params:
-        index="index/{ref}/genome",
-        extra="--local"  # optional parameters
+        protected("mapped-{mapper}/{dataset}.{tissue}.{ref}.sorted.bam")
     threads: 8
     wrapper:
-        "0.18.0/bio/bowtie2/align"
+        "0.17.4/bio/samtools/sort"
 
 
 rule samtools_index:
     input:
-        "{prefix}.bam"
+        "mapped-{mapper}/{dataset}.{tissue}.{ref}.sorted.bam"
     output:
-        "{prefix}.bam.bai"
+        "mapped-{mapper}/{dataset}.{tissue}.{ref}.sorted.bam.bai"
     wrapper:
         "0.18.0/bio/samtools/index"

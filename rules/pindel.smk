@@ -1,4 +1,4 @@
-pindel_types = ["D", "SI", "LI"]
+pindel_types = ["D", "SI"]#, "LI"]
 
 rule pindel_config:
     input:
@@ -8,7 +8,7 @@ rule pindel_config:
     run:
         with open(output[0], "w") as out:
             for f, t in zip(input, tissues):
-                print(f, 312, t)
+                print(f, 312, t, file=out)
 
 
 rule pindel:
@@ -31,7 +31,7 @@ rule pindel:
         "benchmarks/pindel/{run}.tsv"
     threads: 4
     wrapper:
-        "0.17.4/bio/pindel/call"
+        "0.19.1/bio/pindel/call"
 
 
 rule pindel2bcf:

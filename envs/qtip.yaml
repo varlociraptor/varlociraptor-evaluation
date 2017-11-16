@@ -3,5 +3,10 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - qtip =1.6.2
-  - bowtie2 =2.3.3.1
+  #- qtip =1.6.2
+  - python
+  - samtools =1.6
+  - numpy
+  - scikit-learn
+  - pandas
+  - setuptools

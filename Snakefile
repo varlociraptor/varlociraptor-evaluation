@@ -14,12 +14,12 @@ units = pd.DataFrame({
     "path": expand("gdc-data/{bam}", bam=gdc_manifest.filename)})
 units.index = gdc_manifest.id
 CHROMOSOMES = list(range(1,23)) + ["M", "X", "Y"]
+tissues = ["tumor", "normal"]
 
 
 def get_bams(wildcards):
-    tissues = ["tumor", "normal"]
     run = config["runs"][wildcards.run]
-    return expand("mapped-{mapper}/{dataset}.{tissue}.{ref}.bam",
+    return expand("mapped-{mapper}/{dataset}.{tissue}.{ref}.sorted.bam",
                   dataset=run["dataset"],
                   tissue=tissues,
                   ref=run["ref"],
@@ -46,13 +46,15 @@ def get_targets(run):
 
 
 wildcard_constraints:
-    caller="|".join(config["caller"])
     chrom="|".join(CHROMOSOMES)
+    caller="|".join(config["caller"]),
+    tissue="tumor|normal",
+    ref="|".join(config["ref"])
 
 
 rule all:
     input:
-        [get_targets(run) for run in config["runs"]]
+        [get_targets(run) for run in config["runs"] if run != "test"]
 
 
 rule test:
@@ -66,3 +68,14 @@ include: "rules/pindel.smk"
 include: "rules/lancet.smk"
 include: "rules/prosic.smk"
 include: "rules/adhoc.smk"
+
+
+rule index_bcf:
+    input:
+        "{prefix}.bcf"
+    output:
+        "{prefix}.bcf.csi"
+    conda:
+        "envs/bcftools.yaml"
+    shell:
+        "bcftools index {input}"

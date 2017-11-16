@@ -23,19 +23,9 @@ rule delly_concat:
     output:
         "delly/{run}.all.bcf"
     params:
-        "-a"
+        "-a -Ob"
     wrapper:
         "0.17.4/bio/bcftools/concat"
-
-
-rule delly_samples:
-    output:
-        "resources/{dataset}.delly-samples.txt"
-    run:
-        with open(output[0], "w") as out:
-            ds = config["datasets"][wildcards.dataset]
-            print(ds["tumor"]["name"], "tumor", sep="\t", file=out)
-            print(ds["normal"]["name"], "control", sep="\t", file=out)
 
 
 ruleorder: delly_adhoc > adhoc_filter
@@ -43,9 +33,9 @@ ruleorder: delly_adhoc > adhoc_filter
 
 rule delly_adhoc:
     input:
+        csi="delly/{run}.all.bcf.csi",
         bcf="delly/{run}.all.bcf",
-        samples=lambda wc: "resources/{dataset}.delly-samples.txt".format(
-            dataset=config["runs"][wc.run]["dataset"])
+        samples="resources/delly-samples.txt"
     output:
         "adhoc-delly/{run}.bcf"
     conda:
