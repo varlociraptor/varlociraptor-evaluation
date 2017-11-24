@@ -1,11 +1,11 @@
 gdc-manifest: gdc_manifest_20171012_060907.txt
 
 runs:
-  simulated-qtip:
-    mapper: qtip
-    dataset: simulated
-    ref: hg18
-    purity: [0.75]
+  #simulated-qtip:
+  #  mapper: qtip
+  #  dataset: simulated
+  #  ref: hg18
+  #  purity: [0.75]
   simulated-bwa:
     mapper: bwa
     dataset: simulated
@@ -51,7 +51,7 @@ caller:
   delly:
     params: "--exclusive-end"
   pindel:
-    params: ""
+    params: "-M 1 -B 10000 -H 10 -x 4 -I false -a 2"
   lancet:
     params: ""
   prosic:

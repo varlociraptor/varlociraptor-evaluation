@@ -74,7 +74,7 @@ rule qtip:
         "set +u; source activate qtip; "
         "rm -rf {params.out}; "
         "(qtip --bwa-exe 'resources/bwa mem {params.bwa} -t {threads}' "
-        "--output-directory {params.out} --temp-directory {params.tmp} "
+        "--output-directory {params.out} --temp-directory {params.tmp} --input-model-size 30000 "
         "--aligner bwa-mem --m1 {input.m1} --m2 {input.m2} --index {params.index} --ref {input.ref}; "
         "samtools view -Sb {params.out}/final.sam > {output}; "
         "rm -r {params.out}) 2> {log}"
