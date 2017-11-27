@@ -63,17 +63,16 @@ rule qtip:
         out="mapped-qtip/{dataset}.{tissue}.{ref}",
         tmp="mapped-qtip",
         bwa=bwa_params
-    #conda:
-    #    "../envs/qtip.yaml"
+    conda:
+        "../envs/qtip.yaml"
     log:
         "logs/qtip/{dataset}.{tissue}.{ref}.log"
     benchmark:
         "benchmarks/qtip/{dataset}.{tissue}.{ref}.tsv"
     threads: 8
     shell:
-        "set +u; source activate qtip; "
         "rm -rf {params.out}; "
-        "(qtip --bwa-exe 'resources/bwa mem {params.bwa} -t {threads}' "
+        "(resources/qtip --bwa-exe 'resources/bwa mem {params.bwa} -t {threads}' "
         "--output-directory {params.out} --temp-directory {params.tmp} --input-model-size 30000 "
         "--aligner bwa-mem --m1 {input.m1} --m2 {input.m2} --index {params.index} --ref {input.ref}; "
         "samtools view -Sb {params.out}/final.sam > {output}; "

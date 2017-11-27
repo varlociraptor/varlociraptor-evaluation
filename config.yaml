@@ -1,11 +1,11 @@
 gdc-manifest: gdc_manifest_20171012_060907.txt
 
 runs:
-  #simulated-qtip:
-  #  mapper: qtip
-  #  dataset: simulated
-  #  ref: hg18
-  #  purity: [0.75]
+  simulated-qtip:
+    mapper: qtip
+    dataset: simulated
+    ref: hg18
+    purity: [0.75]
   simulated-bwa:
     mapper: bwa
     dataset: simulated
@@ -20,10 +20,10 @@ runs:
 datasets:
   simulated:
     tumor:
-      bam: /export/scratch2/structvar/vaf-experiments/aln/bwamemm/hiseq.Cancer80.wholegenome.bwamemm.cat.sorted.smtag.bam
+      bam: ../data/hiseq.Cancer80.wholegenome.bwamemm.cat.sorted.smtag.bam
       name: Cancer80
     normal:
-      bam: /export/scratch2/structvar/vaf-experiments/aln/bwamemm/hiseq.Control.wholegenome.cov30.bwamemm.sorted.smtag.bam
+      bam: ../data/hiseq.Control.wholegenome.cov30.bwamemm.sorted.smtag.bam
       name: Control
     isize:
       mean: 312
@@ -41,7 +41,7 @@ datasets:
 
 ref:
   hg18:
-    fasta: /export/scratch2/koster/data/ref/hg18.fasta
+    fasta: ../data/hg18.fasta
     date: 2006-03
   hg38:
     fasta: "TODO"

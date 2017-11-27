@@ -1,7 +1,6 @@
 def get_whole_chrom_region(wildcards, input):
     chrom = "chr" + wildcards.chrom
-    idx = pd.read_table(input.ref + ".fai", index_col=0, names=["len", "offset", "linebases", "linewidth"])
-    return "{}:1-{}".format(chrom, idx.loc[chrom][0])
+    return chrom
 
 
 rule lancet:
@@ -22,7 +21,7 @@ rule lancet:
         chrom="[^.]+"
     threads: 4
     shell:
-       "lancet --tumor {input.bams[0]} --normal {input.bams[1]} "
+       "resources/lancet --tumor {input.bams[0]} --normal {input.bams[1]} "
        "--ref {input.ref} --reg {params.region} --num-threads {threads} "
        "{params.extra} > {output} 2> {log}"
 
