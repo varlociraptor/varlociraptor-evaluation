@@ -70,6 +70,8 @@ rule qtip:
     benchmark:
         "benchmarks/qtip/{dataset}.{tissue}.{ref}.tsv"
     threads: 8
+    resources:
+        disk=1  # constrain number of qtip instances
     shell:
         "rm -rf {params.out}; "
         "(resources/qtip --bwa-exe 'resources/bwa mem {params.bwa} -t {threads}' "
