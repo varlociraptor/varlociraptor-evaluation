@@ -49,10 +49,11 @@ ref:
 
 caller:
   delly:
-    params: "--exclusive-end"
+    params: ""
   pindel:
     params: "-M 1 -B 10000 -H 10 -x 4 -I false -a 2"
   lancet:
     params: ""
   prosic:
     params: "--pileup-window 342 --omit-snvs --flat-priors --adjust-mapq --indel-window 20"
+    delly: "--exclusive-end"

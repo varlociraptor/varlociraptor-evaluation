@@ -8,7 +8,8 @@ rule prosic_call:
     output:
         temp("prosic-{caller}/{run}-{purity}.{chrom}.bcf")
     params:
-        isize=lambda wc: config["datasets"][config["runs"][wc.run]["dataset"]]["isize"]
+        isize=lambda wc: config["datasets"][config["runs"][wc.run]["dataset"]]["isize"],
+        caller=lambda wc: config["caller"]["prosic"].get(wc.caller, "")
     log:
         "logs/prosic-{caller}/{run}-{purity}.log"
     benchmark:
@@ -20,7 +21,7 @@ rule prosic_call:
         "prosic call-tumor-normal {input.bams} {input.ref} "
         "--isize-mean {params.isize[mean]} --isize-sd {params.isize[sd]} "
         "--purity {wildcards.purity} "
-        "{config[caller][prosic][params]} "
+        "{config[caller][prosic][params]} {params.caller} "
         "> {output} 2> {log}"
 
 
