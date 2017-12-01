@@ -36,7 +36,7 @@ def get_ref(wildcards):
 
 
 def get_targets(run):
-    non_prosic = [caller for caller in config["caller"] if caller != "prosic"]
+    non_prosic = [caller for caller in config["caller"] if caller != "prosic" and caller != "pindel"]
     t = expand("adhoc-{caller}/{run}.all.bcf",
                caller=non_prosic,
                run=run)

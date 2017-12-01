@@ -43,6 +43,7 @@ ref:
   hg18:
     fasta: ../data/hg18.fasta
     date: 2006-03
+    chrom_prefix: chr
   hg38:
     fasta: "TODO"
     date: 2013-12
