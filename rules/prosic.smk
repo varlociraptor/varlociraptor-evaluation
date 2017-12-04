@@ -12,13 +12,13 @@ rule prosic_call:
         caller=lambda wc: config["caller"]["prosic"].get(wc.caller, ""),
         chrom_prefix=lambda wc: config["ref"][config["runs"][wc.run]["ref"]].get("chrom_prefix", "")
     log:
-        "logs/prosic-{caller}/{run}-{purity}.log"
+        "logs/prosic-{caller}/{run}-{purity}.{chrom}.log"
     benchmark:
-        "benchmarks/prosic-{caller}/{run}-{purity}.tsv"
+        "benchmarks/prosic-{caller}/{run}-{purity}.{chrom}.tsv"
     # conda:
     #     "../envs/prosic.yaml"
     shell:
-        "bcftools view {input.calls} {wildcards.chrom} | "
+        "bcftools view {input.calls} {params.chrom_prefix} | "
         "prosic call-tumor-normal {input.bams} {input.ref} "
         "--isize-mean {params.isize[mean]} --isize-sd {params.isize[sd]} "
         "--purity {wildcards.purity} "
