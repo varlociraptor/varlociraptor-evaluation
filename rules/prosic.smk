@@ -10,7 +10,7 @@ rule prosic_call:
     params:
         isize=lambda wc: config["datasets"][config["runs"][wc.run]["dataset"]]["isize"],
         caller=lambda wc: config["caller"]["prosic"].get(wc.caller, ""),
-        chrom_prefix=lambda wc: config["ref"][config["runs"][wc.run]["ref"]].get("chrom_prefix", "")
+        chrom_prefix=lambda wc: config["ref"][config["runs"][wc.run]["ref"]].get("chrom_prefix", "") + wc.chrom
     log:
         "logs/prosic-{caller}/{run}-{purity}.{chrom}.log"
     benchmark:
