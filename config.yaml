@@ -56,5 +56,5 @@ caller:
   lancet:
     params: ""
   prosic:
-    params: "--pileup-window 342 --omit-snvs --flat-priors --adjust-mapq --indel-window 20"
+    params: "--pileup-window 342 --flat-priors --adjust-mapq --indel-window 100 --max-indel-overlap 25"
     delly: "--exclusive-end"
