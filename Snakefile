@@ -40,7 +40,7 @@ def get_targets(run):
     t = expand("adhoc-{caller}/{run}.all.bcf",
                caller=non_prosic,
                run=run)
-    t.extend(expand("lancet/{run}.all.bcf", run=run))
+    t.extend(expand("default-lancet/{run}.all.bcf", run=run))
     t.extend(expand("prosic-{caller}/{run}-{purity}.all.bcf",
                     run=run, caller=non_prosic,
                     purity=config["runs"][run]["purity"]))
@@ -53,7 +53,8 @@ wildcard_constraints:
     tissue="tumor|normal",
     ref="|".join(config["ref"]),
     run="|".join(config["runs"]),
-    purity="[01]\.[0-9]+"
+    purity="[01]\.[0-9]+",
+    mode="prosic|adhoc|default"
 
 
 rule all:

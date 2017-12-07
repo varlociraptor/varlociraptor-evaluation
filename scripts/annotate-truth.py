@@ -18,6 +18,7 @@ vcf_in = VCF(snakemake.input.vcf)
 subclones = ["Som{}".format(i) for i in range(1, 5)]
 fractions = [1/3, 1/3, 1/4, 1/12]
 subclone_idx = [vcf_in.samples.index(s) for s in subclones]
+control_idx = vcf_in.samples.index("Control")
 
 
 # Prepare writer
@@ -26,6 +27,10 @@ bcf_out.add_info_to_header({"ID": "AF",
                             "Number": "1",
                             "Description": "True tumor allele frequency",
                             "Type": "Float"})
+bcf_out.add_info_to_header({"ID": "SOMATIC",
+                            "Number": "0",
+                            "Description": "Somatic mutation",
+                            "Type": "Flag"})
 
 for rec in vcf_in:
     if len(rec.ALT) > 1:
@@ -36,6 +41,8 @@ for rec in vcf_in:
               for idx, fraction in zip(subclone_idx, fractions))
 
     rec.INFO["AF"] = vaf
+    rec.INFO["SOMATIC"] = (subclone_vaf(rec.genotypes[control_idx]) == 0.0 and
+                           vaf > 0.0)
     bcf_out.write_record(rec)
 
 bcf_out.close()
