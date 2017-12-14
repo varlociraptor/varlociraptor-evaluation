@@ -32,9 +32,9 @@ rule truth_to_tsv:
 
 rule calls_to_tsv:
     input:
-        "{mode}-{caller}/{run}.all.bcf"
+        "matched-calls/{mode}-{caller}/{run}.all.bcf"
     output:
-        "{mode}-{caller}/{run}.all.tsv"
+        "matched-calls/{mode}-{caller}/{run}.all.tsv"
     params:
         info=lambda wc: " ".join(config["caller"][wc.caller].get("info", []))
     shell:
