@@ -64,3 +64,6 @@ def recall(calls, truth):
     t = truth.shape[0]
     recall = tp / t
     return recall
+
+
+colors = {caller: c for caller, c in zip(snakemake.config["callers"], sns.color_palette("colorblind", n_colors=len(snakemake.config["callers"])))}

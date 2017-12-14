@@ -15,6 +15,7 @@ units = pd.DataFrame({
 units.index = gdc_manifest.id
 CHROMOSOMES = list(map(str, range(1,23))) + ["M", "X", "Y"]
 tissues = ["tumor", "normal"]
+non_prosic_callers = [caller for caller in config["caller"] if caller != "prosic" and caller != "pindel"]
 
 
 def get_bams(wildcards):
@@ -69,7 +70,7 @@ rule test:
 
 include: "rules/mapping.smk"
 include: "rules/delly.smk"
-include: "rules/pindel.smk"
+#include: "rules/pindel.smk"
 include: "rules/lancet.smk"
 include: "rules/prosic.smk"
 include: "rules/adhoc.smk"
