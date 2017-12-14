@@ -52,7 +52,7 @@ wildcard_constraints:
     caller="|".join(config["caller"]),
     tissue="tumor|normal",
     ref="|".join(config["ref"]),
-    run="|".join(config["runs"]),
+    #run="|".join(config["runs"]),
     purity="[01]\.[0-9]+",
     mode="prosic|adhoc|default"
 
@@ -73,6 +73,7 @@ include: "rules/pindel.smk"
 include: "rules/lancet.smk"
 include: "rules/prosic.smk"
 include: "rules/adhoc.smk"
+include: "rules/eval.smk"
 
 
 rule index_bcf:

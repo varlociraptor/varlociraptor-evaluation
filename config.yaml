@@ -28,7 +28,7 @@ datasets:
     isize:
       mean: 312
       sd: 15
-    truth: ../data/truth.vcf
+    truth: ../data/simulated-truth.bcf
   test:
     tumor:
       bam: .test/tumor.bam

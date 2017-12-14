@@ -1,4 +1,5 @@
 from cyvcf2 import VCF, Writer
+import numpy as np
 
 
 def subclone_vaf(gt):
@@ -12,7 +13,7 @@ def subclone_vaf(gt):
 
 
 # Reader
-vcf_in = VCF(snakemake.input.vcf)
+vcf_in = VCF(snakemake.input[0])
 
 # Setup subclone information
 subclones = ["Som{}".format(i) for i in range(1, 5)]
@@ -22,15 +23,15 @@ control_idx = vcf_in.samples.index("Control")
 
 
 # Prepare writer
-bcf_out = Writer(snakemake.output[0], bcf_in)
-bcf_out.add_info_to_header({"ID": "AF",
+vcf_in.add_info_to_header({"ID": "AF",
                             "Number": "1",
                             "Description": "True tumor allele frequency",
                             "Type": "Float"})
-bcf_out.add_info_to_header({"ID": "SOMATIC",
+vcf_in.add_info_to_header({"ID": "SOMATIC",
                             "Number": "0",
                             "Description": "Somatic mutation",
                             "Type": "Flag"})
+bcf_out = Writer(snakemake.output[0], vcf_in)
 
 for rec in vcf_in:
     if len(rec.ALT) > 1:
@@ -40,6 +41,7 @@ for rec in vcf_in:
     vaf = sum(fraction * subclone_vaf(rec.genotypes[idx])
               for idx, fraction in zip(subclone_idx, fractions))
 
+    print(vaf)
     rec.INFO["AF"] = vaf
     rec.INFO["SOMATIC"] = (subclone_vaf(rec.genotypes[control_idx]) == 0.0 and
                            vaf > 0.0)
