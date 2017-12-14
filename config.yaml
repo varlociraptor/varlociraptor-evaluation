@@ -52,18 +52,19 @@ ref:
 caller:
   delly:
     params: ""
-    is_adhoc: true
+    info:
+      - END
   #pindel:
   #  params: "-M 1 -B 10000 -H 10 -x 4 -I false -a 2"
   lancet:
     params: ""
-    is_adhoc: false
+    score: QUAL
     info:
       - SOMATIC
   prosic:
     params: "--pileup-window 342 --flat-priors --adjust-mapq --indel-window 100 --max-indel-overlap 25"
     delly: "--exclusive-end"
-    is_adhoc: false
+    score: PROB_SOMATIC
     info:
       - PROB_SOMATIC
       - PROB_GERMLINE

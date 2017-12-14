@@ -1,12 +1,12 @@
 import pandas as pd
 import numpy as np
+import seaborn as sns
 
 
 def load_variants(path, minlen, maxlen, vartype=None, constrain=None, min_af=None, max_af=None):
     variants = pd.read_table(path, header=[0, 1])
-
-    # omit sample information
     variants = variants["VARIANT"]
+
     variants.index = np.arange(variants.shape[0])
 
     # constrain type
@@ -22,7 +22,7 @@ def load_variants(path, minlen, maxlen, vartype=None, constrain=None, min_af=Non
 
     # constrain length
     if variants["SVLEN"].isnull().any():
-        if variants["END"].isnull().any():
+        if not (variants.columns == "END").any() or variants["END"].isnull().any():
             variants["SVLEN"] = (variants["ALT"].str.len() - variants["REF"].str.len()).abs()
             print("REF ALT comp")
         else:
@@ -65,5 +65,6 @@ def recall(calls, truth):
     recall = tp / t
     return recall
 
-
-colors = {caller: c for caller, c in zip(snakemake.config["callers"], sns.color_palette("colorblind", n_colors=len(snakemake.config["callers"])))}
+def get_colors(config):
+    callers = [caller for caller in config["caller"] if caller != "prosic"]
+    return {caller: c for caller, c in zip(callers, sns.color_palette("colorblind", n_colors=len(callers)))}
