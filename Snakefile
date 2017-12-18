@@ -36,18 +36,6 @@ def get_ref(wildcards):
     return config["ref"][ref]["fasta"]
 
 
-def get_targets(run):
-    non_prosic = [caller for caller in config["caller"] if caller != "prosic" and caller != "pindel"]
-    t = expand("adhoc-{caller}/{run}.all.bcf",
-               caller=non_prosic,
-               run=run)
-    t.extend(expand("default-lancet/{run}.all.bcf", run=run))
-    t.extend(expand("prosic-{caller}/{run}-{purity}.all.bcf",
-                    run=run, caller=non_prosic,
-                    purity=config["runs"][run]["purity"]))
-    return t
-
-
 wildcard_constraints:
     chrom="|".join(CHROMOSOMES),
     caller="|".join(config["caller"]),
@@ -60,12 +48,9 @@ wildcard_constraints:
 
 rule all:
     input:
-        [get_targets(run) for run in config["runs"] if run != "test"]
-
-
-rule test:
-    input:
-        get_targets("test")
+        expand("plots/precision-recall/simulated-bwa.{vartype}.{lenrange[0]}-{lenrange[1]}.svg",
+               lenrange=config["len-ranges"],
+               vartype=["INS", "DEL"])
 
 
 include: "rules/mapping.smk"

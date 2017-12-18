@@ -6,7 +6,8 @@ def subclone_vaf(gt):
     """Calculate subclone allele frequency"""
     if np.all(gt[:2] == [1, 1]):
         return 1.0
-    elif np.all(gt[:2] == [0, 1]) or np.all(gt[:2] == [1, 0]):
+    elif (np.all(gt[:2] == [0, 1]) or np.all(gt[:2] == [1, 0]) or
+          np.all(gt[:2] == [-1, 1]) or np.all(gt[:2] == [1, -1])):
         return 0.5
     else:
         return 0.0
@@ -23,14 +24,14 @@ control_idx = vcf_in.samples.index("Control")
 
 
 # Prepare writer
-vcf_in.add_info_to_header({"ID": "AF",
-                            "Number": "1",
-                            "Description": "True tumor allele frequency",
-                            "Type": "Float"})
-vcf_in.add_info_to_header({"ID": "SOMATIC",
-                            "Number": "0",
-                            "Description": "Somatic mutation",
-                            "Type": "Flag"})
+vcf_in.add_info_to_header({"ID": "TAF",
+                           "Number": "1",
+                           "Description": "True tumor allele frequency",
+                           "Type": "Float"})
+vcf_in.add_info_to_header({"ID": "NAF",
+                           "Number": "1",
+                           "Description": "True normal allele frequency",
+                           "Type": "Float"})
 bcf_out = Writer(snakemake.output[0], vcf_in)
 
 for rec in vcf_in:
@@ -38,13 +39,14 @@ for rec in vcf_in:
         raise ValueError("multiallelic sites are not supported at the moment")
 
     # calculate AF
-    vaf = sum(fraction * subclone_vaf(rec.genotypes[idx])
-              for idx, fraction in zip(subclone_idx, fractions))
+    tumor_vaf = sum(fraction * subclone_vaf(rec.genotypes[idx])
+                    for idx, fraction in zip(subclone_idx, fractions))
+    normal_vaf = subclone_vaf(rec.genotypes[control_idx])
 
-    print(vaf)
-    rec.INFO["AF"] = vaf
-    rec.INFO["SOMATIC"] = (subclone_vaf(rec.genotypes[control_idx]) == 0.0 and
-                           vaf > 0.0)
-    bcf_out.write_record(rec)
+    rec.INFO["TAF"] = tumor_vaf
+    rec.INFO["NAF"] = normal_vaf
+    # only keep somatic variants
+    if normal_vaf == 0.0 and tumor_vaf > 0.0:
+        bcf_out.write_record(rec)
 
 bcf_out.close()

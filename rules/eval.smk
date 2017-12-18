@@ -39,7 +39,7 @@ rule truth_to_tsv:
     conda:
         "../envs/rbt.yaml"
     shell:
-        "rbt vcf-to-txt --genotypes --info SOMATIC SVLEN SVTYPE AF < {input} > {output}"
+        "rbt vcf-to-txt --genotypes --info SOMATIC SVLEN SVTYPE TAF NAF < {input} > {output}"
 
 
 def get_info_tags(wildcards):

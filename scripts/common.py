@@ -10,15 +10,12 @@ def load_variants(path, minlen, maxlen, vartype=None, constrain=None, min_af=Non
     variants.index = np.arange(variants.shape[0])
 
     # constrain type
-    if variants["SVTYPE"].isnull().any():
-        if vartype == "DEL":
-            variants = variants[variants["REF"].str.len() > variants["ALT"].str.len()]
-        elif vartype == "INS":
-            variants = variants[variants["ALT"].str.len() > variants["REF"].str.len()]
-        else:
-            assert False, "Unsupported variant type"
+    if vartype == "DEL":
+        variants = variants[(variants["SVTYPE"].astype(str) == "DEL") | ((variants["REF"].str.len() > 1) & (variants["ALT"].str.len() == 1))]
+    elif vartype == "INS":
+        variants = variants[(variants["SVTYPE"].astype(str) == "INS") | ((variants["REF"].str.len() == 1) & (variants["ALT"].str.len() > 1))]
     else:
-        variants = variants[variants["SVTYPE"] == vartype]
+        assert False, "Unsupported variant type"
 
     # constrain length
     if variants["SVLEN"].isnull().any():
@@ -51,16 +48,19 @@ def load_variants(path, minlen, maxlen, vartype=None, constrain=None, min_af=Non
 
 def precision(calls):
     p = calls.shape[0]
-    matches = calls.loc[calls["MATCHING"] >= 0, "MATCHING"]
-    tp = matches.shape[0]
+    if p == 0:
+        return 1.0
+    tp = np.count_nonzero(calls.is_tp)
     precision = tp / p
     return precision
 
 
 def recall(calls, truth):
     p = calls.shape[0]
+    if p == 0:
+        return 0.0
     matches = calls.loc[calls.MATCHING.isin(truth.index), "MATCHING"]
-    tp = matches.unique().shape[0]
+    tp = calls[calls.is_tp].MATCHING.unique().size
     t = truth.shape[0]
     recall = tp / t
     return recall
