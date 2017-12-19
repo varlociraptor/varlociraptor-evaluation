@@ -27,7 +27,10 @@ def plot(calls, gammas, label, color, line=True, style=".-", invert=False):
     precisions = []
     alphas = []
     for alpha in ALPHAS:
-        gamma = gammas[alpha]
+        try:
+            gamma = gammas[alpha]
+        except KeyError:
+            continue
         if gamma == 0:
             continue
 
