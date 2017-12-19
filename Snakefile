@@ -48,7 +48,8 @@ wildcard_constraints:
 
 rule all:
     input:
-        expand("plots/precision-recall/simulated-bwa.{vartype}.{lenrange[0]}-{lenrange[1]}.svg",
+        expand("plots/{plt}/simulated-bwa.{vartype}.{lenrange[0]}-{lenrange[1]}.svg",
+               plt=["precision-recall", "fdr-control"],
                lenrange=config["len-ranges"],
                vartype=["INS", "DEL"])
 

@@ -47,3 +47,17 @@ rule merge_lancet:
         "../envs/tools.yaml"
     shell:
         "bcftools concat -Ob {input} > {output}"
+
+
+ruleorder: adhoc_lancet > adhoc_filter
+
+
+rule adhoc_lancet:
+    input:
+        "default-lancet/{run}.all.bcf"
+    output:
+        "adhoc-lancet/{run}.all.bcf"
+    params:
+        "-f PASS"
+    wrapper:
+        "0.19.3/bio/bcftools/view"

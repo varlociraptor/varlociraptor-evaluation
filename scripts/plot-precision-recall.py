@@ -8,6 +8,9 @@ import common
 import numpy as np
 
 
+MIN_CALLS = 10
+
+
 minlen = int(snakemake.wildcards.minlen)
 maxlen = int(snakemake.wildcards.maxlen)
 vartype = snakemake.wildcards.vartype
@@ -15,22 +18,29 @@ vartype = snakemake.wildcards.vartype
 truth = common.load_variants(snakemake.input.truth, minlen, maxlen, vartype=vartype)
 colors = common.get_colors(snakemake.config)
 
-def plot(calls, label, color, line=True, style="-"):
+def plot(calls, label, color, line=True, style="-", invert=False):
     calls = pd.read_table(calls)
+    if len(calls) < 10:
+        return
     if line:
         thresholds = calls.score.quantile(np.linspace(0.0, 1.0, 50))
         precision = []
         recall = []
         for t in thresholds:
-            c = calls[calls.score <= t]
+            if invert:
+                c = calls[calls.score >= t]
+            else:
+                c = calls[calls.score <= t]
             p = common.precision(c)
             r = common.recall(c, truth)
+            print(label, t, c.shape[0], p, r)
             precision.append(p)
             recall.append(r)
     else:
         precision = [common.precision(calls)]
         recall = [common.recall(calls, truth)]
         style = "."
+        print(label, calls.shape[0], precision, recall)
     plt.plot(recall, precision, style, color=color, label=label)
 
 
@@ -41,7 +51,7 @@ for calls, (caller, purity) in zip(snakemake.input.prosic_calls, product(snakema
     plot(calls, label, colors[caller])
 
 for calls, caller in zip(snakemake.input.default_calls, snakemake.params.default_callers):
-    plot(calls, caller, colors[caller], style=":")
+    plot(calls, caller, colors[caller], style=":", invert=snakemake.config["caller"][caller].get("invert", False))
 
 for calls, caller in zip(snakemake.input.adhoc_calls, snakemake.params.adhoc_callers):
     plot(calls, caller, colors[caller], line=False)

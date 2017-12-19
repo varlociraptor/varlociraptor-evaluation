@@ -39,9 +39,10 @@ rule prosic_control_fdr:
     input:
         "prosic-{caller}/{run}-{purity}.all.bcf"
     output:
-        "prosic-{caller}/{run}-{purity}.gamma.{type}.tsv"
+        "prosic-{caller}/{run}-{purity}.gamma.{type}.{minlen}-{maxlen}.tsv"
     # conda:
     #     "../envs/prosic.yaml"
     shell:
         "prosic control-fdr --event SOMATIC --var {wildcards.type} "
+        "--min-len {wildcards.minlen} --max-len {wildcards.maxlen} "
         "--method ev {input} > {output}"

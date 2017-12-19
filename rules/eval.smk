@@ -80,13 +80,13 @@ def get_callers(mode):
     elif mode == "default":
         callers = [caller for caller, p in config["caller"].items() if "score" in p and caller != "prosic"]
     elif mode == "adhoc":
-        callers = [caller for caller, p in config["caller"].items() if "score" not in p]
+        callers = [caller for caller, p in config["caller"].items() if p.get("adhoc", False) and caller != "prosic"]
     else:
         raise ValueError("Invalid mode: " + mode)
     return callers
 
 
-def get_calls(mode):
+def get_calls(mode, gammas=False):
     callers = get_callers(mode)
 
     def inner(wildcards):
@@ -96,7 +96,11 @@ def get_calls(mode):
         else:
             purity = ""
             sep = ""
-        return expand("matched-calls/{mode}-{caller}/{run}{sep}{purity}.{vartype}.{minlen}-{maxlen}.tsv", mode=mode, caller=callers, purity=purity, sep=sep, **wildcards)
+        pattern = "matched-calls/{mode}-{caller}/{run}{sep}{purity}.{vartype}.{minlen}-{maxlen}.tsv"
+        if gammas:
+            assert mode == "prosic"
+            pattern = "prosic-{caller}/{run}-{purity}.gamma.{vartype}.{minlen}-{maxlen}.tsv"
+        return expand(pattern, mode=mode, caller=callers, purity=purity, sep=sep, **wildcards)
 
     return inner
 
@@ -118,3 +122,19 @@ rule plot_precision_recall:
         "../envs/eval.yaml"
     script:
         "../scripts/plot-precision-recall.py"
+
+
+rule plot_fdr:
+    input:
+        prosic_calls=get_calls("prosic"),
+        truth=lambda wc: "truth/{dataset}.annotated.tsv".format(**config["runs"][wc.run]),
+        prosic_gammas=get_calls("prosic", gammas=True)
+    output:
+        "plots/fdr-control/{run}.{vartype}.{minlen}-{maxlen}.svg"
+    params:
+        prosic_callers=get_callers("prosic"),
+        purity=lambda wc: config["runs"][wc.run]["purity"]
+    conda:
+        "../envs/eval.yaml"
+    script:
+        "../scripts/plot-fdr-control.py"

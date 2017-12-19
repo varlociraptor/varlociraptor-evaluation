@@ -28,6 +28,15 @@ rule delly_concat:
         "0.17.4/bio/bcftools/concat"
 
 
+rule delly_samples:
+    output:
+        "resources/delly-samples.txt"
+    run:
+        with open(output[0], "w") as out:
+            print("tumor", "tumor", file=out)
+            print("normal", "control", file=out)
+
+
 ruleorder: delly_adhoc > adhoc_filter
 
 
@@ -38,8 +47,11 @@ rule delly_adhoc:
         samples="resources/delly-samples.txt"
     output:
         "adhoc-delly/{run}.all.bcf"
+    params:
+        tmp="adhoc-delly/{run}.all.tmp.bcf"
     conda:
         "../envs/delly.yaml"
     shell:
         "delly filter -m 0 -r 1.0 --samples {input.samples} "
-        "-o {output} {input.bcf}"
+        "-o {params.tmp} {input.bcf}; "
+        "bcftools view -f PASS -Ob {params.tmp} > {output}"

@@ -52,13 +52,19 @@ ref:
 caller:
   delly:
     params: ""
+    adhoc: true
+    filter: SOMATIC
     info:
       - END
+      - SOMATIC
   #pindel:
   #  params: "-M 1 -B 10000 -H 10 -x 4 -I false -a 2"
   lancet:
     params: ""
     score: QUAL
+    invert: true
+    filter: SOMATIC
+    adhoc: true
     info:
       - SOMATIC
   prosic:

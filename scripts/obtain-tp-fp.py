@@ -19,6 +19,11 @@ elif snakemake.wildcards.mode == "default":
 else:
     score = None
 
+if snakemake.wildcards.mode != "prosic":
+    filter = snakemake.config["caller"][snakemake.wildcards.caller].get("filter")
+    if filter:
+        calls = calls[calls[filter]]
+
 calls["score"] = calls[score] if score else np.nan
 
 calls.to_csv(snakemake.output[0], sep="\t")
