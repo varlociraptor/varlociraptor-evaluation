@@ -90,7 +90,10 @@ def get_calls(mode, gammas=False):
     callers = get_callers(mode)
 
     def inner(wildcards):
-        if mode == "prosic":
+        if wildcards.get("purity"):
+            purity = wildcards.purity
+            sep = "-"
+        elif mode == "prosic":
             purity = config["runs"][wildcards.run]["purity"]
             sep = "-"
         else:
@@ -100,7 +103,9 @@ def get_calls(mode, gammas=False):
         if gammas:
             assert mode == "prosic"
             pattern = "prosic-{caller}/{run}-{purity}.gamma.{vartype}.{minlen}-{maxlen}.tsv"
-        return expand(pattern, mode=mode, caller=callers, purity=purity, sep=sep, **wildcards)
+        return expand(pattern, mode=mode, caller=callers, purity=purity, sep=sep, 
+                      run=wildcards.run, vartype=wildcards.vartype, minlen=wildcards.minlen, 
+                      maxlen=wildcards.maxlen)
 
     return inner
 
@@ -138,3 +143,17 @@ rule plot_fdr:
         "../envs/eval.yaml"
     script:
         "../scripts/plot-fdr-control.py"
+
+
+rule plot_allelefreq:
+    input:
+        prosic_calls=get_calls("prosic"),
+        truth=lambda wc: "truth/{dataset}.annotated.tsv".format(**config["runs"][wc.run])
+    output:
+        "plots/allelefreqs/{run}-{purity}.{vartype}.{minlen}-{maxlen}.svg"
+    params:
+        prosic_callers=get_callers("prosic")
+    conda:
+        "../envs/eval.yaml"
+    script:
+        "../scripts/plot-allelefreq-estimation.py"

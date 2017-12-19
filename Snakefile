@@ -48,10 +48,15 @@ wildcard_constraints:
 
 rule all:
     input:
-        expand("plots/{plt}/simulated-bwa.{vartype}.{lenrange[0]}-{lenrange[1]}.svg",
+        expand("plots/{plt}/{run}.{vartype}.{lenrange[0]}-{lenrange[1]}.svg",
                plt=["precision-recall", "fdr-control"],
                lenrange=config["len-ranges"],
-               vartype=["INS", "DEL"])
+               vartype=["INS", "DEL"],
+               run=config["runs"]),
+        expand("plots/allelefreqs/{run[0]}-{run[1]}.{vartype}.{lenrange[0]}-{lenrange[1]}.svg",
+               lenrange=config["len-ranges"],
+               vartype=["INS", "DEL"],
+               run=[(name, purity) for name, p in config["runs"].items() for purity in p["purity"]])
 
 
 include: "rules/mapping.smk"
