@@ -1,7 +1,15 @@
+def get_prosic_input(ext):
+    def get_prosic_input(wildcards):
+        return "{prefix}{caller}/{run}.all{ext}".format(
+            prefix="" if "score" not in config["caller"][wildcards.caller] else "default-",
+            ext=ext, **wildcards)
+    return get_prosic_input
+
+
 rule prosic_call:
     input:
-        calls="{caller}/{run}.all.bcf",
-        idx="{caller}/{run}.all.bcf.csi",
+        calls=get_prosic_input(".bcf"),
+        idx=get_prosic_input(".bcf.csi"),
         ref=get_ref,
         bams=get_bams,
         bais=get_bais

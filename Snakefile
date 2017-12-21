@@ -77,3 +77,29 @@ rule index_bcf:
         "envs/bcftools.yaml"
     shell:
         "bcftools index {input}"
+
+
+def testcase_region(wildcards):
+    chrom, pos = wildcards.varpos.split(":")
+    pos = int(pos)
+    return "{}:{}-{}".format(chrom, pos - 1000, pos + 1000)
+
+
+rule testcase:
+    input:
+        bcf="matched-calls/prosic-{caller}/{run}-0.75.all.bcf",
+        bams=get_bams,
+        bais=get_bais
+    output:
+        vcf="testcase/{run}/{caller}-{varpos}/candidates.vcf",
+        tumor="testcase/{run}/{caller}-{varpos}/tumor.bam",
+        normal="testcase/{run}/{caller}-{varpos}/normal.bam"
+    params:
+        region=testcase_region
+    conda:
+        "envs/bcftools.yaml"
+    shell:
+        "bcftools index -f {input.bcf}; "
+        "bcftools view {input.bcf} {wildcards.varpos} > {output.vcf}; "
+        "samtools view -b {input.bams[0]} {params.region} > {output.tumor}; "
+        "samtools view -b {input.bams[1]} {params.region} > {output.normal}"
