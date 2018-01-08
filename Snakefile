@@ -79,6 +79,15 @@ rule index_bcf:
         "bcftools index {input}"
 
 
+rule rank_fps:
+    input:
+        "matched-calls/prosic-{caller}/{run}-0.75.{vartype}.{minlen}-{maxlen}.tsv"
+    output:
+        "ranked-fps/prosic-{caller}/{run}-0.75.{vartype}.{minlen}-{maxlen}.tsv"
+    shell:
+        "set +o pipefail; cut -f 9,2,3,17 {input} | grep False | sort -n -k3 > {output}"
+
+
 def testcase_region(wildcards):
     chrom, pos = wildcards.varpos.split(":")
     pos = int(pos)
