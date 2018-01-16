@@ -84,8 +84,10 @@ rule rank_fps:
         "matched-calls/prosic-{caller}/{run}-0.75.{vartype}.{minlen}-{maxlen}.tsv"
     output:
         "ranked-fps/prosic-{caller}/{run}-0.75.{vartype}.{minlen}-{maxlen}.tsv"
+    params:
+        cols=lambda wc: "9,2,3,17" if wc.caller == "delly" else "2,3,8,16"
     shell:
-        "set +o pipefail; cut -f 9,2,3,17 {input} | grep False | sort -n -k3 > {output}"
+        "set +o pipefail; cut -f {params.cols} {input} | grep False | sort -n -k3 > {output}"
 
 
 def testcase_region(wildcards):
