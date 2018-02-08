@@ -157,3 +157,14 @@ rule plot_allelefreq:
         "../envs/eval.yaml"
     script:
         "../scripts/plot-allelefreq-estimation.py"
+
+
+rule plot_softclips:
+    input:
+        get_bams
+    output:
+        "plots/softclips/{run}.svg"
+    conda:
+        "../envs/eval.yaml"
+    script:
+        "../scripts/bam-stats.py"

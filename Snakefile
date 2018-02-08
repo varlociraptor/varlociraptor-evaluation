@@ -98,7 +98,7 @@ def testcase_region(wildcards):
 
 rule testcase:
     input:
-        bcf="matched-calls/prosic-{caller}/{run}-0.75.all.bcf",
+        bcf=get_prosic_input(".bcf"),
         bams=get_bams,
         bais=get_bais
     output:

@@ -68,7 +68,7 @@ caller:
     info:
       - SOMATIC
   prosic:
-    params: "--pileup-window 342 --flat-priors --indel-window 100 --max-indel-overlap 25"
+    params: "--pileup-window 342 --flat-priors --indel-window 100 --max-indel-overlap 75"
     delly: "--exclusive-end"
     score: PROB_SOMATIC
     info:
