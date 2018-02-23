@@ -83,11 +83,12 @@ rule rank_fps:
     input:
         "matched-calls/prosic-{caller}/{run}-0.75.{vartype}.{minlen}-{maxlen}.tsv"
     output:
-        "ranked-fps/prosic-{caller}/{run}-0.75.{vartype}.{minlen}-{maxlen}.tsv"
+        "ranked-{type,[ft]}ps/prosic-{caller}/{run}-0.75.{vartype}.{minlen}-{maxlen}.tsv"
     params:
-        cols=lambda wc: "9,2,3,17" if wc.caller == "delly" else "2,3,8,16"
+        cols=lambda wc: "9,2,3,17" if wc.caller == "delly" else "2,3,8,16",
+        type=lambda wc: "False" if wc.type == "f" else "True"
     shell:
-        "set +o pipefail; cut -f {params.cols} {input} | grep False | sort -n -k3 > {output}"
+        "set +o pipefail; cut -f {params.cols} {input} | grep {params.type} | sort -n -k3 > {output}"
 
 
 def testcase_region(wildcards):
