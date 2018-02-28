@@ -114,4 +114,5 @@ rule testcase:
         "bcftools index -f {input.bcf}; "
         "bcftools view {input.bcf} {wildcards.varpos} > {output.vcf}; "
         "samtools view -b {input.bams[0]} {params.region} > {output.tumor}; "
-        "samtools view -b {input.bams[1]} {params.region} > {output.normal}"
+        "samtools view -b {input.bams[1]} {params.region} > {output.normal}; "
+        "samtools index {output.tumor}; samtools index {output.normal}"
