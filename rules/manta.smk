@@ -15,7 +15,7 @@ rule manta:
         "benchmarks/manta/{run}.tsv"
     conda:
         "../envs/manta.yaml"
-    threads: 8
+    threads: 16
     shell:
         "configManta.py --tumorBam {input.samples[0]} --normalBam {input.samples[1]} "
         "--referenceFasta {input.ref} --runDir {params.dir}; "
