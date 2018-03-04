@@ -19,11 +19,22 @@ rule bpi:
 ruleorder: bpi_adhoc > adhoc_filter
 
 
-rule bpi_adhoc:
+rule bpi_convert:
     input:
         "bpi/{run}.all.vcf"
     output:
         "bpi/{run}.all.bcf"
+    params:
+        "-Ob"
+    wrapper:
+        "0.22.0/bio/bcftools/view"
+
+
+rule bpi_adhoc:
+    input:
+        "bpi/{run}.all.bcf"
+    output:
+        "adhoc-bpi/{run}.all.bcf"
     params:
         "-i INFO/SOMATIC -f PASS -Ob"
     wrapper:

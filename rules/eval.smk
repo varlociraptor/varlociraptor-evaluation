@@ -76,7 +76,8 @@ rule obtain_tp_fp:
 
 def get_callers(mode):
     if mode == "prosic":
-        callers = [caller for caller in config["caller"] if caller != "prosic"]
+        blacklist = config["caller"]["prosic"]["blacklist"]
+        callers = [caller for caller in config["caller"] if caller != "prosic" and caller not in blacklist]
     elif mode == "default":
         callers = [caller for caller, p in config["caller"].items() if "score" in p and caller != "prosic"]
     elif mode == "adhoc":

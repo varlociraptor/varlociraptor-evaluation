@@ -76,15 +76,15 @@ caller:
     info:
       - SOMATIC
       - SOMATICSCORE
-  strelka:
-    params: ""
-    score: QSI
-    invert: true
-    filter: SOMATIC
-    adhoc: true
-    info:
-      - SOMATIC
-      - QSI
+#  strelka:
+#    params: ""
+#    score: QSI
+#    invert: true
+#    filter: SOMATIC
+#    adhoc: true
+#    info:
+#      - SOMATIC
+#      - QSI
   bpi:
     params: ""
     filter: SOMATIC
@@ -93,6 +93,8 @@ caller:
       - SOMATIC
   prosic:
     params: "--pileup-window 342 --flat-priors --indel-window 100 --max-indel-overlap 75"
+    blacklist:
+      - bpi
     delly: "--exclusive-end"
     score: PROB_SOMATIC
     info:
