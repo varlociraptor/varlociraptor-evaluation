@@ -54,4 +54,4 @@ rule delly_adhoc:
     shell:
         "delly filter -m 0 -r 1.0 --samples {input.samples} "
         "-o {params.tmp} {input.bcf}; "
-        "bcftools view -f PASS -Ob {params.tmp} > {output}"
+        "bcftools view -i INFO/SOMATIC -f PASS -Ob {params.tmp} > {output}"
