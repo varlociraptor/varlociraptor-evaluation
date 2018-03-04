@@ -17,9 +17,9 @@ rule manta:
         "../envs/manta.yaml"
     threads: 16
     shell:
-        "configManta.py --tumorBam {input.samples[0]} --normalBam {input.samples[1]} "
+        "(configManta.py --tumorBam {input.samples[0]} --normalBam {input.samples[1]} "
         "--referenceFasta {input.ref} --runDir {params.dir}; "
-        "{params.dir}/runWorkflow.py -m local -j {threads}"
+        "{params.dir}/runWorkflow.py -m local -j {threads}) > {log} 2>&1"
 
 
 rule manta_default:

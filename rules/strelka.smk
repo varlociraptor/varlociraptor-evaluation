@@ -17,9 +17,9 @@ rule strelka:
         "../envs/strelka.yaml"
     threads: 8
     shell:
-        "configureStrelkaSomaticWorkflow.py --tumorBam {input.samples[0]} --normalBam {input.samples[1]} "
+        "(configureStrelkaSomaticWorkflow.py --tumorBam {input.samples[0]} --normalBam {input.samples[1]} "
         "--referenceFasta {input.ref} --runDir {params.dir} --indelCandidates {input.manta}; "
-        "{params.dir}/runWorkflow.py -m local -j {threads}"
+        "{params.dir}/runWorkflow.py -m local -j {threads}) > {log} 2>&1"
 
 
 rule strelka_default:

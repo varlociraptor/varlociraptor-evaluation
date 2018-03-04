@@ -12,8 +12,8 @@ rule bpi:
     conda:
         "../envs/bpi.yaml"
     shell:
-        "break-point-inspector -vcf {input.manta} -ref {input.samples[1]} -tumor {input.samples[0]} "
-        "-output_vcf {output}"
+        "(break-point-inspector -vcf {input.manta} -ref {input.samples[1]} -tumor {input.samples[0]} "
+        "-output_vcf {output}) > {log} 2>&1"
 
 
 ruleorder: bpi_adhoc > adhoc_filter
