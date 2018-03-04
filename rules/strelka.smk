@@ -15,8 +15,9 @@ rule strelka:
         "benchmarks/strelka/{run}.tsv"
     conda:
         "../envs/strelka.yaml"
-    threads: 8
+    threads: 16
     shell:
+        "rm -rf {params.dir}; "
         "(configureStrelkaSomaticWorkflow.py --tumorBam {input.samples[0]} --normalBam {input.samples[1]} "
         "--referenceFasta {input.ref} --runDir {params.dir} --indelCandidates {input.manta}; "
         "{params.dir}/runWorkflow.py -m local -j {threads}) > {log} 2>&1"
