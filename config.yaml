@@ -76,15 +76,15 @@ caller:
     info:
       - SOMATIC
       - SOMATICSCORE
-#  strelka:
-#    params: ""
-#    score: QSI
-#    invert: true
-#    filter: SOMATIC
-#    adhoc: true
-#    info:
-#      - SOMATIC
-#      - QSI
+  strelka:
+    params: ""
+    score: QSI
+    invert: true
+    filter: SOMATIC
+    adhoc: true
+    info:
+      - SOMATIC
+      - QSI
   bpi:
     params: ""
     filter: SOMATIC
