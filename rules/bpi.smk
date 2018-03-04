@@ -16,7 +16,7 @@ rule bpi:
         "-output_vcf {output}"
 
 
-ruleorder bpi_adhoc > adhoc_filter
+ruleorder: bpi_adhoc > adhoc_filter
 
 
 rule bpi_adhoc:

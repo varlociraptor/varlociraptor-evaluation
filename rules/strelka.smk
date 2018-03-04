@@ -34,7 +34,7 @@ rule strelka_default:
         "0.22.0/bio/bcftools/concat"
 
 
-ruleorder strelka_adhoc > adhoc_filter
+ruleorder: strelka_adhoc > adhoc_filter
 
 
 rule strelka_adhoc:

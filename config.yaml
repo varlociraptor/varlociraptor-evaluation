@@ -67,30 +67,30 @@ caller:
     adhoc: true
     info:
       - SOMATIC
-  manta:
-    params: ""
-    score: SOMATICSCORE
-    invert: true
-    filter: SOMATIC
-    adhoc: true
-    info:
-      - SOMATIC
-      - SOMATICSCORE
-  strelka:
-    params: ""
-    score: QSI
-    invert: true
-    filter: SOMATIC
-    adhoc: true
-    info:
-      - SOMATIC
-      - QSI
-  bpi:
-    params: ""
-    filter: SOMATIC
-    adhoc: true
-    info:
-      - SOMATIC
+#  manta:
+#    params: ""
+#    score: SOMATICSCORE
+#    invert: true
+#    filter: SOMATIC
+#    adhoc: true
+#    info:
+#      - SOMATIC
+#      - SOMATICSCORE
+#  strelka:
+#    params: ""
+#    score: QSI
+#    invert: true
+#    filter: SOMATIC
+#    adhoc: true
+#    info:
+#      - SOMATIC
+#      - QSI
+#  bpi:
+#    params: ""
+#    filter: SOMATIC
+#    adhoc: true
+#    info:
+#      - SOMATIC
   prosic:
     params: "--pileup-window 342 --flat-priors --indel-window 100 --max-indel-overlap 75"
     delly: "--exclusive-end"

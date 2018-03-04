@@ -20,7 +20,7 @@ colors = common.get_colors(snakemake.config)
 
 def plot(calls, gammas, label, color, line=True, style=".-", invert=False):
     calls = pd.read_table(calls)
-    gammas = pd.read_table(gammas, index_col=0, squeeze=True)
+    gammas = pd.read_table(gammas, index_col=0, squeeze=True, dtype=np.float64)
     if len(calls) < 10:
         return
 

@@ -5,7 +5,8 @@ rule manta:
         bais=get_bais
     output:
         "manta/{run}/results/variants/candidateSV.vcf.gz",
-        "manta/{run}/results/variants/somaticSV.vcf.gz"
+        "manta/{run}/results/variants/somaticSV.vcf.gz",
+        "manta/{run}/results/variants/candidateSmallIndels.vcf.gz"
     params:
         dir=lambda w, output: os.path.dirname(os.path.dirname(os.path.dirname(output[0])))
     log:
@@ -32,7 +33,7 @@ rule manta_default:
         "0.22.0/bio/bcftools/view"
 
 
-ruleorder manta_adhoc > adhoc_filter
+ruleorder: manta_adhoc > adhoc_filter
 
 
 rule manta_adhoc:
