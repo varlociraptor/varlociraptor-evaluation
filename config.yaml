@@ -73,6 +73,7 @@ caller:
     invert: true
     filter: SOMATIC
     adhoc: true
+    useraw: true
     info:
       - SOMATIC
       - SOMATICSCORE

@@ -25,8 +25,8 @@ rule strelka:
 
 rule strelka_default:
     input:
-        "strelka/{run}/results/variants/somatic.indels.vcf.gz",
-        "strelka/{run}/results/variants/somatic.snvs.vcf.gz"
+        calls=["strelka/{run}/results/variants/somatic.indels.vcf.gz",
+               "strelka/{run}/results/variants/somatic.snvs.vcf.gz"]
     output:
         "default-strelka/{run}.all.bcf"
     params:

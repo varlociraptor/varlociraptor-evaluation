@@ -1,7 +1,11 @@
 def get_prosic_input(ext):
     def get_prosic_input(wildcards):
+        conf = config["caller"][wildcards.caller]
+        prefix = ""
+        if "score" in conf and not conf.get("useraw"):
+            prefix = "default-"
         return "{prefix}{caller}/{run}.all{ext}".format(
-            prefix="" if "score" not in config["caller"][wildcards.caller] else "default-",
+            prefix=prefix,
             ext=ext, **wildcards)
     return get_prosic_input
 

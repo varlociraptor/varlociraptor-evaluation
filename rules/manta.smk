@@ -23,6 +23,17 @@ rule manta:
         "{params.dir}/runWorkflow.py -m local -j {threads}) > {log} 2>&1"
 
 
+rule manta_raw:
+    input:
+        "manta/{run}/results/variants/candidateSV.vcf.gz"
+    output:
+        "manta/{run}.all.bcf"
+    params:
+        "-Ob"
+    wrapper:
+        "0.22.0/bio/bcftools/view"
+
+
 rule manta_default:
     input:
         "manta/{run}/results/variants/somaticSV.vcf.gz"
