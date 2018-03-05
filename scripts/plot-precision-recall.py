@@ -34,6 +34,8 @@ def plot(calls, label, color, line=True, style="-", invert=False):
             p = common.precision(c)
             r = common.recall(c, truth)
             print(label, t, c.shape[0], p, r)
+            if len(c) < 10:
+                print(c)
             precision.append(p)
             recall.append(r)
     else:
@@ -57,7 +59,7 @@ for calls, caller in zip(snakemake.input.adhoc_calls, snakemake.params.adhoc_cal
     plot(calls, caller, colors[caller], line=False)
 
 sns.despine()
-plt.legend()
+plt.legend(loc="lower right")
 plt.xlabel("recall")
 plt.ylabel("precision")
 plt.savefig(snakemake.output[0], bbox_inches="tight")

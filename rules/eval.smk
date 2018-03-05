@@ -55,11 +55,12 @@ rule calls_to_tsv:
     output:
         "matched-calls/{mode}-{caller}/{run}.all.tsv"
     params:
-        info=get_info_tags
+        info=get_info_tags,
+        gt=lambda wc: "--genotypes" if config["caller"][wc.caller].get("genotypes") else ""
     conda:
         "../envs/rbt.yaml"
     shell:
-        "rbt vcf-to-txt --genotypes --info {params.info} MATCHING < {input} > {output}"
+        "rbt vcf-to-txt {params.gt} --info {params.info} MATCHING < {input} > {output}"
 
 
 rule obtain_tp_fp:
@@ -169,3 +170,16 @@ rule plot_softclips:
         "../envs/eval.yaml"
     script:
         "../scripts/bam-stats.py"
+
+
+rule fig_fdr:
+    input:
+        expand("plots/fdr-control/{{run}}.{{vartype}}.{lenrange[0]}-{lenrange[1]}.svg",
+               lenrange=config["len-ranges"])
+    output:
+        "figs/{run}.{vartype}.fdr.svg"
+    conda:
+        "../envs/sgutils.yaml"
+    script:
+        "../scripts/fig-fdr.py"
+               

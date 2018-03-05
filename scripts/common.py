@@ -11,14 +11,20 @@ def load_variants(path, minlen, maxlen, vartype=None, constrain=None, min_af=Non
 
     # constrain type
     if vartype == "DEL":
-        variants = variants[(variants["SVTYPE"].astype(str) == "DEL") | ((variants["REF"].str.len() > 1) & (variants["ALT"].str.len() == 1))]
+        if "SVTYPE" in variants.columns:
+            variants = variants[variants["SVTYPE"].astype(str) == "DEL"]
+        else:
+            variants = variants[(variants["REF"].str.len() > 1) & (variants["ALT"].str.len() == 1)]
     elif vartype == "INS":
-        variants = variants[(variants["SVTYPE"].astype(str) == "INS") | ((variants["REF"].str.len() == 1) & (variants["ALT"].str.len() > 1))]
+        if "SVTYPE" in variants.columns:
+            variants = variants[variants["SVTYPE"].astype(str) == "INS"]
+        else:
+            variants = variants[(variants["REF"].str.len() == 1) & (variants["ALT"].str.len() > 1)]
     else:
         assert False, "Unsupported variant type"
 
     # constrain length
-    if variants["SVLEN"].isnull().any():
+    if "SVLEN" not in variants.columns or variants["SVLEN"].isnull().any():
         if not (variants.columns == "END").any() or variants["END"].isnull().any():
             variants["SVLEN"] = (variants["ALT"].str.len() - variants["REF"].str.len()).abs()
             print("REF ALT comp")
@@ -67,4 +73,6 @@ def recall(calls, truth):
 
 def get_colors(config):
     callers = [caller for caller in config["caller"] if caller != "prosic"]
-    return {caller: c for caller, c in zip(callers, sns.color_palette("colorblind", n_colors=len(callers)))}
+    palette = sns.color_palette("colorblind", n_colors=len(callers))
+    palette = sns.color_palette("tab10", n_colors=len(callers))
+    return {caller: c for caller, c in zip(callers, palette)}
