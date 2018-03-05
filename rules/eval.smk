@@ -179,7 +179,7 @@ rule fig_fdr:
     output:
         "figs/{run}.{vartype}.fdr.svg"
     conda:
-        "../envs/sgutils.yaml"
+        "../envs/eval.yaml"
     script:
         "../scripts/fig-fdr.py"
                
