@@ -3,4 +3,4 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - rust-bio-tools =0.1.3
+  - rust-bio-tools =0.2.1

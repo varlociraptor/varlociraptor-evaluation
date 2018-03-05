@@ -59,7 +59,7 @@ rule calls_to_tsv:
     conda:
         "../envs/rbt.yaml"
     shell:
-        "rbt vcf-to-txt --genotypes --info {params.info} MATCHING SVLEN SVTYPE < {input} > {output}"
+        "rbt vcf-to-txt --genotypes --info {params.info} MATCHING < {input} > {output}"
 
 
 rule obtain_tp_fp:
