@@ -49,15 +49,15 @@ rule merge_lancet:
         "bcftools concat -Ob {input} > {output}"
 
 
-ruleorder: adhoc_lancet > adhoc_filter
+ruleorder: lancet_adhoc > adhoc_filter
 
 
-rule adhoc_lancet:
+rule lancet_adhoc:
     input:
         "default-lancet/{run}.all.bcf"
     output:
         "adhoc-lancet/{run}.all.bcf"
     params:
-        "-f PASS"
+        "-f PASS -i INFO/SOMATIC"
     wrapper:
         "0.19.3/bio/bcftools/view"

@@ -18,6 +18,7 @@ vartype = snakemake.wildcards.vartype
 truth = common.load_variants(snakemake.input.truth, minlen, maxlen, vartype=vartype)
 colors = common.get_colors(snakemake.config)
 
+
 def plot(calls, gammas, label, color, line=True, style=".-", invert=False):
     calls = pd.read_table(calls)
     gammas = pd.read_table(gammas, index_col=0, squeeze=True, dtype=np.float64)

@@ -11,15 +11,17 @@ def load_variants(path, minlen, maxlen, vartype=None, constrain=None, min_af=Non
 
     # constrain type
     if vartype == "DEL":
+        isdel = (variants["REF"].str.len() > 1) & (variants["ALT"].str.len() == 1)
         if "SVTYPE" in variants.columns:
-            variants = variants[variants["SVTYPE"].astype(str) == "DEL"]
+            variants = variants[(variants["SVTYPE"].astype(str) == "DEL") | (isdel & variants["SVTYPE"].isnull())]
         else:
-            variants = variants[(variants["REF"].str.len() > 1) & (variants["ALT"].str.len() == 1)]
+            variants = variants[isdel]
     elif vartype == "INS":
+        isins = (variants["REF"].str.len() == 1) & (variants["ALT"].str.len() > 1)
         if "SVTYPE" in variants.columns:
-            variants = variants[variants["SVTYPE"].astype(str) == "INS"]
+            variants = variants[(variants["SVTYPE"].astype(str) == "INS") | (isins & variants["SVTYPE"].isnull())]
         else:
-            variants = variants[(variants["REF"].str.len() == 1) & (variants["ALT"].str.len() > 1)]
+            variants = variants[isins]
     else:
         assert False, "Unsupported variant type"
 
