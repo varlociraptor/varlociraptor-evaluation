@@ -88,10 +88,12 @@ rule rank_fps:
     output:
         "ranked-{type,[ft]}ps/prosic-{caller}/{run}-0.75.{vartype}.{minlen}-{maxlen}.tsv"
     params:
-        cols=lambda wc: "9,2,3,17" if wc.caller == "delly" else "2,3,8,16",
-        type=lambda wc: "False" if wc.type == "f" else "True"
-    shell:
-        "set +o pipefail; cut -f {params.cols} {input} | grep {params.type} | sort -n -k3 > {output}"
+        type=lambda wc: False if wc.type == "f" else True
+    run:
+        calls = pd.read_table(input[0])
+        calls = calls[calls.is_tp == params.type]
+        calls.sort_values("PROB_SOMATIC", ascending=not params.type, inplace=True)
+        calls[["CHROM", "POS", "PROB_SOMATIC", "is_tp"]].to_csv(output[0], sep="\t")
 
 
 def testcase_region(wildcards):
@@ -114,7 +116,6 @@ rule testcase:
     conda:
         "envs/bcftools.yaml"
     shell:
-        "bcftools index -f {input.bcf}; "
         "bcftools view {input.bcf} {wildcards.varpos} > {output.vcf}; "
         "samtools view -b {input.bams[0]} {params.region} > {output.tumor}; "
         "samtools view -b {input.bams[1]} {params.region} > {output.normal}; "

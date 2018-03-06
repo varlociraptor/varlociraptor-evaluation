@@ -46,8 +46,9 @@ for calls, caller in zip(snakemake.input.prosic_calls, snakemake.params.prosic_c
     label = "prosic+{}".format(caller)
     calls = pd.read_table(calls)
     calls["caller"] = label
-    all_calls.append(calls)
-    all_colors.append(colors[caller])
+    if not calls.empty:
+        all_calls.append(calls)
+        all_colors.append(colors[caller])
 
 all_calls = pd.concat(all_calls)
 

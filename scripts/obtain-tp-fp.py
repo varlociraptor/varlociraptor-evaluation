@@ -8,7 +8,7 @@ maxlen = int(snakemake.wildcards.maxlen)
 vartype = snakemake.wildcards.vartype
 
 truth = load_variants(snakemake.input.truth, minlen, maxlen, vartype=vartype)
-calls = load_variants(snakemake.input.calls, minlen, maxlen, vartype=vartype, constrain=truth)
+calls = load_variants(snakemake.input.calls, minlen, maxlen, vartype=vartype)
 
 calls["is_tp"] = calls["MATCHING"] >= 0
 
@@ -18,11 +18,6 @@ elif snakemake.wildcards.mode == "default":
     score = snakemake.config["caller"][snakemake.wildcards.caller]["score"]
 else:
     score = None
-
-if snakemake.wildcards.mode != "prosic":
-    filter = snakemake.config["caller"][snakemake.wildcards.caller].get("filter")
-    if filter:
-        calls = calls[calls[filter]]
 
 calls["score"] = calls[score] if score else np.nan
 

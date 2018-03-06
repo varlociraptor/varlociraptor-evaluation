@@ -110,7 +110,7 @@ caller:
       - CASE_AF
       - CONTROL_AF
 
-vcf-match-params: "--max-dist 50 --max-len-diff 10"
+vcf-match-params: "--max-dist 50 --max-len-diff 50"
 
 len-ranges:
   - [1, 30]
