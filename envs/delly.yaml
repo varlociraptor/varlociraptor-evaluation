@@ -4,4 +4,4 @@ channels:
   - defaults
 dependencies:
   - delly =0.7.7
-  - bcftools =1.5
+  - bcftools =1.6
