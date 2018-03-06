@@ -19,7 +19,7 @@ truth = common.load_variants(snakemake.input.truth, minlen, maxlen, vartype=vart
 colors = common.get_colors(snakemake.config)
 
 
-def plot(calls, label, color, line=True, style="-", invert=False):
+def plot(calls, label, color, line=True, style="-", invert=False, markersize=4):
     calls = pd.read_table(calls)
     if len(calls) < 10:
         return
@@ -44,7 +44,7 @@ def plot(calls, label, color, line=True, style="-", invert=False):
         recall = [common.recall(calls, truth)]
         style = "."
         print(label, calls.shape[0], precision, recall)
-    plt.plot(recall, precision, style, color=color, label=label)
+    plt.plot(recall, precision, style, color=color, label=label, markersize=markersize)
 
 
 for calls, (caller, purity) in zip(snakemake.input.prosic_calls, product(snakemake.params.prosic_callers, snakemake.params.purity)):
@@ -57,7 +57,7 @@ for calls, caller in zip(snakemake.input.default_calls, snakemake.params.default
     plot(calls, caller, colors[caller], style=":", invert=snakemake.config["caller"][caller].get("invert", False))
 
 for calls, caller in zip(snakemake.input.adhoc_calls, snakemake.params.adhoc_callers):
-    plot(calls, caller, colors[caller], line=False)
+    plot(calls, caller, colors[caller], markersize=10, line=False)
 
 sns.despine()
 plt.legend(loc="lower right")
