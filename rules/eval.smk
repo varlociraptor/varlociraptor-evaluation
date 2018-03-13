@@ -25,8 +25,8 @@ rule match_variants:
         "matched-calls/{mode}-{caller}/{run}.all.bcf"
     params:
         config["vcf-match-params"]
-#    conda:
-#        "../envs/rbt.yaml"
+    conda:
+        "../envs/rbt.yaml"
     shell:
         "rbt vcf-match {params} {input.truth} < {input.calls} > {output}"
 
