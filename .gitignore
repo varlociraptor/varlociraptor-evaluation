@@ -24,3 +24,4 @@ scripts/.snakemake*
 !plots
 !plots/*
 !plots/*/*.svg
+resources/delly-samples.txt
