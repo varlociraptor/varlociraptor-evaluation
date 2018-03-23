@@ -111,6 +111,8 @@ rule testcase:
         vcf="testcase/{run}/{caller}-{varpos}/candidates.vcf",
         tumor="testcase/{run}/{caller}-{varpos}/tumor.bam",
         normal="testcase/{run}/{caller}-{varpos}/normal.bam"
+    wildcard_constraints:
+        caller=".+"
     params:
         region=testcase_region
     conda:

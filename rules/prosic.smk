@@ -1,5 +1,9 @@
 def get_prosic_input(ext):
     def get_prosic_input(wildcards):
+        if wildcards.caller == "truth":
+            return "truth/{dataset}.annotated.bcf".format(
+                dataset=config["runs"][wildcards.run]["dataset"])
+
         conf = config["caller"][wildcards.caller]
         prefix = ""
         if "score" in conf and not conf.get("useraw"):
