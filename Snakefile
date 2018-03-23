@@ -59,6 +59,11 @@ rule all:
                run=[(name, purity) for name, p in config["runs"].items() for purity in p["purity"]])
 
 
+rule all_isizes:
+    input:
+        expand("tables/insert-size/{dataset}.{tissue}.txt", dataset=config["datasets"], tissue=tissues)
+
+
 include: "rules/mapping.smk"
 include: "rules/delly.smk"
 #include: "rules/pindel.smk"
@@ -69,6 +74,7 @@ include: "rules/bpi.smk"
 include: "rules/prosic.smk"
 include: "rules/adhoc.smk"
 include: "rules/eval.smk"
+include: "rules/stats.smk"
 
 
 rule index_bcf:

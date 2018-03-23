@@ -1,14 +1,3 @@
-rule get_bam:
-    input:
-        config["gdc-manifest"]
-    output:
-        temp(expand("gdc-data/{bam}", bam=gdc_manifest.filename))
-    conda:
-        "envs/gdc-client.yaml"
-    shell:
-        "gdc-client download --debug -m {input}"
-
-
 rule prepare_bam:
     input:
         lambda wc: config["datasets"][wc.dataset][wc.tissue]["bam"]

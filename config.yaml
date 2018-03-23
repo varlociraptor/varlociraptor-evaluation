@@ -1,21 +1,11 @@
 gdc-manifest: gdc_manifest_20171012_060907.txt
 
 runs:
-  #simulated-qtip:
-  #  mapper: qtip
-  #  dataset: simulated
-  #  ref: hg18
-  #  purity: [0.75]
   simulated-bwa:
     mapper: bwa
     dataset: simulated
     ref: hg18
     purity: [0.75]
-  #test:
-  #  mapper: qtip
-  #  dataset: test
-  #  ref: hg18
-  #  purity: [0.75]
 
 datasets:
   simulated:
@@ -29,16 +19,55 @@ datasets:
       mean: 312
       sd: 15
     truth: ../data/simulated-truth.indels.vcf
-  test:
+  TCGA-V4-A9E9:
+    type: Uveal Melanoma
+    sex: male
     tumor:
-      bam: .test/tumor.bam
-      name: Cancer80
+      bam: ../data/tcga/bams/C1760.TCGA-V4-A9E9-01A-11D-A39W-08.3_gdc_realn.bam
     normal:
-      bam: .test/normal.bam
-      name: Control
-    isize:
-      mean: 312
-      sd: 15
+      bam: ../data/tcga/bams/C1760.TCGA-V4-A9E9-10A-01D-A39Z-08.1_gdc_realn.bam
+  TCGA-44-4112-1:
+    type: Lung Adenocarcinoma
+    sex: female
+    tumor:
+      bam: ../data/tcga/bams/C347.TCGA-44-4112-01A-01D-1105-08.5_gdc_realn.bam
+    normal:
+      bam: ../data/tcga/bams/C347.TCGA-44-4112-11A-01D-1105-08.12_gdc_realn.bam
+  TCGA-44-4112-2:
+    type: Lung Adenocarcinoma
+    sex: female
+    tumor:
+      bam: ../data/tcga/bams/C347.TCGA-44-4112-01A-01D-1458-08.6_gdc_realn.bam
+    normal:
+      bam: ../data/tcga/bams/C347.TCGA-44-4112-11A-21D-A27T-08.2_gdc_realn.bam
+  TCGA-44-4112-3:
+    type: Lung Adenocarcinoma
+    sex: female
+    tumor:
+      bam: ../data/tcga/bams/C347.TCGA-44-4112-01A-01D-A271-08.5_gdc_realn.bam
+    normal:
+      bam: ../data/tcga/bams/C347.TCGA-44-4112-11A-31D-A27T-08.2_gdc_realn.bam
+  TCGA-44-4112-4:
+    type: Lung Adenocarcinoma
+    sex: female
+    tumor:
+      bam: ../data/tcga/bams/C347.TCGA-44-4112-01A-22D-A27T-08.2_gdc_realn.bam
+    normal:
+      bam: ../data/tcga/bams/C347.TCGA-44-4112-11A-01D-1105-08.12_gdc_realn.bam
+  TCGA-BL-A13J-1:
+    type: Bladder Urothelial Carcinoma
+    sex: male
+    tumor:
+      bam: ../data/tcga/bams/C500.TCGA-BL-A13J-01A-11D-A10S-08.7_gdc_realn.bam
+    normal:
+      bam: ../data/tcga/bams/C500.TCGA-BL-A13J-10A-01D-A10S-08.7_gdc_realn.bam
+  TCGA-BL-A13J-2:
+    type: Bladder Urothelial Carcinoma
+    sex: male
+    tumor:
+      bam: ../data/tcga/bams/C500.TCGA-BL-A13J-01A-11D-A271-08.2_gdc_realn.bam
+    normal:
+      bam: ../data/tcga/bams/C500.TCGA-BL-A13J-10A-01D-A271-08.2_gdc_realn.bam
 
 ref:
   hg18:
