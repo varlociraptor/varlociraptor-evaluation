@@ -7,7 +7,7 @@ rule prepare_bam:
         "-n"
     threads: 8 
     wrapper:
-        "0.18.0/bio/samtools/sort"
+        "0.22.0/bio/samtools/sort"
 
 
 rule bam2fq:
@@ -95,10 +95,23 @@ rule samtools_sort:
     input:
         "mapped-{mapper}/{dataset}.{tissue}.{ref}.bam"
     output:
-        protected("mapped-{mapper}/{dataset}.{tissue}.{ref}.sorted.bam")
+        temp("mapped-{mapper}/{dataset}.{tissue}.{ref}.sorted.pre.bam")
     threads: 8
     wrapper:
-        "0.17.4/bio/samtools/sort"
+        "0.22.0/bio/samtools/sort"
+
+
+rule mark_duplicates:
+    input:
+        "mapped-{mapper}/{dataset}.{tissue}.{ref}.sorted.pre.bam"
+    output:
+        protected("mapped-{mapper}/{dataset}.{tissue}.{ref}.sorted.bam")
+    params:
+        "-Xmx2g VALIDATION_STRINGENCY=LENIENT"
+    log:
+        "logs/picard/dedup/{mapper}/{dataset}.{tissue}.{ref}.log"
+    wrapper:
+        "0.22.0/bio/picard/markduplicates"
 
 
 rule samtools_index:
@@ -107,4 +120,6 @@ rule samtools_index:
     output:
         "mapped-{mapper}/{dataset}.{tissue}.{ref}.sorted.bam.bai"
     wrapper:
-        "0.18.0/bio/samtools/index"
+        "0.22.0/bio/samtools/index"
+
+

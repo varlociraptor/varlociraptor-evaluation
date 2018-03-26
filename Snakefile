@@ -31,6 +31,15 @@ def get_bais(wildcards):
     return ["{}.bai".format(f) for f in get_bams(wildcards)]
 
 
+def get_stats(wildcards):
+    run = config["runs"][wildcards.run]
+    return expand("stats-{mapper}/{dataset}.{tissue}.{ref}.stats.txt",
+                  dataset=run["dataset"],
+                  tissue=tissues,
+                  ref=run["ref"],
+                  mapper=run["mapper"])
+
+
 def get_ref(wildcards):
     ref = config["runs"][wildcards.run]["ref"]
     return config["ref"][ref]["fasta"]

@@ -20,11 +20,11 @@ rule prosic_call:
         idx=get_prosic_input(".bcf.csi"),
         ref=get_ref,
         bams=get_bams,
-        bais=get_bais
+        bais=get_bais,
+        stats=get_stats
     output:
         temp("prosic-{caller}/{run}-{purity}.{chrom}.bcf")
     params:
-        isize=lambda wc: config["datasets"][config["runs"][wc.run]["dataset"]]["isize"],
         caller=lambda wc: config["caller"]["prosic"].get(wc.caller, ""),
         chrom_prefix=lambda wc: config["ref"][config["runs"][wc.run]["ref"]].get("chrom_prefix", "") + wc.chrom
     log:
@@ -36,7 +36,7 @@ rule prosic_call:
     shell:
         "bcftools view {input.calls} {params.chrom_prefix} | "
         "prosic call-tumor-normal {input.bams} {input.ref} "
-        "--isize-mean {params.isize[mean]} --isize-sd {params.isize[sd]} "
+        "--stats {input.stats} "
         "--purity {wildcards.purity} "
         "{config[caller][prosic][params]} {params.caller} "
         "> {output} 2> {log}"

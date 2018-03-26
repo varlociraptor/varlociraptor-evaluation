@@ -1,15 +1,10 @@
-rule insert_size_dist:
+rule samtools_stats:
     """Calculate insert size distribution."""
     input:
-        lambda wc: config["datasets"][wc.dataset][wc.tissue]["bam"]
+        "mapped-{mapper}/{dataset}.{tissue}.{ref}.sorted.bam"
     output:
-        txt="tables/insert-size/{dataset}.{tissue}.txt",
-        pdf="plots/insert-size/{dataset}.{tissue}.pdf"
+        "stats-{mapper}/{dataset}.{tissue}.{ref}.stats.txt"
     log:
-        "logs/picard/insert-size/{dataset}.{tissue}.log"
-    params:
-        "VALIDATION_STRINGENCY=LENIENT "
-        "METRIC_ACCUMULATION_LEVEL=null "
-        "METRIC_ACCUMULATION_LEVEL=SAMPLE "
+        "logs/samtools/stats/{mapper}.{dataset}.{tissue}.{ref}.log"
     wrapper:
-        "0.22.0/bio/picard/collectinsertsizemetrics"
+        "0.22.0/bio/samtools/stats"
