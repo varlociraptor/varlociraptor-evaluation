@@ -65,7 +65,8 @@ rule all:
         expand("plots/allelefreqs/{run}.{vartype}.{lenrange[0]}-{lenrange[1]}.svg",
                lenrange=config["len-ranges"],
                vartype=["INS", "DEL"],
-               run=config["plots"]["known-truth"])
+               run=config["plots"]["known-truth"]),
+        expand("plots/concordance/{id}.concordance.svg", id=config["plots"]["concordance"])
 
 
 include: "rules/mapping.smk"

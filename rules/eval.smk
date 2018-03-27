@@ -185,7 +185,7 @@ rule fig_fdr:
 
 def get_concordance_calls(mode, files=True):
     def inner(wildcards):
-        runs = config["concordance"][wildcards.id]
+        runs = config["plots"]["concordance"][wildcards.id]
         if files:
             callers = get_callers(mode)
             return expand("concordance-matched-calls/{mode}-{caller}/{id}.{i}.tsv",
@@ -198,19 +198,10 @@ def get_concordance_calls(mode, files=True):
     return inner
 
 
-def get_concordance_match_calls(wildcards):
-    runs = config["concordance"][wc.id]
-    if mode == "prosic":
-        purity = ["-{}".format(config["runs"][run]["purity"]) for run in runs]
-    else:
-        purity = ["" for _ in runs]
-
-    return expand("{{mode}}-{{caller}}/{run}{purity}.all.bcf", run=runs, purity=purity)
-
-
 rule concordance_match:
     input:
-        get_concordance_match_calls
+        lambda wc: expand("{mode}-{caller}/{run}.all.bcf",
+                          run=config["plots"]["concordance"][wc.id], **wc)
     output:
         "concordance-matched-calls/{mode}-{caller}/{id}.{i}.bcf"
     params:
