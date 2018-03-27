@@ -1,3 +1,7 @@
+from itertools import product
+from collections import namedtuple
+
+
 rule annotate_truth:
     input:
         lambda wc: config["datasets"][wc.dataset]["truth"]
@@ -88,10 +92,18 @@ def get_callers(mode):
     return callers
 
 
-def get_calls(mode, gammas=False):
-    callers = get_callers(mode)
+CallerRun = namedtuple("CallerRun", ["caller", "run"])
 
+
+def get_caller_runs(mode, runs):
+    callers = get_callers(mode)
+    return [CallerRun(c, r) for c, r in product(callers, runs)]
+
+
+def get_calls(mode, gammas=False, runs=None):
     def inner(wildcards):
+        caller_runs = get_caller_runs(mode, [wildcards.run] if not runs else runs)
+
         if wildcards.get("purity"):
             purity = wildcards.purity
             sep = "-"
@@ -101,12 +113,12 @@ def get_calls(mode, gammas=False):
         else:
             purity = ""
             sep = ""
-        pattern = "matched-calls/{mode}-{caller}/{run}{sep}{purity}.{vartype}.{minlen}-{maxlen}.tsv"
+        pattern = "matched-calls/{mode}-{run.caller}/{run.run}{sep}{purity}.{vartype}.{minlen}-{maxlen}.tsv"
         if gammas:
             assert mode == "prosic"
-            pattern = "prosic-{caller}/{run}-{purity}.gamma.{vartype}.{minlen}-{maxlen}.tsv"
-        return expand(pattern, mode=mode, caller=callers, purity=purity, sep=sep, 
-                      run=wildcards.run, vartype=wildcards.vartype, minlen=wildcards.minlen, 
+            pattern = "prosic-{run.caller}/{run.run}-{purity}.gamma.{vartype}.{minlen}-{maxlen}.tsv"
+        return expand(pattern, mode=mode, run=caller_runs, purity=purity, sep=sep, 
+                      vartype=wildcards.vartype, minlen=wildcards.minlen, 
                       maxlen=wildcards.maxlen)
 
     return inner
@@ -182,4 +194,70 @@ rule fig_fdr:
         "../envs/eval.yaml"
     script:
         "../scripts/fig-fdr.py"
-               
+
+
+def get_concordance_calls(mode, files=True):
+    def inner(wildcards):
+        runs = config["concordance"][wildcards.id]
+        if files:
+            callers = get_callers(mode)
+            return expand("concordance-matched-calls/{mode}-{caller}/{id}.{i}.tsv",
+                          mode=mode,
+                          caller=callers,
+                          id=wildcards.id,
+                          i=[0, 1])
+        else:
+            return get_caller_runs(mode, runs)
+    return inner
+
+
+def get_concordance_match_calls(wildcards):
+    if mode == "prosic":
+        purity = ["-{}".format(config["runs"][wildcards.run]["purity"][0])]
+
+
+rule concordance_match:
+    input:
+        lambda wc: expand("{{mode}}-{{caller}}/{run}.all.bcf", run=config["concordance"][wc.id])
+    output:
+        "concordance-matched-calls/{mode}-{caller}/{id}.{i}.bcf"
+    params:
+        match=config["vcf-match-params"],
+        bcfs=lambda wc, input: (input[int(wc.i)], input[1 - int(wc.i)])
+    conda:
+        "../envs/rbt.yaml"
+    shell:
+        "rbt vcf-match {params.match} {params.bcfs[0]} < {params.bcfs[1]} > {output}"
+
+
+rule concordance_to_tsv:
+    input:
+        "concordance-matched-calls/{mode}-{caller}/{id}.{i}.bcf"
+    output:
+        "concordance-matched-calls/{mode}-{caller}/{id}.{i}.tsv"
+    params:
+        info=get_info_tags,
+        gt=lambda wc: "--genotypes" if config["caller"][wc.caller].get("genotypes") else ""
+    conda:
+        "../envs/rbt.yaml"
+    shell:
+        "rbt vcf-to-txt {params.gt} --info {params.info} MATCHING < {input} > {output}"
+
+
+rule plot_concordance:
+    input:
+        prosic_calls=get_concordance_calls("prosic"),
+        default_calls=get_concordance_calls("default"),
+        adhoc_calls=get_concordance_calls("adhoc")
+    output:
+        "plots/concordance/{id}.concordance.svg"
+    params:
+        prosic_runs=get_concordance_calls("prosic", files=False),
+        default_runs=get_concordance_calls("default", files=False),
+        adhoc_runs=get_concordance_calls("adhoc", files=False),
+        len_ranges=config["len-ranges"]
+    conda:
+        "../envs/eval.yaml"
+    script:
+        "scripts/plot-concordance.py"
+

@@ -3,7 +3,7 @@ import numpy as np
 import seaborn as sns
 
 
-def load_variants(path, minlen, maxlen, vartype=None, constrain=None, min_af=None, max_af=None):
+def load_variants(path, minlen=None, maxlen=None, vartype=None, constrain=None, min_af=None, max_af=None):
     variants = pd.read_table(path, header=[0, 1])
     variants = variants["VARIANT"]
 
@@ -34,7 +34,8 @@ def load_variants(path, minlen, maxlen, vartype=None, constrain=None, min_af=Non
             print("use END")
             variants["SVLEN"] = variants["END"] - variants["POS"]
             print(variants[["SVLEN", "POS", "END", "MATCHING"]].head())
-    variants = variants[(variants["SVLEN"].abs() >= minlen) & (variants["SVLEN"].abs() < maxlen)]
+    if minlen is not None and maxlen is not None:
+        variants = variants[(variants["SVLEN"].abs() >= minlen) & (variants["SVLEN"].abs() < maxlen)]
 
     # only autosomes
     variants = variants[(variants["CHROM"] != "chrX") & (variants["CHROM"] != "chrY")]

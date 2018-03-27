@@ -61,16 +61,11 @@ rule all:
                plt=["precision-recall", "fdr-control"],
                lenrange=config["len-ranges"],
                vartype=["INS", "DEL"],
-               run=config["runs"]),
+               run=config["plots"]["known-truth"]),
         expand("plots/allelefreqs/{run[0]}-{run[1]}.{vartype}.{lenrange[0]}-{lenrange[1]}.svg",
                lenrange=config["len-ranges"],
                vartype=["INS", "DEL"],
-               run=[(name, purity) for name, p in config["runs"].items() for purity in p["purity"]])
-
-
-rule all_isizes:
-    input:
-        expand("tables/insert-size/{dataset}.{tissue}.txt", dataset=config["datasets"], tissue=tissues)
+               run=[(name, p["purity"]) for name, p in config["runs"].items() if name in config["plots"]["known-truth"]])
 
 
 include: "rules/mapping.smk"
