@@ -212,13 +212,18 @@ def get_concordance_calls(mode, files=True):
 
 
 def get_concordance_match_calls(wildcards):
+    runs = config["concordance"][wc.id]
     if mode == "prosic":
-        purity = ["-{}".format(config["runs"][wildcards.run]["purity"][0])]
+        purity = ["-{}".format(config["runs"][run]["purity"]) for run in runs]
+    else:
+        purity = ["" for _ in runs]
+
+    return expand("{{mode}}-{{caller}}/{run}{purity}.all.bcf", run=runs, purity=purity)
 
 
 rule concordance_match:
     input:
-        lambda wc: expand("{{mode}}-{{caller}}/{run}.all.bcf", run=config["concordance"][wc.id])
+        get_concordance_match_calls
     output:
         "concordance-matched-calls/{mode}-{caller}/{id}.{i}.bcf"
     params:
