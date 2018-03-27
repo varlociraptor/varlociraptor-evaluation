@@ -14,11 +14,7 @@ rule annotate_truth:
 
 
 def get_truth(wildcards, ext="bcf"):
-    if wildcards.mode == "prosic":
-        run, _, purity = wildcards.run.rpartition("-")
-    else:
-        run = wildcards.run
-    return "truth/{dataset}.annotated.{ext}".format(ext=ext, **config["runs"][run])
+    return "truth/{dataset}.annotated.{ext}".format(ext=ext, **config["runs"][wildcards.run])
 
 
 rule match_variants:
@@ -104,20 +100,11 @@ def get_calls(mode, gammas=False, runs=None):
     def inner(wildcards):
         caller_runs = get_caller_runs(mode, [wildcards.run] if not runs else runs)
 
-        if wildcards.get("purity"):
-            purity = wildcards.purity
-            sep = "-"
-        elif mode == "prosic":
-            purity = config["runs"][wildcards.run]["purity"]
-            sep = "-"
-        else:
-            purity = ""
-            sep = ""
-        pattern = "matched-calls/{mode}-{run.caller}/{run.run}{sep}{purity}.{vartype}.{minlen}-{maxlen}.tsv"
+        pattern = "matched-calls/{mode}-{run.caller}/{run.run}.{vartype}.{minlen}-{maxlen}.tsv"
         if gammas:
             assert mode == "prosic"
-            pattern = "prosic-{run.caller}/{run.run}-{purity}.gamma.{vartype}.{minlen}-{maxlen}.tsv"
-        return expand(pattern, mode=mode, run=caller_runs, purity=purity, sep=sep, 
+            pattern = "prosic-{run.caller}/{run.run}.gamma.{vartype}.{minlen}-{maxlen}.tsv"
+        return expand(pattern, mode=mode, run=caller_runs, 
                       vartype=wildcards.vartype, minlen=wildcards.minlen, 
                       maxlen=wildcards.maxlen)
 
@@ -164,7 +151,7 @@ rule plot_allelefreq:
         prosic_calls=get_calls("prosic"),
         truth=lambda wc: "truth/{dataset}.annotated.tsv".format(**config["runs"][wc.run])
     output:
-        "plots/allelefreqs/{run}-{purity}.{vartype}.{minlen}-{maxlen}.svg"
+        "plots/allelefreqs/{run}.{vartype}.{minlen}-{maxlen}.svg"
     params:
         prosic_callers=get_callers("prosic")
     conda:

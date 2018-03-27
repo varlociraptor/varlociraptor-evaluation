@@ -50,7 +50,7 @@ wildcard_constraints:
     caller="|".join(config["caller"]),
     tissue="tumor|normal",
     ref="|".join(config["ref"]),
-    #run="|".join(config["runs"]),
+    run="|".join(config["runs"]),
     purity="[01]\.[0-9]+",
     mode="prosic|adhoc|default"
 
@@ -62,10 +62,10 @@ rule all:
                lenrange=config["len-ranges"],
                vartype=["INS", "DEL"],
                run=config["plots"]["known-truth"]),
-        expand("plots/allelefreqs/{run[0]}-{run[1]}.{vartype}.{lenrange[0]}-{lenrange[1]}.svg",
+        expand("plots/allelefreqs/{run}.{vartype}.{lenrange[0]}-{lenrange[1]}.svg",
                lenrange=config["len-ranges"],
                vartype=["INS", "DEL"],
-               run=[(name, p["purity"]) for name, p in config["runs"].items() if name in config["plots"]["known-truth"]])
+               run=config["plots"]["known-truth"])
 
 
 include: "rules/mapping.smk"

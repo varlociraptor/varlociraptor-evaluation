@@ -23,39 +23,40 @@ rule prosic_call:
         bais=get_bais,
         stats=get_stats
     output:
-        temp("prosic-{caller}/{run}-{purity}.{chrom}.bcf")
+        temp("prosic-{caller}/{run}.{chrom}.bcf")
     params:
         caller=lambda wc: config["caller"]["prosic"].get(wc.caller, ""),
-        chrom_prefix=lambda wc: config["ref"][config["runs"][wc.run]["ref"]].get("chrom_prefix", "") + wc.chrom
+        chrom_prefix=lambda wc: config["ref"][config["runs"][wc.run]["ref"]].get("chrom_prefix", "") + wc.chrom,
+        purity=lambda wc: config["runs"][wc.run]["purity"]
     log:
-        "logs/prosic-{caller}/{run}-{purity}.{chrom}.log"
+        "logs/prosic-{caller}/{run}.{chrom}.log"
     benchmark:
-        "benchmarks/prosic-{caller}/{run}-{purity}.{chrom}.tsv"
+        "benchmarks/prosic-{caller}/{run}.{chrom}.tsv"
     # conda:
     #     "../envs/prosic.yaml"
     shell:
         "bcftools view {input.calls} {params.chrom_prefix} | "
         "prosic call-tumor-normal {input.bams} {input.ref} "
         "--stats {input.stats} "
-        "--purity {wildcards.purity} "
+        "--purity {params.purity} "
         "{config[caller][prosic][params]} {params.caller} "
         "> {output} 2> {log}"
 
 
 rule prosic_merge:
     input:
-        expand("prosic-{{caller}}/{{run}}-{{purity}}.{chrom}.bcf", chrom=CHROMOSOMES)
+        expand("prosic-{{caller}}/{{run}}.{chrom}.bcf", chrom=CHROMOSOMES)
     output:
-        "prosic-{caller}/{run}-{purity}.all.bcf"
+        "prosic-{caller}/{run}.all.bcf"
     wrapper:
         "0.19.1/bio/bcftools/concat"
 
 
 rule prosic_control_fdr:
     input:
-        "prosic-{caller}/{run}-{purity}.all.bcf"
+        "prosic-{caller}/{run}.all.bcf"
     output:
-        "prosic-{caller}/{run}-{purity}.gamma.{type}.{minlen}-{maxlen}.tsv"
+        "prosic-{caller}/{run}.gamma.{type}.{minlen}-{maxlen}.tsv"
     # conda:
     #     "../envs/prosic.yaml"
     shell:
