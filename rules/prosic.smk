@@ -37,7 +37,7 @@ rule prosic_call:
     shell:
         "bcftools view {input.calls} {params.chrom_prefix} | "
         "prosic call-tumor-normal {input.bams} {input.ref} "
-        "--stats {input.stats} "
+        "--tumor-stats {input.stats[0]} --normal-stats {input.stats[1]} "
         "--purity {params.purity} "
         "{config[caller][prosic][params]} {params.caller} "
         "> {output} 2> {log}"

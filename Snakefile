@@ -55,6 +55,9 @@ wildcard_constraints:
     mode="prosic|adhoc|default"
 
 
+target_concordance = expand("plots/concordance/{id}.concordance.svg", id=config["plots"]["concordance"])
+
+
 rule all:
     input:
         expand("plots/{plt}/{run}.{vartype}.{lenrange[0]}-{lenrange[1]}.svg",
@@ -66,7 +69,11 @@ rule all:
                lenrange=config["len-ranges"],
                vartype=["INS", "DEL"],
                run=config["plots"]["known-truth"]),
-        expand("plots/concordance/{id}.concordance.svg", id=config["plots"]["concordance"])
+        target_concordance
+
+rule all_concordance:
+    input:
+        target_concordance
 
 
 include: "rules/mapping.smk"
