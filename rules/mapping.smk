@@ -15,12 +15,12 @@ rule bam2fq:
         "reads/{dataset}.{tissue}.namesorted.bam"
     output:
         m1="reads/{dataset}.{tissue}.1.fastq",
-        m2="reads/{dataset}.{tissue}.2.fastq"
-        #mixed=temp("reads/{dataset}.{tissue}.fastq")
+        m2="reads/{dataset}.{tissue}.2.fastq",
+        mixed=temp("reads/{dataset}.{tissue}.fastq")
     conda:
         "../envs/tools.yaml"
     shell:
-        "samtools bam2fq {input} -1 {output.m1} -2 {output.m2} "
+        "samtools bam2fq {input} -1 {output.m1} -2 {output.m2} -0 {output.mixed}"
 
 
 rule bwa_index:
@@ -105,7 +105,8 @@ rule mark_duplicates:
     input:
         "mapped-{mapper}/{dataset}.{tissue}.{ref}.sorted.pre.bam"
     output:
-        protected("mapped-{mapper}/{dataset}.{tissue}.{ref}.sorted.bam")
+        bam=protected("mapped-{mapper}/{dataset}.{tissue}.{ref}.sorted.bam"),
+        metrics="mapped-{mapper}/{dataset}.{tissue}.{ref}.markdup.metrics.txt"
     params:
         "-Xmx2g VALIDATION_STRINGENCY=LENIENT"
     log:
