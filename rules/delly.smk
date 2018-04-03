@@ -7,7 +7,7 @@ rule delly:
         "delly/{run}.{type,(DEL|DUP|INV|TRA|INS)}.bcf"
     params:
         vartype="{type}", # variant type to call
-        extra=config["caller"]["delly"]["params"]
+        extra=get_caller_params("delly")
     log:
         "logs/delly/{run}.{type}.log"
     benchmark:

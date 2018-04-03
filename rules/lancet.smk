@@ -1,5 +1,8 @@
 def get_whole_chrom_region(wildcards, input):
-    chrom = "chr" + wildcards.chrom
+    if config["runs"][wildcards.run]["ref"] == "hg18":
+        chrom = "chr" + wildcards.chrom
+    else:
+        chrom = wildcards.chrom
     return chrom
 
 
@@ -12,7 +15,7 @@ rule lancet:
         temp("lancet/{run}/chr{chrom}.vcf")
     params:
         region=get_whole_chrom_region,
-        extra=config["caller"]["lancet"]["params"]
+        extra=get_caller_params("lancet")
     log:
         "logs/lancet/{run}.chr{chrom}.log"
     benchmark:

@@ -11,31 +11,49 @@ runs:
     ref: hg38
     purity: 1.0
     dataset: TCGA-44-4112-1
+    params:
+      strelka: --exome
+      manta: --exome
   TCGA-44-4112-2-bwa:
     mapper: bwa
     ref: hg38
     purity: 1.0
     dataset: TCGA-44-4112-2
+    params:
+      strelka: --exome
+      manta: --exome
   TCGA-44-4112-3-bwa:
     mapper: bwa
     ref: hg38
     purity: 1.0
     dataset: TCGA-44-4112-3
+    params:
+      strelka: --exome
+      manta: --exome
   TCGA-44-4112-4-bwa:
     mapper: bwa
     ref: hg38
     purity: 1.0
     dataset: TCGA-44-4112-4
+    params:
+      strelka: --exome
+      manta: --exome
   TCGA-BL-A13J-1-bwa:
     mapper: bwa
     ref: hg38
     purity: 1.0
     dataset: TCGA-BL-A13J-1
+    params:
+      strelka: --exome
+      manta: --exome
   TCGA-BL-A13J-2-bwa:
     mapper: bwa
     ref: hg38
     purity: 1.0
     dataset: TCGA-BL-A13J-2
+    params:
+      strelka: --exome
+      manta: --exome
   
 
 datasets:

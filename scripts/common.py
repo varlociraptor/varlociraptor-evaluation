@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import seaborn as sns
+import math
 
 
 def load_variants(path, minlen=None, maxlen=None, vartype=None, constrain=None, min_af=None, max_af=None):
@@ -79,3 +80,7 @@ def get_colors(config):
     palette = sns.color_palette("colorblind", n_colors=len(callers))
     palette = sns.color_palette("tab10", n_colors=len(callers))
     return {caller: c for caller, c in zip(callers, palette)}
+
+
+def phred_scale(prob):
+    return -10 * math.log10(prob)

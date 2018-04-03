@@ -88,23 +88,20 @@ def get_callers(mode):
     return callers
 
 
-CallerRun = namedtuple("CallerRun", ["caller", "run"])
-
-
 def get_caller_runs(mode, runs):
     callers = get_callers(mode)
-    return [CallerRun(c, r) for c, r in product(callers, runs)]
+    return [(c, r) for c, r in product(callers, runs)]
 
 
 def get_calls(mode, gammas=False, runs=None):
     def inner(wildcards):
         caller_runs = get_caller_runs(mode, [wildcards.run] if not runs else runs)
 
-        pattern = "matched-calls/{mode}-{run.caller}/{run.run}.{vartype}.{minlen}-{maxlen}.tsv"
+        pattern = "matched-calls/{mode}-{caller_run[0]}/{caller_run[1]}.{vartype}.{minlen}-{maxlen}.tsv"
         if gammas:
             assert mode == "prosic"
-            pattern = "prosic-{run.caller}/{run.run}.gamma.{vartype}.{minlen}-{maxlen}.tsv"
-        return expand(pattern, mode=mode, run=caller_runs, 
+            pattern = "prosic-{caller_run[0]}/{caller_run[1]}.gamma.{vartype}.{minlen}-{maxlen}.tsv"
+        return expand(pattern, mode=mode, caller_run=caller_runs, 
                       vartype=wildcards.vartype, minlen=wildcards.minlen, 
                       maxlen=wildcards.maxlen)
 
@@ -233,14 +230,15 @@ rule plot_concordance:
         default_calls=get_concordance_calls("default"),
         adhoc_calls=get_concordance_calls("adhoc")
     output:
-        "plots/concordance/{id}.concordance.svg"
+        "plots/concordance/{id}.{vartype}.concordance.svg"
     params:
         prosic_runs=get_concordance_calls("prosic", files=False),
         default_runs=get_concordance_calls("default", files=False),
         adhoc_runs=get_concordance_calls("adhoc", files=False),
-        len_ranges=config["len-ranges"]
+        len_ranges=config["len-ranges"],
+        runs=lambda wc: config["plots"]["concordance"][wc.id]
     conda:
         "../envs/eval.yaml"
     script:
-        "scripts/plot-concordance.py"
+        "../scripts/plot-concordance.py"
 

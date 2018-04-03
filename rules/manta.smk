@@ -8,7 +8,8 @@ rule manta:
         "manta/{run}/results/variants/somaticSV.vcf.gz",
         "manta/{run}/results/variants/candidateSmallIndels.vcf.gz"
     params:
-        dir=lambda w, output: os.path.dirname(os.path.dirname(os.path.dirname(output[0])))
+        dir=lambda w, output: os.path.dirname(os.path.dirname(os.path.dirname(output[0]))),
+        extra=get_caller_params("manta")
     log:
         "logs/manta/{run}.log"
     benchmark:
@@ -18,7 +19,7 @@ rule manta:
     threads: 16
     shell:
         "rm -rf {params.dir}; "
-        "(configManta.py --tumorBam {input.samples[0]} --normalBam {input.samples[1]} "
+        "(configManta.py {params.extra} --tumorBam {input.samples[0]} --normalBam {input.samples[1]} "
         "--referenceFasta {input.ref} --runDir {params.dir}; "
         "{params.dir}/runWorkflow.py -m local -j {threads}) > {log} 2>&1"
 

@@ -45,6 +45,13 @@ def get_ref(wildcards):
     return config["ref"][ref]["fasta"]
 
 
+def get_caller_params(caller):
+    def inner(wildcards):
+        return "{} {}".format(config["caller"][caller].get("params", ""),
+                              config["runs"][wildcards.run].get("params", dict()).get(caller, ""))
+    return inner
+
+
 wildcard_constraints:
     chrom="|".join(CHROMOSOMES),
     caller="|".join(config["caller"]),
@@ -55,7 +62,7 @@ wildcard_constraints:
     mode="prosic|adhoc|default"
 
 
-target_concordance = expand("plots/concordance/{id}.concordance.svg", id=config["plots"]["concordance"])
+target_concordance = expand("plots/concordance/{id}.{vartype}.concordance.svg", id=config["plots"]["concordance"], vartype=["INS", "DEL"])
 
 
 rule all:

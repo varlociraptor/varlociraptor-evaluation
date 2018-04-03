@@ -8,7 +8,8 @@ rule strelka:
         "strelka/{run}/results/variants/somatic.snvs.vcf.gz",
         "strelka/{run}/results/variants/somatic.indels.vcf.gz"
     params:
-        dir=lambda w, output: os.path.dirname(os.path.dirname(os.path.dirname(output[0])))
+        dir=lambda w, output: os.path.dirname(os.path.dirname(os.path.dirname(output[0]))),
+        extra=get_caller_params("strelka")
     log:
         "logs/strelka/{run}.log"
     benchmark:
@@ -18,7 +19,7 @@ rule strelka:
     threads: 16
     shell:
         "rm -rf {params.dir}; "
-        "(configureStrelkaSomaticWorkflow.py --tumorBam {input.samples[0]} --normalBam {input.samples[1]} "
+        "(configureStrelkaSomaticWorkflow.py {params.extra} --tumorBam {input.samples[0]} --normalBam {input.samples[1]} "
         "--referenceFasta {input.ref} --runDir {params.dir} --indelCandidates {input.manta}; "
         "{params.dir}/runWorkflow.py -m local -j {threads}) > {log} 2>&1"
 
