@@ -31,7 +31,7 @@ rule lancet:
 
 rule fix_lancet:
     input:
-        header="resources/lancet_header.txt",
+        header=lambda w: "resources/lancet.{ref}.header.txt".format(config["runs"][w.run]["ref"]),
         vcf="lancet/{run}/chr{chrom}.vcf"
     output:
         temp("lancet/{run}/chr{chrom}.fixed.vcf")

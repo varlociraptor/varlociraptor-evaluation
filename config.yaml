@@ -207,8 +207,8 @@ plots:
     #TCGA-44-4112-2:
     #  - TCGA-44-4112-3-bwa
     #  - TCGA-44-4112-4-bwa
-    #TCGA-BL-A13J:
-    #  - TCGA-BL-A13J-1-bwa
-    #  - TCGA-BL-A13J-2-bwa
+    TCGA-BL-A13J:
+      - TCGA-BL-A13J-1-bwa
+      - TCGA-BL-A13J-2-bwa
   known-truth:
     - simulated-bwa
