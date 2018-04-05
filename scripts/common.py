@@ -7,6 +7,7 @@ import math
 def load_variants(path, minlen=None, maxlen=None, vartype=None, constrain=None, min_af=None, max_af=None):
     variants = pd.read_table(path, header=[0, 1])
     variants = variants["VARIANT"]
+    variants["CHROM"] = variants["CHROM"].astype(str)
 
     variants.index = np.arange(variants.shape[0])
 
@@ -39,7 +40,7 @@ def load_variants(path, minlen=None, maxlen=None, vartype=None, constrain=None, 
         variants = variants[(variants["SVLEN"].abs() >= minlen) & (variants["SVLEN"].abs() < maxlen)]
 
     # only autosomes
-    variants = variants[(variants["CHROM"] != "chrX") & (variants["CHROM"] != "chrY")]
+    variants = variants[variants["CHROM"].str.match(r"(chr)?[0-9]+")]
 
     if constrain is not None:
         valid = (variants["MATCHING"] < 0) | (variants["MATCHING"].isin(constrain.index))
