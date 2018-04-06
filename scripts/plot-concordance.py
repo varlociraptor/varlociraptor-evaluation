@@ -43,6 +43,7 @@ def jaccard(calls):
     if len(run0) < 50 and len(run1) < 50:
         return None
     common = min(matching(run0), matching(run1))
+    print(calls.caller.iloc[0], calls.shape, len(run0), len(run1), common)
     return common / (len(run0) + len(run1) - common)
 
 
@@ -53,9 +54,10 @@ for label, calls in all_calls.groupby("label"):
         d = pd.DataFrame({"jaccard": [jaccard(calls[calls.len <= l]) for l in lens],
                           "len": lens})
         d = d[~pd.isnull(d.jaccard)]
+        d = d[d.len <= 250]
         return d
     if label.startswith("prosic"):
-        thresholds = [common.phred_scale(p) for p in [0.999999999, 0.9999, 0.999, 0.99, 0.95]]
+        thresholds = [common.phred_scale(p) for p in [0.999999999999, 0.999999999, 0.9999, 0.999, 0.99, 0.95]]
         #thresholds = calls.PROB_SOMATIC.quantile(np.linspace(0.0, 1.0, 5))
         for t in thresholds:
             c = calls[calls.PROB_SOMATIC <= t]

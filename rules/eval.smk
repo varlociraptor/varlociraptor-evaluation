@@ -195,6 +195,14 @@ def get_concordance_calls(mode, files=True):
     return inner
 
 
+def get_depths(wildcards):
+    """Returns depth files for the two runs defined by the given concordance id."""
+    runs = [config["runs"][r] for r in config["plots"]["concordance"][wildcards.id]]
+    return expand("stats-{run[mapper]}/{run[dataset]}.{tissue}.{run[ref]}.depth.per-base.bed.gz",
+                  run=runs,
+                  tissue=tissues)
+
+
 rule concordance_match:
     input:
         lambda wc: expand("{mode}-{caller}/{run}.all.bcf",
@@ -204,8 +212,8 @@ rule concordance_match:
     params:
         match=config["vcf-match-params"],
         bcfs=lambda wc, input: (input[int(wc.i)], input[1 - int(wc.i)])
-    conda:
-        "../envs/rbt.yaml"
+    #conda:
+    #    "../envs/rbt.yaml"
     shell:
         "rbt vcf-match {params.match} {params.bcfs[0]} < {params.bcfs[1]} > {output}"
 
@@ -228,7 +236,8 @@ rule plot_concordance:
     input:
         prosic_calls=get_concordance_calls("prosic"),
         default_calls=get_concordance_calls("default"),
-        adhoc_calls=get_concordance_calls("adhoc")
+        adhoc_calls=get_concordance_calls("adhoc"),
+        depths=get_depths
     output:
         "plots/concordance/{id}.{vartype}.concordance.svg"
     params:

@@ -210,5 +210,8 @@ plots:
     TCGA-BL-A13J:
       - TCGA-BL-A13J-1-bwa
       - TCGA-BL-A13J-2-bwa
+    control:
+      - TCGA-BL-A13J-1-bwa
+      - TCGA-BL-A13J-1-bwa
   known-truth:
     - simulated-bwa
