@@ -7,10 +7,13 @@ import pandas as pd
 import common
 import numpy as np
 
-print(snakemake.params.len_ranges)
 len_ranges = pd.Series(["{} - {}".format(*i) for i in snakemake.params.len_ranges],
                        index = pd.IntervalIndex.from_intervals([pd.Interval(*i, closed="left") for i in snakemake.params.len_ranges]))
 colors = common.get_colors(snakemake.config)
+
+
+min_depth = pd.read_table(snakemake.input.depths, dtype={"chrom": str, "pos": np.int32, "depth": np.int16})
+
 
 all_calls = []
 
@@ -32,6 +35,9 @@ def load(call_files, runs, call_type, label):
 load(snakemake.input.prosic_calls, snakemake.params.prosic_runs, "prosic", "prosic+{}".format)
 load(snakemake.input.adhoc_calls, snakemake.params.adhoc_runs, "adhoc", "{}".format)
 all_calls = pd.concat(all_calls)
+print(all_calls.columns)
+
+all_calls = all_calls[min_depth[all_calls["CHROM", "POS"]].fillna(0) > 0]
 
 
 def jaccard(calls):

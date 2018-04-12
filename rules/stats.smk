@@ -14,10 +14,10 @@ rule depth:
     input:
         "mapped-{mapper}/{dataset}.{tissue}.{ref}.sorted.bam"
     output:
-        "stats-{mapper}/{dataset}.{tissue}.{ref}.depth.per-base.bed.gz"
+        "stats-{mapper}/{dataset}.{tissue}.{ref}.depth.per-base.tsv.gz"
     params:
         prefix=lambda w, output: output[:-len(".per-base.bed.gz")]
     conda:
-        "../envs/mosdepth.yaml"
+        "../envs/bcftools.yaml"
     shell:
-        "mosdepth {params.prefix} {input}"
+        "samtools depth {input} | gzip > {output}"

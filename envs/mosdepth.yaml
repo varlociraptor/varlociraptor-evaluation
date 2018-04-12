@@ -4,3 +4,4 @@ channels:
   - defaults
 dependencies:
   - mosdepth =0.2.2
+  - pcre =8.41

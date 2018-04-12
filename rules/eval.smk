@@ -185,7 +185,7 @@ def get_concordance_calls(mode, files=True):
         runs = config["plots"]["concordance"][wildcards.id]
         if files:
             callers = get_callers(mode)
-            return expand("concordance-matched-calls/{mode}-{caller}/{id}.{i}.tsv",
+            return expand("concordance/{mode}-{caller}/{id}.{i}.tsv",
                           mode=mode,
                           caller=callers,
                           id=wildcards.id,
@@ -198,7 +198,7 @@ def get_concordance_calls(mode, files=True):
 def get_depths(wildcards):
     """Returns depth files for the two runs defined by the given concordance id."""
     runs = [config["runs"][r] for r in config["plots"]["concordance"][wildcards.id]]
-    return expand("stats-{run[mapper]}/{run[dataset]}.{tissue}.{run[ref]}.depth.per-base.bed.gz",
+    return expand("stats-{run[mapper]}/{run[dataset]}.{tissue}.{run[ref]}.depth.per-base.tsv.gz",
                   run=runs,
                   tissue=tissues)
 
@@ -208,7 +208,7 @@ rule concordance_match:
         lambda wc: expand("{mode}-{caller}/{run}.all.bcf",
                           run=config["plots"]["concordance"][wc.id], **wc)
     output:
-        "concordance-matched-calls/{mode}-{caller}/{id}.{i}.bcf"
+        "concordance/{mode}-{caller}/{id}.{i}.bcf"
     params:
         match=config["vcf-match-params"],
         bcfs=lambda wc, input: (input[int(wc.i)], input[1 - int(wc.i)])
@@ -220,9 +220,9 @@ rule concordance_match:
 
 rule concordance_to_tsv:
     input:
-        "concordance-matched-calls/{mode}-{caller}/{id}.{i}.bcf"
+        "concordance/{mode}-{caller}/{id}.{i}.bcf"
     output:
-        "concordance-matched-calls/{mode}-{caller}/{id}.{i}.tsv"
+        "concordance/{mode}-{caller}/{id}.{i}.tsv"
     params:
         info=get_info_tags,
         gt=lambda wc: "--genotypes" if config["caller"][wc.caller].get("genotypes") else ""
@@ -232,12 +232,23 @@ rule concordance_to_tsv:
         "rbt vcf-to-txt {params.gt} --info {params.info} MATCHING < {input} > {output}"
 
 
+rule min_depths:
+    input:
+        get_depths
+    output:
+        "concordance/{id}.min-depths.tsv"
+    conda:
+        "../envs/eval.yaml"
+    script:
+        "../scripts/min-depths.py"
+
+
 rule plot_concordance:
     input:
         prosic_calls=get_concordance_calls("prosic"),
         default_calls=get_concordance_calls("default"),
         adhoc_calls=get_concordance_calls("adhoc"),
-        depths=get_depths
+        depths="concordance/{id}.min-depths.tsv"
     output:
         "plots/concordance/{id}.{vartype}.concordance.svg"
     params:
