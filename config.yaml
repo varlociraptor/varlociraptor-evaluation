@@ -126,6 +126,7 @@ ref:
     fasta: ../data/Homo_sapiens.GRCh38.dna.primary_assembly.fa
     date: 2013-12
     chrom_prefix: ""
+    exons: resources/hg38.exons.bed
 
 caller:
   delly:

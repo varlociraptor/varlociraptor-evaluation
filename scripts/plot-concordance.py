@@ -7,37 +7,41 @@ import pandas as pd
 import common
 import numpy as np
 
-len_ranges = pd.Series(["{} - {}".format(*i) for i in snakemake.params.len_ranges],
-                       index = pd.IntervalIndex.from_intervals([pd.Interval(*i, closed="left") for i in snakemake.params.len_ranges]))
+minlen = int(snakemake.wildcards.minlen)
+maxlen = int(snakemake.wildcards.maxlen)
 colors = common.get_colors(snakemake.config)
 
 
-min_depth = pd.read_table(snakemake.input.depths, dtype={"chrom": str, "pos": np.int32, "depth": np.int16})
+min_depth = pd.read_table(snakemake.input.depths, names=["chrom", "pos", "depth"], header=None, dtype={"chrom": str, "pos": np.int32, "depth": np.int16}, index_col=[0, 1])
 
 
 all_calls = []
 
 def load(call_files, runs, call_type, label):
     for (calls, (caller, run)) in zip(call_files, runs):
-        calls = common.load_variants(calls, vartype=snakemake.wildcards.vartype)
+        calls = common.load_variants(calls, vartype=snakemake.wildcards.vartype, minlen=minlen, maxlen=maxlen)
         if calls.empty:
             continue
+        # filter sites without sufficient coverage
+        chroms = []
+        for chrom, d in calls.groupby("CHROM"):
+            valid = (min_depth.loc[chrom].reindex(d["POS"], fill_value=0) >= 5).values
+            chroms.append(d[valid])
+        calls = pd.concat(chroms)
+
         calls["run"] = run
         calls["label"] = label(caller)
         calls["caller"] = caller
+        caller_config = snakemake.config["caller"][caller]
+        if "score" in caller_config:
+            calls["score"] = calls[caller_config["score"]]
         calls["type"] = call_type
-        len_range = len_ranges[calls["SVLEN"]]
-        #calls = calls[~pd.isnull(len_range.index)]
-        #calls["len"] = len_ranges[calls["SVLEN"]].values
         calls["len"] = calls["SVLEN"]
         all_calls.append(calls)
 
 load(snakemake.input.prosic_calls, snakemake.params.prosic_runs, "prosic", "prosic+{}".format)
 load(snakemake.input.adhoc_calls, snakemake.params.adhoc_runs, "adhoc", "{}".format)
 all_calls = pd.concat(all_calls)
-print(all_calls.columns)
-
-all_calls = all_calls[min_depth[all_calls["CHROM", "POS"]].fillna(0) > 0]
 
 
 def jaccard(calls):
@@ -46,7 +50,7 @@ def jaccard(calls):
     matching = lambda c: len(c[c.MATCHING >= 0])
     run0 = calls[calls.run == snakemake.params.runs[0]]
     run1 = calls[calls.run == snakemake.params.runs[1]]
-    if len(run0) < 50 and len(run1) < 50:
+    if len(run0) < 10 and len(run1) < 10:
         return None
     common = min(matching(run0), matching(run1))
     print(calls.caller.iloc[0], calls.shape, len(run0), len(run1), common)
@@ -55,25 +59,32 @@ def jaccard(calls):
 
 for label, calls in all_calls.groupby("label"):
     caller = calls.caller.iloc[0]
-    def len_vs_jaccard(calls):
-        lens = calls.len.sort_values().unique()
-        d = pd.DataFrame({"jaccard": [jaccard(calls[calls.len <= l]) for l in lens],
-                          "len": lens})
-        d = d[~pd.isnull(d.jaccard)]
-        d = d[d.len <= 250]
-        return d
-    if label.startswith("prosic"):
-        thresholds = [common.phred_scale(p) for p in [0.999999999999, 0.999999999, 0.9999, 0.999, 0.99, 0.95]]
-        #thresholds = calls.PROB_SOMATIC.quantile(np.linspace(0.0, 1.0, 5))
+    caller_config = snakemake.config["caller"][caller]
+    is_prosic = label.startswith("prosic")
+
+    if is_prosic or "score" in caller_config:
+        thresholds = calls.score.quantile(np.linspace(0.0, 1.0, 50))
+        invert = caller_config.get("invert", False)
+        concordance = []
+        counts = []
         for t in thresholds:
-            c = calls[calls.PROB_SOMATIC <= t]
-            d = len_vs_jaccard(c)
-            plt.plot("len", "jaccard", "-", data=d, label=label, color=colors[caller])
-    else:
-        d = len_vs_jaccard(calls)
-        plt.plot("len", "jaccard", "--", data=d, label=label, color=colors[caller])
+            if invert:
+                c = calls[calls.score >= t]
+            else:
+                c = calls[calls.score <= t]
+            j = jaccard(c)
+            if j is not None:
+                concordance.append(j)
+                counts.append(len(c))
+        s = "-" if is_prosic else ":"
+        plt.semilogx(counts, concordance, s, label=label, color=colors[caller])
+    if not is_prosic and caller_config.get("adhoc", False):
+        j = jaccard(calls)
+        if j is not None:
+            plt.semilogx(len(calls), j, "o", color=colors[caller])
+
 sns.despine()
-plt.xlabel("length")
+plt.xlabel("number of calls")
 plt.ylabel("concordance")
 plt.legend()
 

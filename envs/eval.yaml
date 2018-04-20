@@ -8,3 +8,4 @@ dependencies:
   - seaborn =0.8.1
   - pysam =0.13.0
   - svgutils =0.2
+  - pybedtools =0.7.10

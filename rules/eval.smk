@@ -203,19 +203,31 @@ def get_depths(wildcards):
                   tissue=tissues)
 
 
+def get_concordance_bams(wildcards):
+    """Returns bam files for the two runs defined by the given concordance id."""
+    runs = [config["runs"][r] for r in config["plots"]["concordance"][wildcards.id]]
+    return expand("mapped-{run[mapper]}/{run[dataset]}.{tissue}.{run[ref]}.sorted.bam",
+                  run=runs,
+                  tissue=tissues)
+
+
 rule concordance_match:
     input:
         lambda wc: expand("{mode}-{caller}/{run}.all.bcf",
-                          run=config["plots"]["concordance"][wc.id], **wc)
+                          run=config["plots"]["concordance"][wc.id], **wc),
+        exons="concordance/{id}.covered-exons.bed"
     output:
         "concordance/{mode}-{caller}/{id}.{i}.bcf"
     params:
         match=config["vcf-match-params"],
         bcfs=lambda wc, input: (input[int(wc.i)], input[1 - int(wc.i)])
-    #conda:
-    #    "../envs/rbt.yaml"
+    conda:
+        "../envs/rbt.yaml"
     shell:
-        "rbt vcf-match {params.match} {params.bcfs[0]} < {params.bcfs[1]} > {output}"
+        "rbt vcf-match {params.match} {params.bcfs[0]} < {params.bcfs[1]} | "
+        "bcftools view | "
+        "bedtools intersect -a {input.exons} -b - -wb -F1.0 | "
+        "bcftools view -Ob  > {output}"
 
 
 rule concordance_to_tsv:
@@ -232,25 +244,25 @@ rule concordance_to_tsv:
         "rbt vcf-to-txt {params.gt} --info {params.info} MATCHING < {input} > {output}"
 
 
-rule min_depths:
+rule covered_exons:
     input:
-        get_depths
+        bams=get_concordance_bams,
+        exons=lambda wildcards: config["ref"][config["runs"][config["plots"]["concordance"][wildcards.id][0]]["ref"]]["exons"]
     output:
-        "concordance/{id}.min-depths.tsv"
+        bed="concordance/{id}.covered-exons.bed"
     conda:
         "../envs/eval.yaml"
     script:
-        "../scripts/min-depths.py"
+        "../scripts/exoncov.py"
 
 
 rule plot_concordance:
     input:
         prosic_calls=get_concordance_calls("prosic"),
         default_calls=get_concordance_calls("default"),
-        adhoc_calls=get_concordance_calls("adhoc"),
-        depths="concordance/{id}.min-depths.tsv"
+        adhoc_calls=get_concordance_calls("adhoc")
     output:
-        "plots/concordance/{id}.{vartype}.concordance.svg"
+        "plots/concordance/{id}.{vartype}.{minlen}-{maxlen}.concordance.svg"
     params:
         prosic_runs=get_concordance_calls("prosic", files=False),
         default_runs=get_concordance_calls("default", files=False),

@@ -62,7 +62,7 @@ wildcard_constraints:
     mode="prosic|adhoc|default"
 
 
-target_concordance = expand("plots/concordance/{id}.{vartype}.concordance.svg", id=config["plots"]["concordance"], vartype=["INS", "DEL"])
+target_concordance = expand("plots/concordance/{id}.{vartype}.{lenrange[0]}-{lenrange[1]}.concordance.svg", id=config["plots"]["concordance"], vartype=["INS", "DEL"], lenrange=config["len-ranges"])
 
 
 rule all:
