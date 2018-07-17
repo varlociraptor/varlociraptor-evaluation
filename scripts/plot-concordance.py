@@ -12,9 +12,6 @@ maxlen = int(snakemake.wildcards.maxlen)
 colors = common.get_colors(snakemake.config)
 
 
-min_depth = pd.read_table(snakemake.input.depths, names=["chrom", "pos", "depth"], header=None, dtype={"chrom": str, "pos": np.int32, "depth": np.int16}, index_col=[0, 1])
-
-
 all_calls = []
 
 def load(call_files, runs, call_type, label):
@@ -22,12 +19,6 @@ def load(call_files, runs, call_type, label):
         calls = common.load_variants(calls, vartype=snakemake.wildcards.vartype, minlen=minlen, maxlen=maxlen)
         if calls.empty:
             continue
-        # filter sites without sufficient coverage
-        chroms = []
-        for chrom, d in calls.groupby("CHROM"):
-            valid = (min_depth.loc[chrom].reindex(d["POS"], fill_value=0) >= 5).values
-            chroms.append(d[valid])
-        calls = pd.concat(chroms)
 
         calls["run"] = run
         calls["label"] = label(caller)

@@ -1,6 +1,9 @@
 import pandas as pd
 
 from snakemake.remote import FTP
+from snakemake.remote import EGA
+
+ega = EGA.RemoteProvider()
 
 ftp = FTP.RemoteProvider()
 

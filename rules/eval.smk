@@ -226,8 +226,8 @@ rule concordance_match:
     shell:
         "rbt vcf-match {params.match} {params.bcfs[0]} < {params.bcfs[1]} | "
         "bcftools view | "
-        "bedtools intersect -a {input.exons} -b - -wb -F1.0 | "
-        "bcftools view -Ob  > {output}"
+        "bedtools intersect -header -b {input.exons} -a - -wa -f 1.0 | "
+        "bcftools view -Ob > {output}"
 
 
 rule concordance_to_tsv:

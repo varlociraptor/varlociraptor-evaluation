@@ -11,7 +11,9 @@ coverage = exons.multi_bam_coverage(bams=snakemake.input.bams)
 
 
 def filter(exon):
-    return all(cov / len(exon) >= MINCOV for cov in exon[-4:])
+    if not len(exon):
+        return False
+    return all(int(cov) / len(exon) >= MINCOV for cov in exon[-4:])
         
 
 coverage.filter(filter).saveas(snakemake.output.bed)

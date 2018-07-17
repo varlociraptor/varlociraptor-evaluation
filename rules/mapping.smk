@@ -1,6 +1,15 @@
+def get_source_bam(wildcards):
+    ds = config["datasets"][wildcards.dataset]
+    tissue = ds[wildcards.tissue]
+    if "ega" in tissue:
+        return ega.remote(tissue["ega"])
+    else:
+        return tissue["bam"]
+
+
 rule prepare_bam:
     input:
-        lambda wc: config["datasets"][wc.dataset][wc.tissue]["bam"]
+        get_source_bam
     output:
         temp("reads/{dataset}.{tissue}.namesorted.bam")
     params:

@@ -6,6 +6,27 @@ runs:
     dataset: simulated
     ref: hg18
     purity: 0.75
+  COLO_829-GSC:
+    dataset: COLO_829-GSC
+    mapper: bwa
+    ref: hg38
+    purity: 1.0
+  COLO_829-EBI:
+    dataset: COLO_829-EBI
+    mapper: bwa
+    ref: hg38
+    purity: 1.0
+  COLO_829-TGen:
+    dataset: COLO_829-TGen
+    mapper: bwa
+    ref: hg38
+    purity: 1.0
+  COLO_829-Ill:
+    dataset: COLO_829-Ill
+    mapper: bwa
+    ref: hg38
+    purity: 1.0
+  
   TCGA-44-4112-1-bwa:
     mapper: bwa
     ref: hg38
@@ -68,6 +89,30 @@ datasets:
       mean: 312
       sd: 15
     truth: ../data/simulated-truth.indels.vcf
+  COLO_829-GSC:
+    tumor:
+      ega: ega/EGAD00001002142/COLO_829_BCGSC_BCGSCPipe.bam
+    normal:
+      ega: ega/EGAD00001002142/COLO_829BL_BCGSC_BCGSCPipe.bam
+    case: COLO_829
+  COLO_829-EBI:
+    tumor:
+      ega: ega/EGAD00001002142/COLO_829_EPleasance_BCGSCPipe.bam
+    normal:
+      ega: ega/EGAD00001002142/COLO_829BL_EPleasance_BCGSCPipe.bam
+    case: COLO_829
+  COLO_829-Ill:
+    tumor:
+      ega: ega/EGAD00001002142/COLO_829_Illumina_BCGSCPipe.bam
+    normal:
+      ega: ega/EGAD00001002142/COLO_829BL_Illumina_BCGSCPipe.bam
+    case: COLO_829
+  COLO_829-TGen:
+    tumor:
+      ega: ega/EGAD00001002142/COLO_829_TGEN_BCGSCPipe.bam
+    normal:
+      ega: ega/EGAD00001002142/COLO_829BL_TGEN_BCGSCPipe.bam
+    case: COLO_829
   TCGA-44-4112-1:
     type: Lung Adenocarcinoma
     sex: female
@@ -201,18 +246,23 @@ len-ranges:
 
 
 plots:
-  concordance:
-    TCGA-44-4112-1:
-      - TCGA-44-4112-1-bwa
-      - TCGA-44-4112-2-bwa
+  concordance: {}
+  #  colo1:
+  #    - COLO_829-GSC
+  #    - COLO_829-EBI
+    #- COLO_829-TGen
+    #- COLO_829-Ill
+    #TCGA-44-4112-1:
+    #  - TCGA-44-4112-1-bwa
+    #  - TCGA-44-4112-2-bwa
     #TCGA-44-4112-2:
     #  - TCGA-44-4112-3-bwa
     #  - TCGA-44-4112-4-bwa
-    TCGA-BL-A13J:
-      - TCGA-BL-A13J-1-bwa
-      - TCGA-BL-A13J-2-bwa
-    control:
-      - TCGA-BL-A13J-1-bwa
-      - TCGA-BL-A13J-1-bwa
+    #TCGA-BL-A13J:
+    #  - TCGA-BL-A13J-1-bwa
+    #  - TCGA-BL-A13J-2-bwa
+    #control:
+    #  - TCGA-BL-A13J-1-bwa
+    #  - TCGA-BL-A13J-1-bwa
   known-truth:
     - simulated-bwa
