@@ -45,10 +45,8 @@ def plot(calls, gammas, label, color, line=True, style=".-", invert=False):
     plt.plot(alphas, precisions, style, color=color, label=label)
 
 
-for calls, gammas, (caller, purity) in zip(snakemake.input.prosic_calls, snakemake.input.prosic_gammas, product(snakemake.params.prosic_callers, snakemake.params.purity)):
+for calls, gammas, caller in zip(snakemake.input.prosic_calls, snakemake.input.prosic_gammas, snakemake.params.prosic_callers):
     label = "prosic+{}".format(caller)
-    if len(snakemake.params.purity) > 1:
-        label += " (purity={})".format(purity)
     plot(calls, gammas, label, colors[caller])
 
 sns.despine()

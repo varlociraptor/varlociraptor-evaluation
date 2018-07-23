@@ -119,8 +119,7 @@ rule plot_precision_recall:
     params:
         prosic_callers=get_callers("prosic"),
         default_callers=get_callers("default"),
-        adhoc_callers=get_callers("adhoc"),
-        purity=lambda wc: config["runs"][wc.run]["purity"]
+        adhoc_callers=get_callers("adhoc")
     conda:
         "../envs/eval.yaml"
     script:

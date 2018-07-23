@@ -20,7 +20,7 @@ colors = common.get_colors(snakemake.config)
 
 
 def plot(calls, label, color, line=True, style="-", invert=False, markersize=4):
-    calls = pd.read_table(calls)
+    calls = pd.read_table(calls, index_col=0)
     if len(calls) < 10:
         return
     if line:
@@ -47,10 +47,8 @@ def plot(calls, label, color, line=True, style="-", invert=False, markersize=4):
     plt.plot(recall, precision, style, color=color, label=label, markersize=markersize)
 
 
-for calls, (caller, purity) in zip(snakemake.input.prosic_calls, product(snakemake.params.prosic_callers, snakemake.params.purity)):
+for calls, caller in zip(snakemake.input.prosic_calls, snakemake.params.prosic_callers):
     label = "prosic+{}".format(caller)
-    if len(snakemake.params.purity) > 1:
-        label += " (purity={})".format(purity)
     plot(calls, label, colors[caller])
 
 for calls, caller in zip(snakemake.input.default_calls, snakemake.params.default_callers):
