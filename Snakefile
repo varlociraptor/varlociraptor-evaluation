@@ -112,7 +112,7 @@ rule index_bcf:
 
 rule rank_fps:
     input:
-        "matched-calls/prosic-{caller}/{run}-0.75.{vartype}.{minlen}-{maxlen}.tsv"
+        "matched-calls/prosic-{caller}/{run}.{vartype}.{minlen}-{maxlen}.tsv"
     output:
         "ranked-{type,[ft]}ps/prosic-{caller}/{run}-0.75.{vartype}.{minlen}-{maxlen}.tsv"
     params:

@@ -20,8 +20,7 @@ rule prosic_call:
         idx=get_prosic_input(".bcf.csi"),
         ref=get_ref,
         bams=get_bams,
-        bais=get_bais,
-        stats=get_stats
+        bais=get_bais
     output:
         temp("prosic-{caller}/{run}.{chrom}.bcf")
     params:
@@ -37,7 +36,6 @@ rule prosic_call:
     shell:
         "bcftools view {input.calls} {params.chrom_prefix} | "
         "prosic call-tumor-normal {input.bams} {input.ref} "
-        "--tumor-stats {input.stats[0]} --normal-stats {input.stats[1]} "
         "--purity {params.purity} "
         "{config[caller][prosic][params]} {params.caller} "
         "> {output} 2> {log}"
