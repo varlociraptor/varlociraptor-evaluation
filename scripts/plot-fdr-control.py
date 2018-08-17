@@ -24,7 +24,7 @@ calls = calls.set_index("caller", drop=False)
 def plot(caller):
     color = colors[caller]
     label = "prosic+{}".format(caller)
-    precisions = []
+    fdrs = []
     alphas = []
     calls_ = calls.loc[caller].sort_values("fdr")
     for e in calls_.itertuples():
@@ -32,9 +32,12 @@ def plot(caller):
         n = c.shape[0]
         if n < MIN_CALLS:
             continue
-        precisions.append(common.precision(c))
+        true_fdr = 1.0 - common.precision(c)
+        if fdrs and fdrs[-1] == true_fdr:
+            continue
+        fdrs.append(true_fdr)
         alphas.append(e.fdr)
-    plt.plot(alphas, precisions, ".-", color=color, label=label)
+    plt.plot(alphas, fdrs, ".-", color=color, label=label)
 
 
 for caller in calls.index:
@@ -43,6 +46,6 @@ for caller in calls.index:
 sns.despine()
 plt.legend()
 plt.xlabel("FDR threshold")
-plt.ylabel("precision")
-plt.plot([0, 1], [1, 0], ":g")
+plt.ylabel("true FDR")
+plt.plot([0, 1], [0, 1], ":g")
 plt.savefig(snakemake.output[0], bbox_inches="tight")
