@@ -7,8 +7,7 @@ minlen = int(snakemake.wildcards.minlen)
 maxlen = int(snakemake.wildcards.maxlen)
 vartype = snakemake.wildcards.vartype
 
-truth = load_variants(snakemake.input.truth, minlen, maxlen, vartype=vartype)
-calls = load_variants(snakemake.input.calls, minlen, maxlen, vartype=vartype)
+calls = load_variants(snakemake.input.calls, vartype=vartype)
 
 calls["is_tp"] = calls["MATCHING"] >= 0
 

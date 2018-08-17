@@ -19,10 +19,10 @@ def get_truth(wildcards, ext="bcf"):
 
 rule match_variants:
     input:
-        calls="{mode}-{caller}/{run}.all.bcf",
+        calls="{mode}-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.bcf",
         truth=get_truth
     output:
-        "matched-calls/{mode}-{caller}/{run}.all.bcf"
+        "matched-calls/{mode}-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.bcf"
     params:
         config["vcf-match-params"]
     conda:
@@ -51,9 +51,9 @@ def get_info_tags(wildcards):
 
 rule calls_to_tsv:
     input:
-        "matched-calls/{mode}-{caller}/{run}.all.bcf"
+        "matched-calls/{mode}-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.bcf"
     output:
-        "matched-calls/{mode}-{caller}/{run}.all.tsv"
+        "matched-calls/{mode}-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.tsv"
     params:
         info=get_info_tags,
         gt=lambda wc: "--genotypes" if config["caller"][wc.caller].get("genotypes") else ""
@@ -65,10 +65,9 @@ rule calls_to_tsv:
 
 rule obtain_tp_fp:
     input:
-        truth=partial(get_truth, ext="tsv"),
-        calls="matched-calls/{mode}-{caller}/{run}.all.tsv"
+        calls="matched-calls/{mode}-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.tsv"
     output:
-        "matched-calls/{mode}-{caller}/{run}.{vartype}.{minlen}-{maxlen}.tsv"
+        "annotated-calls/{mode}-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.tsv"
     conda:
         "../envs/eval.yaml"
     script:
@@ -93,17 +92,14 @@ def get_caller_runs(mode, runs):
     return [(c, r) for c, r in product(callers, runs)]
 
 
-def get_calls(mode, gammas=False, runs=None):
+def get_calls(mode, runs=None, fdr=[1.0]):
     def inner(wildcards):
         caller_runs = get_caller_runs(mode, [wildcards.run] if not runs else runs)
 
-        pattern = "matched-calls/{mode}-{caller_run[0]}/{caller_run[1]}.{vartype}.{minlen}-{maxlen}.tsv"
-        if gammas:
-            assert mode == "prosic"
-            pattern = "prosic-{caller_run[0]}/{caller_run[1]}.gamma.{vartype}.{minlen}-{maxlen}.tsv"
+        pattern = "annotated-calls/{mode}-{caller_run[0]}/{caller_run[1]}.{vartype}.{minlen}-{maxlen}.{fdr}.tsv"
         return expand(pattern, mode=mode, caller_run=caller_runs, 
                       vartype=wildcards.vartype, minlen=wildcards.minlen, 
-                      maxlen=wildcards.maxlen)
+                      maxlen=wildcards.maxlen, fdr=fdr)
 
     return inner
 
@@ -128,13 +124,11 @@ rule plot_precision_recall:
 
 rule plot_fdr:
     input:
-        prosic_calls=get_calls("prosic"),
-        truth=lambda wc: "truth/{dataset}.annotated.tsv".format(**config["runs"][wc.run]),
-        prosic_gammas=get_calls("prosic", gammas=True)
+        prosic_calls=get_calls("prosic", fdr=alphas),
     output:
         "plots/fdr-control/{run}.{vartype}.{minlen}-{maxlen}.svg"
     params:
-        prosic_callers=get_callers("prosic"),
+        props=[p.split(":") for p in expand("{caller}:{fdr}", caller=get_callers("prosic"), fdr=alphas)],
         purity=lambda wc: config["runs"][wc.run]["purity"]
     conda:
         "../envs/eval.yaml"

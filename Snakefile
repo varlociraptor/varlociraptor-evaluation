@@ -19,7 +19,7 @@ units.index = gdc_manifest.id
 CHROMOSOMES = list(map(str, range(1,23))) + ["M", "X", "Y"]
 tissues = ["tumor", "normal"]
 non_prosic_callers = [caller for caller in config["caller"] if caller != "prosic" and caller != "pindel"]
-
+alphas = [0.00001, 0.0001, 0.001, 0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 
 def get_bams(wildcards):
     run = config["runs"][wildcards.run]
@@ -62,7 +62,9 @@ wildcard_constraints:
     ref="|".join(config["ref"]),
     run="|".join(config["runs"]),
     purity="[01]\.[0-9]+",
-    mode="prosic|adhoc|default"
+    mode="prosic|adhoc|default",
+    minlen="[0-9]+",
+    maxlen="[0-9]+"
 
 
 target_concordance = expand("plots/concordance/{id}.{vartype}.{lenrange[0]}-{lenrange[1]}.concordance.svg", id=config["plots"]["concordance"], vartype=["INS", "DEL"], lenrange=config["len-ranges"])

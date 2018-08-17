@@ -9,45 +9,36 @@ import numpy as np
 
 
 MIN_CALLS = 100
-ALPHAS = [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0]
 
-minlen = int(snakemake.wildcards.minlen)
-maxlen = int(snakemake.wildcards.maxlen)
-vartype = snakemake.wildcards.vartype
-
-truth = common.load_variants(snakemake.input.truth, minlen, maxlen, vartype=vartype)
 colors = common.get_colors(snakemake.config)
 
+calls = []
 
-def plot(calls, gammas, label, color, line=True, style=".-", invert=False):
-    calls = pd.read_table(calls)
-    gammas = pd.read_table(gammas, index_col=0, squeeze=True, dtype=np.float64)
-    if len(calls) < 10:
-        return
+for _calls, (caller, fdr) in zip(snakemake.input.prosic_calls, snakemake.params.props):
+    calls.append({"caller": caller, "fdr": float(fdr), "calls": _calls})
 
+calls = pd.DataFrame(calls)
+calls = calls.set_index("caller", drop=False)
+
+
+def plot(caller):
+    color = colors[caller]
+    label = "prosic+{}".format(caller)
     precisions = []
     alphas = []
-    for alpha in ALPHAS:
-        try:
-            gamma = gammas[alpha]
-        except KeyError:
+    calls_ = calls.loc[caller].sort_values("fdr")
+    for e in calls_.itertuples():
+        c = pd.read_table(e.calls)
+        n = c.shape[0]
+        if n < MIN_CALLS:
             continue
-        if gamma == 0:
-            continue
-
-        c = calls[calls.score <= gamma]
-        if c.shape[0] < MIN_CALLS:
-            continue
-
         precisions.append(common.precision(c))
-        alphas.append(alpha)
+        alphas.append(e.fdr)
+    plt.plot(alphas, precisions, ".-", color=color, label=label)
 
-    plt.plot(alphas, precisions, style, color=color, label=label)
 
-
-for calls, gammas, caller in zip(snakemake.input.prosic_calls, snakemake.input.prosic_gammas, snakemake.params.prosic_callers):
-    label = "prosic+{}".format(caller)
-    plot(calls, gammas, label, colors[caller])
+for caller in calls.index:
+    plot(caller)
 
 sns.despine()
 plt.legend()
