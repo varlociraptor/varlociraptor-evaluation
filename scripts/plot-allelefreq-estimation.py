@@ -55,7 +55,7 @@ def plot_len_range(minlen, maxlen):
 
     all_calls = pd.concat(all_calls)
 
-    plot(all_calls, all_colors)
+    return plot(all_calls, all_colors)
 
 common.plot_len_ranges(
     snakemake.params.len_ranges,
