@@ -13,6 +13,10 @@ MIN_CALLS = 10
 vartype = snakemake.wildcards.vartype
 
 
+def props(callers):
+    return itertools.product(callers, snakemake.params.len_ranges)
+
+
 def plot_len_range(minlen, maxlen):
 
     truth = common.load_variants(
@@ -58,13 +62,19 @@ def plot_len_range(minlen, maxlen):
             label=label,
             markersize=markersize)
 
-    for calls, caller in zip(snakemake.input.prosic_calls,
-                             snakemake.params.prosic_callers):
+    for calls, (caller,
+                len_range) in zip(snakemake.input.prosic_calls,
+                                  props(snakemake.params.prosic_callers)):
+        if len_range[0] != minlen and len_range[1] != maxlen:
+            continue
         label = "prosic+{}".format(caller)
         plot(calls, label, colors[caller])
 
-    for calls, caller in zip(snakemake.input.default_calls,
-                             snakemake.params.default_callers):
+    for calls, (caller,
+                len_range) in zip(snakemake.input.default_calls,
+                                  props(snakemake.params.default_callers)):
+        if len_range[0] != minlen and len_range[1] != maxlen:
+            continue
         plot(
             calls,
             caller,
@@ -72,8 +82,10 @@ def plot_len_range(minlen, maxlen):
             style=":",
             invert=snakemake.config["caller"][caller].get("invert", False))
 
-    for calls, caller in zip(snakemake.input.adhoc_calls,
-                             snakemake.params.adhoc_callers):
+    for calls, (caller, len_range) in zip(snakemake.input.adhoc_calls,
+                             props(snakemake.params.adhoc_callers)):
+        if len_range[0] != minlen and len_range[1] != maxlen:
+            continue
         plot(calls, caller, colors[caller], markersize=10, line=False)
 
     sns.despine()

@@ -96,7 +96,7 @@ def get_calls(mode, runs=None, fdr=[1.0], len_range=config["len-ranges"]):
     def inner(wildcards):
         caller_runs = get_caller_runs(mode, [wildcards.run] if not runs else runs)
 
-        pattern = "annotated-calls/{mode}-{caller_run[0]}/{caller_run[1]}.{vartype}.{len_range.minlen}-{len_range.maxlen}.{fdr}.tsv"
+        pattern = "annotated-calls/{mode}-{caller_run[0]}/{caller_run[1]}.{vartype}.{len_range[0]}-{len_range[1]}.{fdr}.tsv"
         return expand(pattern, mode=mode, caller_run=caller_runs,
                       vartype=wildcards.vartype, len_range=len_range, fdr=fdr)
 
@@ -128,7 +128,7 @@ rule plot_fdr:
     output:
         "plots/fdr-control/{run}.{vartype}.svg"
     params:
-        props=[p.split(":") for p in expand("{caller}:{fdr}", caller=get_callers("prosic"), fdr=alphas)],
+        props=list(product(get_callers("prosic"), alphas)),
         purity=lambda wc: config["runs"][wc.run]["purity"]
     conda:
         "../envs/eval.yaml"
