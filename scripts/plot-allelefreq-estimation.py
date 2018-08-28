@@ -13,12 +13,13 @@ MIN_CALLS = 10
 vartype = snakemake.wildcards.vartype
 colors = common.get_colors(snakemake.config)
 
+truth = common.load_variants(snakemake.input.truth, vartype=vartype)
+
 def props(callers):
     return product(callers, snakemake.params.len_ranges)
 
 def plot_len_range(minlen, maxlen):
 
-    truth = common.load_variants(snakemake.input.truth, minlen, maxlen, vartype=vartype)
 
     def plot(calls, colors):
         calls = calls[calls.is_tp]
@@ -36,10 +37,13 @@ def plot_len_range(minlen, maxlen):
         n = len(calls.caller.unique())
 
         plt.ylim((-1,1))
-        plt.grid(axis="y", linestyle=":", color="g")
+        plt.grid(axis="y", linestyle=":", color="grey")
         sns.despine()
+        plt.xticks(rotation="vertical")
+        ax = plt.gca()
+        ax.legend().remove()
 
-        return plt.gca(), handles[n:]
+        return ax, handles[n:]
 
     all_calls = []
     all_colors = []

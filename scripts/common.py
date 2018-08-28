@@ -20,8 +20,12 @@ def plot_len_ranges(len_ranges, plot_len_range, xlabel, ylabel):
 
         if i % ncols == 0:
             plt.ylabel(ylabel)
+        else:
+            plt.ylabel("")
         if (i // ncols) == (nrows - 1):
             plt.xlabel(xlabel)
+        else:
+            plt.xlabel("")
         plt.title("{} - {}".format(minlen, maxlen))
 
         axes.append(ax)
