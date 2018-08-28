@@ -14,7 +14,7 @@ vartype = snakemake.wildcards.vartype
 
 
 def props(callers):
-    return itertools.product(callers, snakemake.params.len_ranges)
+    return product(callers, snakemake.params.len_ranges)
 
 
 def plot_len_range(minlen, maxlen):
@@ -89,9 +89,6 @@ def plot_len_range(minlen, maxlen):
         plot(calls, caller, colors[caller], markersize=10, line=False)
 
     sns.despine()
-    plt.legend(loc="lower right")
-    plt.xlabel("recall")
-
     plt.title("{} - {}".format(minlen, maxlen))
     return plt.gca()
 

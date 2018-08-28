@@ -8,19 +8,20 @@ import math
 
 
 def plot_len_ranges(len_ranges, plot_len_range, xlabel, ylabel):
-    ncols = 2
+    ncols = 3
     nrows = int(math.ceil(len(len_ranges) / ncols))
+    plt.figure(figsize=(4 * ncols, 4 * nrows))
     axes = []
     handles = []
     labels = []
     seen = set()
     for i, (minlen, maxlen) in enumerate(len_ranges):
-        plt.subplot(nrows, ncols, i)
+        plt.subplot(nrows, ncols, i + 1)
         ax = plot_len_range(minlen, maxlen)
         if i % ncols == 0:
             plt.ylabel(ylabel)
         if (i // ncols) == (nrows - 1):
-            plt.ylabel(xlabel)
+            plt.xlabel(xlabel)
         axes.append(ax)
         for handle, label in zip(*ax.get_legend_handles_labels()):
             if label not in seen:
@@ -28,7 +29,8 @@ def plot_len_ranges(len_ranges, plot_len_range, xlabel, ylabel):
                 handles.append(handle)
                 labels.append(label)
 
-    plt.figlegend(handles, labels, loc="best")
+    axes[0].legend(handles, labels, loc="best")
+    plt.tight_layout()
 
 
 def load_variants(path,
