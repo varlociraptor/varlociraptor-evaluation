@@ -50,7 +50,7 @@ def plot_len_range(minlen, maxlen):
     for caller in calls.index:
         plot(caller)
 
-    plt.plot([0, 1], [0, 1], ":g")
+    plt.plot([0, 1], [0, 1], ":", color="grey")
 
     sns.despine()
     ax = plt.gca()
