@@ -92,14 +92,13 @@ def get_caller_runs(mode, runs):
     return [(c, r) for c, r in product(callers, runs)]
 
 
-def get_calls(mode, runs=None, fdr=[1.0]):
+def get_calls(mode, runs=None, fdr=[1.0], len_range=config["len-ranges"]):
     def inner(wildcards):
         caller_runs = get_caller_runs(mode, [wildcards.run] if not runs else runs)
 
-        pattern = "annotated-calls/{mode}-{caller_run[0]}/{caller_run[1]}.{vartype}.{minlen}-{maxlen}.{fdr}.tsv"
+        pattern = "annotated-calls/{mode}-{caller_run[0]}/{caller_run[1]}.{vartype}.{len_range.minlen}-{len_range.maxlen}.{fdr}.tsv"
         return expand(pattern, mode=mode, caller_run=caller_runs,
-                      vartype=wildcards.vartype, minlen=wildcards.minlen,
-                      maxlen=wildcards.maxlen, fdr=fdr)
+                      vartype=wildcards.vartype, len_range=len_range, fdr=fdr)
 
     return inner
 
@@ -127,7 +126,7 @@ rule plot_fdr:
     input:
         prosic_calls=get_calls("prosic", fdr=alphas),
     output:
-        "plots/fdr-control/{run}.{vartype}.{minlen}-{maxlen}.svg"
+        "plots/fdr-control/{run}.{vartype}.svg"
     params:
         props=[p.split(":") for p in expand("{caller}:{fdr}", caller=get_callers("prosic"), fdr=alphas)],
         purity=lambda wc: config["runs"][wc.run]["purity"]
@@ -142,7 +141,7 @@ rule plot_allelefreq:
         prosic_calls=get_calls("prosic"),
         truth=lambda wc: "truth/{dataset}.annotated.tsv".format(**config["runs"][wc.run])
     output:
-        "plots/allelefreqs/{run}.{vartype}.{minlen}-{maxlen}.svg"
+        "plots/allelefreqs/{run}.{vartype}.svg"
     params:
         prosic_callers=get_callers("prosic")
     conda:
