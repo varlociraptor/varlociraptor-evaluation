@@ -97,8 +97,8 @@ def get_calls(mode, runs=None, fdr=[1.0]):
         caller_runs = get_caller_runs(mode, [wildcards.run] if not runs else runs)
 
         pattern = "annotated-calls/{mode}-{caller_run[0]}/{caller_run[1]}.{vartype}.{minlen}-{maxlen}.{fdr}.tsv"
-        return expand(pattern, mode=mode, caller_run=caller_runs, 
-                      vartype=wildcards.vartype, minlen=wildcards.minlen, 
+        return expand(pattern, mode=mode, caller_run=caller_runs,
+                      vartype=wildcards.vartype, minlen=wildcards.minlen,
                       maxlen=wildcards.maxlen, fdr=fdr)
 
     return inner
@@ -111,11 +111,12 @@ rule plot_precision_recall:
         adhoc_calls=get_calls("adhoc"),
         truth=lambda wc: "truth/{dataset}.annotated.tsv".format(**config["runs"][wc.run])
     output:
-        "plots/precision-recall/{run}.{vartype}.{minlen}-{maxlen}.svg"
+        "plots/precision-recall/{run}.{vartype}.svg"
     params:
         prosic_callers=get_callers("prosic"),
         default_callers=get_callers("default"),
-        adhoc_callers=get_callers("adhoc")
+        adhoc_callers=get_callers("adhoc"),
+        len_ranges=config["len-ranges"]
     conda:
         "../envs/eval.yaml"
     script:
@@ -266,4 +267,3 @@ rule plot_concordance:
         "../envs/eval.yaml"
     script:
         "../scripts/plot-concordance.py"
-

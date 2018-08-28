@@ -72,6 +72,10 @@ target_concordance = expand("plots/concordance/{id}.{vartype}.{lenrange[0]}-{len
 
 rule all:
     input:
+        expand("plots/{plt}/{run}.{vartype}.svg",
+               plt=["precision-recall"],
+               vartype=["INS", "DEL"],
+               run=config["plots"]["known-truth"]),
         expand("plots/{plt}/{run}.{vartype}.{lenrange[0]}-{lenrange[1]}.svg",
                plt=["precision-recall", "fdr-control"],
                lenrange=config["len-ranges"],

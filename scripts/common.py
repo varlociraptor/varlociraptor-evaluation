@@ -4,7 +4,37 @@ import seaborn as sns
 import math
 
 
-def load_variants(path, minlen=None, maxlen=None, vartype=None, constrain=None, min_af=None, max_af=None):
+def plot_len_ranges(len_ranges, plot_len_range, xlabel, ylabel):
+    ncols = 2
+    nrows = int(math.ceil(len(len_ranges) / ncols))
+    axes = []
+    handles = []
+    labels = []
+    seen = set()
+    for i, (minlen, maxlen) in enumerate(snakemake.params.len_ranges):
+        plt.subplot(nrows, ncols, i)
+        ax = plot_len_range(minlen, maxlen)
+        if i % ncols == 0:
+            plt.ylabel(ylabel)
+        if (i // ncols) == (nrows - 1):
+            plt.ylabel(xlabel)
+        axes.append(ax)
+        for handle, label in zip(*ax.get_legend_handles_labels()):
+            if label not in seen:
+                seen.add(label)
+                handles.append(handle)
+                labels.append(label)
+
+    plt.figlegend(handles, labels, loc="best")
+
+
+def load_variants(path,
+                  minlen=None,
+                  maxlen=None,
+                  vartype=None,
+                  constrain=None,
+                  min_af=None,
+                  max_af=None):
     variants = pd.read_table(path, header=[0, 1])
     variants = variants["VARIANT"]
     variants["CHROM"] = variants["CHROM"].astype(str)
@@ -13,15 +43,19 @@ def load_variants(path, minlen=None, maxlen=None, vartype=None, constrain=None, 
 
     # constrain type
     if vartype == "DEL":
-        isdel = (variants["REF"].str.len() > 1) & (variants["ALT"].str.len() == 1)
+        isdel = (variants["REF"].str.len() >
+                 1) & (variants["ALT"].str.len() == 1)
         if "SVTYPE" in variants.columns:
-            variants = variants[(variants["SVTYPE"].astype(str) == "DEL") | (isdel & variants["SVTYPE"].isnull())]
+            variants = variants[(variants["SVTYPE"].astype(str) == "DEL")
+                                | (isdel & variants["SVTYPE"].isnull())]
         else:
             variants = variants[isdel]
     elif vartype == "INS":
-        isins = (variants["REF"].str.len() == 1) & (variants["ALT"].str.len() > 1)
+        isins = (variants["REF"].str.len() == 1) & (variants["ALT"].str.len() >
+                                                    1)
         if "SVTYPE" in variants.columns:
-            variants = variants[(variants["SVTYPE"].astype(str) == "INS") | (isins & variants["SVTYPE"].isnull())]
+            variants = variants[(variants["SVTYPE"].astype(str) == "INS")
+                                | (isins & variants["SVTYPE"].isnull())]
         else:
             variants = variants[isins]
     else:
@@ -29,21 +63,25 @@ def load_variants(path, minlen=None, maxlen=None, vartype=None, constrain=None, 
 
     # constrain length
     if "SVLEN" not in variants.columns or variants["SVLEN"].isnull().any():
-        if not (variants.columns == "END").any() or variants["END"].isnull().any():
-            variants["SVLEN"] = (variants["ALT"].str.len() - variants["REF"].str.len()).abs()
+        if not (variants.columns == "END").any() or variants["END"].isnull(
+        ).any():
+            variants["SVLEN"] = (
+                variants["ALT"].str.len() - variants["REF"].str.len()).abs()
             print("REF ALT comp")
         else:
             print("use END")
             variants["SVLEN"] = variants["END"] - variants["POS"]
             print(variants[["SVLEN", "POS", "END", "MATCHING"]].head())
     if minlen is not None and maxlen is not None:
-        variants = variants[(variants["SVLEN"].abs() >= minlen) & (variants["SVLEN"].abs() < maxlen)]
+        variants = variants[(variants["SVLEN"].abs() >= minlen)
+                            & (variants["SVLEN"].abs() < maxlen)]
 
     # only autosomes
     variants = variants[variants["CHROM"].str.match(r"(chr)?[0-9]+")]
 
     if constrain is not None:
-        valid = (variants["MATCHING"] < 0) | (variants["MATCHING"].isin(constrain.index))
+        valid = (variants["MATCHING"] < 0) | (variants["MATCHING"].isin(
+            constrain.index))
         variants = variants[valid]
 
     if min_af is not None and max_af is not None:
@@ -75,6 +113,7 @@ def recall(calls, truth):
     t = truth.shape[0]
     recall = tp / t
     return recall
+
 
 def get_colors(config):
     callers = [caller for caller in config["caller"] if caller != "prosic"]
