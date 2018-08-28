@@ -37,7 +37,7 @@ def plot_len_range(minlen, maxlen):
 
         plt.ylim((-1,1))
         plt.grid(axis="y", linestyle=":", color="g")
-        plt.despine()
+        sns.despine()
 
         return plt.gca(), handles[n:]
 
