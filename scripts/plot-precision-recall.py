@@ -7,6 +7,7 @@ import pandas as pd
 import common
 import numpy as np
 import math
+from matplotlib.lines import Line2D
 
 MIN_CALLS = 10
 
@@ -49,6 +50,9 @@ def plot_len_range(minlen, maxlen):
                     print(c)
                 precision.append(p)
                 recall.append(r)
+            if len(precision) <= 2:
+                print("skipping curve because we have too few values")
+                return
         else:
             precision = [common.precision(calls)]
             recall = [common.recall(calls, truth)]
@@ -62,6 +66,7 @@ def plot_len_range(minlen, maxlen):
             label=label,
             markersize=markersize)
 
+    handles = []
     for calls, (caller,
                 len_range) in zip(snakemake.input.prosic_calls,
                                   props(snakemake.params.prosic_callers)):
@@ -69,28 +74,37 @@ def plot_len_range(minlen, maxlen):
             continue
         label = "prosic+{}".format(caller)
         plot(calls, label, colors[caller])
+        handles.append(Line2D([0], [0], color=colors[caller], label=label))
 
     for calls, (caller,
                 len_range) in zip(snakemake.input.default_calls,
                                   props(snakemake.params.default_callers)):
         if len_range[0] != minlen and len_range[1] != maxlen:
             continue
+        color = colors[caller]
         plot(
             calls,
             caller,
-            colors[caller],
+            color,
             style=":",
             invert=snakemake.config["caller"][caller].get("invert", False))
+        if caller in snakemake.params.adhoc_callers:
+            handles.append(Line2D([0], [0], markersize=10, markerfacecolor=color, markeredgecolor=color, color=color, label=caller, marker=".", linestyle=":"))
+        else:
+            handles.append(Line2D([0], [0], color=color, label=caller, linestyle=":"))
 
     for calls, (caller, len_range) in zip(snakemake.input.adhoc_calls,
                              props(snakemake.params.adhoc_callers)):
         if len_range[0] != minlen and len_range[1] != maxlen:
             continue
-        plot(calls, caller, colors[caller], markersize=10, line=False)
+        color = colors[caller]
+        plot(calls, caller, color, markersize=10, line=False)
+        if caller not in snakemake.params.default_callers:
+            handles.append(Line2D([0], [0], markersize=10, markerfacecolor=color, markeredgecolor=color, label=caller, marker=".", lw=0))
 
     sns.despine()
-    plt.title("{} - {}".format(minlen, maxlen))
-    return plt.gca()
+    ax = plt.gca()
+    return ax, handles
 
 
 common.plot_len_ranges(

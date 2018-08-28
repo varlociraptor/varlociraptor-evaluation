@@ -8,28 +8,31 @@ import math
 
 
 def plot_len_ranges(len_ranges, plot_len_range, xlabel, ylabel):
-    ncols = 3
+    ncols = 2 if len(len_ranges) == 4 else 3
     nrows = int(math.ceil(len(len_ranges) / ncols))
     plt.figure(figsize=(4 * ncols, 4 * nrows))
     axes = []
-    handles = []
-    labels = []
+    all_handles = []
     seen = set()
     for i, (minlen, maxlen) in enumerate(len_ranges):
         plt.subplot(nrows, ncols, i + 1)
-        ax = plot_len_range(minlen, maxlen)
+        ax, handles = plot_len_range(minlen, maxlen)
+
         if i % ncols == 0:
             plt.ylabel(ylabel)
         if (i // ncols) == (nrows - 1):
             plt.xlabel(xlabel)
+        plt.title("{} - {}".format(minlen, maxlen))
+        
         axes.append(ax)
-        for handle, label in zip(*ax.get_legend_handles_labels()):
+        for handle in handles:
+            label = handle.get_label()
             if label not in seen:
                 seen.add(label)
-                handles.append(handle)
-                labels.append(label)
+                all_handles.append(handle)
 
-    axes[0].legend(handles, labels, loc="best")
+
+    axes[0].legend(handles=handles, loc="best")
     plt.tight_layout()
 
 

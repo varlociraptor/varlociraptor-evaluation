@@ -132,13 +132,18 @@ def get_caller_runs(mode, runs):
     return [(c, r) for c, r in product(callers, runs)]
 
 
-def get_calls(mode, runs=None, fdr=[1.0], len_range=config["len-ranges"]):
+def get_len_ranges(wildcards):
+    return config["len-ranges"][wildcards.vartype]
+
+
+def get_calls(mode, runs=None, fdr=[1.0]):
     def inner(wildcards):
         caller_runs = get_caller_runs(mode, [wildcards.run] if not runs else runs)
+        len_ranges = get_len_ranges(wildcards)
 
         pattern = "annotated-calls/{mode}-{caller_run[0]}/{caller_run[1]}.{vartype}.{len_range[0]}-{len_range[1]}.{fdr}.tsv"
         return expand(pattern, mode=mode, caller_run=caller_runs,
-                      vartype=wildcards.vartype, len_range=len_range, fdr=fdr)
+                      vartype=wildcards.vartype, len_range=len_ranges, fdr=fdr)
 
     return inner
 
@@ -155,7 +160,7 @@ rule plot_precision_recall:
         prosic_callers=get_callers("prosic"),
         default_callers=get_callers("default"),
         adhoc_callers=get_callers("adhoc"),
-        len_ranges=config["len-ranges"]
+        len_ranges=get_len_ranges
     conda:
         "../envs/eval.yaml"
     script:
@@ -199,18 +204,6 @@ rule plot_softclips:
         "../envs/eval.yaml"
     script:
         "../scripts/bam-stats.py"
-
-
-rule fig_fdr:
-    input:
-        expand("plots/fdr-control/{{run}}.{{vartype}}.{lenrange[0]}-{lenrange[1]}.svg",
-               lenrange=config["len-ranges"])
-    output:
-        "figs/{run}.{vartype}.fdr.svg"
-    conda:
-        "../envs/eval.yaml"
-    script:
-        "../scripts/fig-fdr.py"
 
 
 def get_concordance_calls(mode, files=True):
@@ -300,7 +293,7 @@ rule plot_concordance:
         prosic_runs=get_concordance_calls("prosic", files=False),
         default_runs=get_concordance_calls("default", files=False),
         adhoc_runs=get_concordance_calls("adhoc", files=False),
-        len_ranges=config["len-ranges"],
+        len_ranges=get_len_ranges,
         runs=lambda wc: config["plots"]["concordance"][wc.id]
     conda:
         "../envs/eval.yaml"
