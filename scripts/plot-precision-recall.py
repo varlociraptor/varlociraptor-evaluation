@@ -12,6 +12,7 @@ from matplotlib.lines import Line2D
 MIN_CALLS = 10
 
 vartype = snakemake.wildcards.vartype
+colors = common.get_colors(snakemake.config)
 
 
 def props(callers):
@@ -22,7 +23,6 @@ def plot_len_range(minlen, maxlen):
 
     truth = common.load_variants(
         snakemake.input.truth, minlen, maxlen, vartype=vartype)
-    colors = common.get_colors(snakemake.config)
 
     def plot(calls,
              label,

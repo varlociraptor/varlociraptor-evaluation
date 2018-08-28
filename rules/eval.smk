@@ -190,7 +190,8 @@ rule plot_allelefreq:
     output:
         "plots/allelefreqs/{run}.{vartype}.svg"
     params:
-        prosic_callers=get_callers("prosic")
+        prosic_callers=get_callers("prosic"),
+        len_ranges=get_len_ranges
     conda:
         "../envs/eval.yaml"
     script:
