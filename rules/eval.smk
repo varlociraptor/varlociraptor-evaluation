@@ -17,12 +17,38 @@ def get_truth(wildcards, ext="bcf"):
     return "truth/{dataset}.annotated.{ext}".format(ext=ext, **config["runs"][wildcards.run])
 
 
-rule match_variants:
+def get_final_calls(wildcards):
+    return "{mode}-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.bcf".format(
+        mode=wildcards.mode,
+        caller=wildcards.caller,
+        run=wildcards.run,
+        vartype=wildcards.vartype,
+        minlen=wildcards.minlen,
+        maxlen=wildcards.maxlen,
+
+    )
+
+
+rule match_prosic_calls:
     input:
-        calls="{mode}-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.bcf",
+        calls="prosic-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.bcf",
         truth=get_truth
     output:
-        "matched-calls/{mode}-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.bcf"
+        "matched-calls/prosic-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.bcf"
+    params:
+        config["vcf-match-params"]
+    conda:
+        "../envs/rbt.yaml"
+    shell:
+        "rbt vcf-match {params} {input.truth} < {input.calls} > {output}"
+
+
+rule match_other_calls:
+    input:
+        calls="{mode}-{caller}/{run}.{vartype}.all.bcf",
+        truth=get_truth
+    output:
+        "matched-calls/{mode}-{caller}/{run}.{vartype}.all.bcf"
     params:
         config["vcf-match-params"]
     conda:
@@ -49,23 +75,48 @@ def get_info_tags(wildcards):
     return tags
 
 
-rule calls_to_tsv:
+def get_genotypes_param(wildcards):
+    return "--genotypes" if config["caller"][wildcards.caller].get("genotypes") else ""
+
+
+rule prosic_calls_to_tsv:
     input:
-        "matched-calls/{mode}-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.bcf"
+        "matched-calls/prosic-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.bcf"
     output:
-        "matched-calls/{mode}-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.tsv"
+        "matched-calls/prosic-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.tsv"
     params:
         info=get_info_tags,
-        gt=lambda wc: "--genotypes" if config["caller"][wc.caller].get("genotypes") else ""
+        gt=get_genotypes_param
     conda:
         "../envs/rbt.yaml"
     shell:
         "rbt vcf-to-txt {params.gt} --info {params.info} MATCHING < {input} > {output}"
 
 
+rule other_calls_to_tsv:
+    input:
+        "matched-calls/{mode}-{caller}/{run}.{vartype}.all.bcf"
+    output:
+        "matched-calls/{mode}-{caller}/{run}.{vartype}.all.tsv"
+    params:
+        info=get_info_tags,
+        gt=get_genotypes_param
+    conda:
+        "../envs/rbt.yaml"
+    shell:
+        "rbt vcf-to-txt {params.gt} --info {params.info} MATCHING < {input} > {output}"
+
+
+def get_tsv_calls(wildcards):
+    pattern = "matched-calls/{mode}-{caller}/{run}.{vartype}.all.tsv"
+    if wildcards.mode == "prosic":
+        pattern = "matched-calls/{mode}-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.tsv"
+    return pattern.format(**wildcards)
+
+
 rule obtain_tp_fp:
     input:
-        calls="matched-calls/{mode}-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.tsv"
+        calls=get_tsv_calls
     output:
         "annotated-calls/{mode}-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.tsv"
     conda:
