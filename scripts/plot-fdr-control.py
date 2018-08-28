@@ -13,7 +13,7 @@ MIN_CALLS = 100
 colors = common.get_colors(snakemake.config)
 
 props = product(snakemake.params.callers,
-                snakemake.params.len_ranges, snakemake.params.fdr)
+                snakemake.params.len_ranges, snakemake.params.fdrs)
 
 calls = []
 
@@ -31,7 +31,9 @@ def plot_len_range(minlen, maxlen):
         label = "prosic+{}".format(caller)
         fdrs = []
         alphas = []
-        calls_ = calls.loc[caller, calls["len_range"] == [minlen, maxlen]].sort_values("fdr")
+        calls_ = calls.loc[caller]
+        calls_ = calls_[calls_["len_range"].map(lambda r: r == [minlen, maxlen])]
+        calls_ = calls_.sort_values("fdr")
         for e in calls_.itertuples():
             c = pd.read_table(e.calls)
             n = c.shape[0]
