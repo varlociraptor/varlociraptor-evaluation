@@ -57,9 +57,10 @@ rule truth_to_tsv:
 
 
 def get_info_tags(wildcards):
+    mode = wildcards.get("mode")
     tags = list(config["caller"][wildcards.caller].get("info", []))
-    if wildcards.mode == "prosic":
-        tags += config["caller"][wildcards.mode].get("info", [])
+    if mode != "adhoc" and mode != "default":
+        tags += config["caller"]["prosic"].get("info", [])
     return tags
 
 
