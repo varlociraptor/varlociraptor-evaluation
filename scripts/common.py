@@ -11,7 +11,7 @@ def plot_len_ranges(len_ranges, plot_len_range, xlabel, ylabel):
     handles = []
     labels = []
     seen = set()
-    for i, (minlen, maxlen) in enumerate(snakemake.params.len_ranges):
+    for i, (minlen, maxlen) in enumerate(len_ranges):
         plt.subplot(nrows, ncols, i)
         ax = plot_len_range(minlen, maxlen)
         if i % ncols == 0:
