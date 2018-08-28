@@ -173,8 +173,10 @@ rule plot_fdr:
     output:
         "plots/fdr-control/{run}.{vartype}.svg"
     params:
-        props=list(product(get_callers("prosic"), alphas)),
-        purity=lambda wc: config["runs"][wc.run]["purity"]
+        callers=get_callers("prosic"),
+        purity=lambda wc: config["runs"][wc.run]["purity"],
+        len_ranges=get_len_ranges,
+        fdrs=alphas
     conda:
         "../envs/eval.yaml"
     script:

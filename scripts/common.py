@@ -23,7 +23,7 @@ def plot_len_ranges(len_ranges, plot_len_range, xlabel, ylabel):
         if (i // ncols) == (nrows - 1):
             plt.xlabel(xlabel)
         plt.title("{} - {}".format(minlen, maxlen))
-        
+
         axes.append(ax)
         for handle in handles:
             label = handle.get_label()
@@ -32,7 +32,7 @@ def plot_len_ranges(len_ranges, plot_len_range, xlabel, ylabel):
                 all_handles.append(handle)
 
 
-    axes[0].legend(handles=handles, loc="best")
+    axes[0].legend(handles=all_handles, loc="best")
     plt.tight_layout()
 
 
