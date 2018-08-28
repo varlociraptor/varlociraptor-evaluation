@@ -17,18 +17,6 @@ def get_truth(wildcards, ext="bcf"):
     return "truth/{dataset}.annotated.{ext}".format(ext=ext, **config["runs"][wildcards.run])
 
 
-def get_final_calls(wildcards):
-    return "{mode}-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.bcf".format(
-        mode=wildcards.mode,
-        caller=wildcards.caller,
-        run=wildcards.run,
-        vartype=wildcards.vartype,
-        minlen=wildcards.minlen,
-        maxlen=wildcards.maxlen,
-
-    )
-
-
 rule match_prosic_calls:
     input:
         calls="prosic-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.bcf",
@@ -45,10 +33,10 @@ rule match_prosic_calls:
 
 rule match_other_calls:
     input:
-        calls="{mode}-{caller}/{run}.{vartype}.all.bcf",
+        calls="{mode}-{caller}/{run}.all.bcf",
         truth=get_truth
     output:
-        "matched-calls/{mode}-{caller}/{run}.{vartype}.all.bcf"
+        "matched-calls/{mode}-{caller}/{run}.all.bcf"
     params:
         config["vcf-match-params"]
     conda:
@@ -95,9 +83,9 @@ rule prosic_calls_to_tsv:
 
 rule other_calls_to_tsv:
     input:
-        "matched-calls/{mode}-{caller}/{run}.{vartype}.all.bcf"
+        "matched-calls/{mode}-{caller}/{run}.all.bcf"
     output:
-        "matched-calls/{mode}-{caller}/{run}.{vartype}.all.tsv"
+        "matched-calls/{mode}-{caller}/{run}.all.tsv"
     params:
         info=get_info_tags,
         gt=get_genotypes_param
@@ -108,7 +96,7 @@ rule other_calls_to_tsv:
 
 
 def get_tsv_calls(wildcards):
-    pattern = "matched-calls/{mode}-{caller}/{run}.{vartype}.all.tsv"
+    pattern = "matched-calls/{mode}-{caller}/{run}.all.tsv"
     if wildcards.mode == "prosic":
         pattern = "matched-calls/{mode}-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.tsv"
     return pattern.format(**wildcards)
