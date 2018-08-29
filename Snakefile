@@ -72,10 +72,11 @@ target_concordance = expand("plots/concordance/{id}.{vartype}.{lenrange[0]}-{len
 
 rule all:
     input:
-        expand("plots/{plt}/{run}.{vartype}.svg",
+        expand("plots/{plt}/{run}.{vartype}.{ext}",
                plt=["precision-recall", "fdr-control", "allelefreqs", "score-dist"],
                vartype=["INS", "DEL"],
-               run=config["plots"]["known-truth"]),
+               run=config["plots"]["known-truth"],
+               ext=["svg", "pdf"]),
         target_concordance
 
 rule all_concordance:
@@ -94,6 +95,7 @@ include: "rules/prosic.smk"
 include: "rules/adhoc.smk"
 include: "rules/eval.smk"
 include: "rules/stats.smk"
+include: "rules/tools.smk"
 
 
 rule index_bcf:
