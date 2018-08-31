@@ -91,15 +91,19 @@ datasets:
     truth: ../data/simulated-truth.indels.vcf
   COLO_829-GSC:
     tumor:
-      ega: ega/EGAD00001002142/COLO_829_BCGSC_BCGSCPipe.bam
+      bam: ../data/EGAD00001002142/EGAD00001002142/EGAZ00001226259_COLO_829_BCGSC_BCGSCPipe.bam
+      name: Cancer
     normal:
-      ega: ega/EGAD00001002142/COLO_829BL_BCGSC_BCGSCPipe.bam
+      bam: ../data/EGAD00001002142/EGAD00001002142/EGAZ00001226245_COLO_829BL_BCGSC_BCGSCPipe.bam
+      name: Control
     case: COLO_829
   COLO_829-EBI:
     tumor:
-      ega: ega/EGAD00001002142/COLO_829_EPleasance_BCGSCPipe.bam
+      bam: ../data/EGAD00001002142/EGAD00001002142/EGAZ00001226269_COLO_829_EPleasance_BCGSCPipe.bam
+      name: Cancer
     normal:
-      ega: ega/EGAD00001002142/COLO_829BL_EPleasance_BCGSCPipe.bam
+      bam: ../data/EGAD00001002142/EGAD00001002142/EGAZ00001226254_COLO_829BL_EPleasance_BCGSCPipe.bam
+      name: Control
     case: COLO_829
   COLO_829-Ill:
     tumor:
@@ -252,10 +256,10 @@ len-ranges:
 
 
 plots:
-  concordance: {}
-  #  colo1:
-  #    - COLO_829-GSC
-  #    - COLO_829-EBI
+  concordance:
+    colo1:
+      - COLO_829-GSC
+      - COLO_829-EBI
     #- COLO_829-TGen
     #- COLO_829-Ill
     #TCGA-44-4112-1:

@@ -67,7 +67,7 @@ wildcard_constraints:
     maxlen="[0-9]+"
 
 
-target_concordance = expand("plots/concordance/{id}.{vartype}.{lenrange[0]}-{lenrange[1]}.concordance.svg", id=config["plots"]["concordance"], vartype=["INS", "DEL"], lenrange=config["len-ranges"])
+target_concordance = expand("plots/concordance/{id}.{vartype}.{lenrange[0]}-{lenrange[1]}.concordance.svg", id=config["plots"]["concordance"], vartype=["DEL"], lenrange=config["len-ranges"]["DEL"]) # TODO get away from len ranges here and have a unified plot per vartype.
 
 
 rule all:
