@@ -44,7 +44,8 @@ def plot_len_range(minlen, maxlen):
 
         calls["true_af"] = calls["true_af"].apply("{:.3f}".format)
 
-        sns.stripplot("true_af", "error", hue="caller", data=calls, palette=colors, dodge=True, jitter=True, alpha=0.5, size=2, rasterized=True)
+        size = 1 if maxlen == 30 else 2
+        sns.stripplot("true_af", "error", hue="caller", data=calls, palette=colors, dodge=True, jitter=True, alpha=0.5, size=size, rasterized=True)
         sns.boxplot("true_af", "error", hue="caller", data=calls, color="white", fliersize=0, linewidth=1)
 
         handles, labels = plt.gca().get_legend_handles_labels()
