@@ -1,4 +1,5 @@
 from itertools import product
+import math
 import matplotlib
 matplotlib.use("agg")
 from matplotlib import pyplot as plt
@@ -30,9 +31,22 @@ def plot_len_range(minlen, maxlen):
         if calls.empty:
             return
 
-        calls["true_af"] = true_af.apply("{:.3f}".format)
+        calls["true_af"] = true_af
+        true_af = pd.Series(calls["true_af"].unique()).sort_values()
+        # standard deviation when sampling in binomial process from allele freq
+        # this is the expected sampling error within the correctly mapped fragments
+        sd = true_af.apply(lambda af: math.sqrt(af * (1 - af)))
+        x = np.arange(len(true_af))
+        offsets = [-0.5, 0.5]
+        y_upper = np.array([v for v in sd for o in offsets])
+        y_lower = np.maximum(-y_upper, [-f for f in true_af for o in offsets])
+        plt.fill_between([v + o for v in x for o in offsets], y_lower, y_upper, color="#EEEEEE", zorder=-5)
+
+        calls["true_af"] = calls["true_af"].apply("{:.3f}".format)
+
         sns.stripplot("true_af", "error", hue="caller", data=calls, palette=colors, dodge=True, jitter=True, alpha=0.5, size=2, rasterized=True)
         sns.boxplot("true_af", "error", hue="caller", data=calls, color="white", fliersize=0, linewidth=1)
+
         handles, labels = plt.gca().get_legend_handles_labels()
         n = len(calls.caller.unique())
 

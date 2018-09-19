@@ -10,8 +10,8 @@ rule prepare_bam:
     output:
         temp("reads/{dataset}.{tissue}.namesorted.bam")
     params:
-        "-n"
-    threads: 8 
+        "-n -m 2G"
+    threads: 64
     wrapper:
         "0.22.0/bio/samtools/sort"
 
