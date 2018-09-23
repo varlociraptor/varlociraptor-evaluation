@@ -20,9 +20,9 @@ rule bam2fq:
     input:
         "reads/{dataset}.{tissue}.namesorted.bam"
     output:
-        m1="reads/{dataset}.{tissue}.1.fastq",
-        m2="reads/{dataset}.{tissue}.2.fastq",
-        mixed=temp("reads/{dataset}.{tissue}.fastq")
+        m1="reads/{dataset}.{tissue}.1.fastq.gz",
+        m2="reads/{dataset}.{tissue}.2.fastq.gz",
+        mixed=temp("reads/{dataset}.{tissue}.fastq.gz")
     conda:
         "../envs/tools.yaml"
     shell:
@@ -79,7 +79,7 @@ rule qtip:
 rule bwa:
     input:
         index="index/{ref}/genome.bwt",
-        sample=expand("reads/{{dataset}}.{{tissue}}.{mate}.fastq", mate=[1, 2])
+        sample=expand("reads/{{dataset}}.{{tissue}}.{mate}.fastq.gz", mate=[1, 2])
     output:
         temp("mapped-bwa/{dataset}.{tissue}.{ref}.bam")
     log:
@@ -128,5 +128,4 @@ rule samtools_index:
         "mapped-{mapper}/{dataset}.{tissue}.{ref}.sorted.bam.bai"
     wrapper:
         "0.22.0/bio/samtools/index"
-
 
