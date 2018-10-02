@@ -102,7 +102,9 @@ rule samtools_sort:
         "mapped-{mapper}/{dataset}.{tissue}.{ref}.bam"
     output:
         temp("mapped-{mapper}/{dataset}.{tissue}.{ref}.sorted.pre.bam")
-    threads: 8
+    params:
+        "-m 2G"
+    threads: 64
     wrapper:
         "0.22.0/bio/samtools/sort"
 
@@ -114,7 +116,7 @@ rule mark_duplicates:
         bam=protected("mapped-{mapper}/{dataset}.{tissue}.{ref}.sorted.bam"),
         metrics="mapped-{mapper}/{dataset}.{tissue}.{ref}.markdup.metrics.txt"
     params:
-        "-Xmx2g VALIDATION_STRINGENCY=LENIENT"
+        "-Xmx6g VALIDATION_STRINGENCY=LENIENT -Djava.io.tmpdir=."
     log:
         "logs/picard/dedup/{mapper}/{dataset}.{tissue}.{ref}.log"
     wrapper:
