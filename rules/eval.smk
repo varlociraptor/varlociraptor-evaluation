@@ -258,7 +258,6 @@ rule concordance_match:
     input:
         lambda wc: expand("{mode}-{caller}/{run}.all.bcf",
                           run=config["plots"]["concordance"][wc.id], **wc),
-        exons="concordance/{id}.covered-exons.bed"
     output:
         "concordance/{mode}-{caller}/{id}.{i}.bcf"
     params:
@@ -267,10 +266,7 @@ rule concordance_match:
     conda:
         "../envs/rbt.yaml"
     shell:
-        "rbt vcf-match {params.match} {params.bcfs[0]} < {params.bcfs[1]} | "
-        "bcftools view | "
-        "bedtools intersect -header -b {input.exons} -a - -wa -f 1.0 | "
-        "bcftools view -Ob > {output}"
+        "rbt vcf-match {params.match} {params.bcfs[0]} < {params.bcfs[1]} > {output}"
 
 
 rule concordance_to_tsv:
@@ -285,18 +281,6 @@ rule concordance_to_tsv:
         "../envs/rbt.yaml"
     shell:
         "rbt vcf-to-txt {params.gt} --info {params.info} MATCHING < {input} > {output}"
-
-
-rule covered_exons:
-    input:
-        bams=get_concordance_bams,
-        exons=lambda wildcards: config["ref"][config["runs"][config["plots"]["concordance"][wildcards.id][0]]["ref"]]["exons"]
-    output:
-        bed="concordance/{id}.covered-exons.bed"
-    conda:
-        "../envs/eval.yaml"
-    script:
-        "../scripts/exoncov.py"
 
 
 rule plot_concordance:

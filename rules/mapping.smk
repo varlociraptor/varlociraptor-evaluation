@@ -116,7 +116,7 @@ rule mark_duplicates:
         bam=protected("mapped-{mapper}/{dataset}.{tissue}.{ref}.sorted.bam"),
         metrics="mapped-{mapper}/{dataset}.{tissue}.{ref}.markdup.metrics.txt"
     params:
-        "-Xmx6g VALIDATION_STRINGENCY=LENIENT -Djava.io.tmpdir=."
+        "-Xmx6g VALIDATION_STRINGENCY=LENIENT -Djava.io.tmpdir=tmp"
     log:
         "logs/picard/dedup/{mapper}/{dataset}.{tissue}.{ref}.log"
     wrapper:

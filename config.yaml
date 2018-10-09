@@ -226,7 +226,7 @@ caller:
       - SVLEN
       - SVTYPE
   prosic:
-    params: "--pileup-window 342 --flat-priors --indel-window 100"
+    params: "--pileup-window 342 --flat-priors --indel-window 100 --omit-snvs"
     blacklist:
       - bpi
     delly: "--exclusive-end"
