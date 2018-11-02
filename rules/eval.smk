@@ -238,21 +238,6 @@ def get_concordance_calls(mode, files=True):
     return inner
 
 
-def get_depths(wildcards):
-    """Returns depth files for the two runs defined by the given concordance id."""
-    runs = [config["runs"][r] for r in config["plots"]["concordance"][wildcards.id]]
-    return expand("stats-{run[mapper]}/{run[dataset]}.{tissue}.{run[ref]}.depth.per-base.tsv.gz",
-                  run=runs,
-                  tissue=tissues)
-
-
-def get_concordance_bams(wildcards):
-    """Returns bam files for the two runs defined by the given concordance id."""
-    runs = [config["runs"][r] for r in config["plots"]["concordance"][wildcards.id]]
-    return expand("mapped-{run[mapper]}/{run[dataset]}.{tissue}.{run[ref]}.sorted.bam",
-                  run=runs,
-                  tissue=tissues)
-
 
 rule concordance_match:
     input:

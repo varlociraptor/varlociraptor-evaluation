@@ -22,8 +22,11 @@ rule lancet:
         "benchmarks/lancet/{run}.chr{chrom}.tsv"
     wildcard_constraints:
         chrom="[^.]+"
+    conda:
+        "../envs/lancet.yaml"
     threads: 4
     shell:
+       "LD_LIBRARY_PATH=$CONDA_PREFIX/lib "
        "resources/lancet --tumor {input.bams[0]} --normal {input.bams[1]} "
        "--ref {input.ref} --reg {params.region} --num-threads {threads} "
        "{params.extra} > {output} 2> {log}"
