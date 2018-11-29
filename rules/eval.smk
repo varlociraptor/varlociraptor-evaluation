@@ -228,20 +228,20 @@ def get_concordance_calls(mode, files=True):
         runs = config["plots"]["concordance"][wildcards.id]
         if files:
             callers = get_callers(mode)
-            return expand("concordance/{mode}-{caller}/{id}.{i}.tsv",
+            pattern = "concordance/{mode}-{caller}/{id}.{i}.tsv"
+            return expand(pattern,
                           mode=mode,
                           caller=callers,
-                          id=wildcards.id,
-                          i=[0, 1])
+                          i=[0, 1],
+                          **wildcards)
         else:
             return get_caller_runs(mode, runs)
     return inner
 
 
-
 rule concordance_match:
     input:
-        lambda wc: expand("{mode}-{caller}/{run}.all.bcf",
+        lambda wc: expand("{mode}-{caller}/{run}.all.bcf" if wc.mode != "prosic" else "prosic-{caller}/{run}.adhoc.bcf",
                           run=config["plots"]["concordance"][wc.id], **wc),
     output:
         "concordance/{mode}-{caller}/{id}.{i}.bcf"
@@ -254,11 +254,26 @@ rule concordance_match:
         "rbt vcf-match {params.match} {params.bcfs[0]} < {params.bcfs[1]} > {output}"
 
 
+rule concordance_match_prosic:
+    input:
+        lambda wc: expand("prosic-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.bcf",
+                          run=config["plots"]["concordance"][wc.id], **wc)
+    output:
+        "concordance/prosic-{caller}/{id}.{i}.{vartype}.{minlen}-{maxlen}.{fdr}.bcf"
+    params:
+        match=config["vcf-match-params"],
+        bcfs=lambda wc, input: (input[int(wc.i)], input[1 - int(wc.i)])
+    conda:
+        "../envs/rbt.yaml"
+    shell:
+        "rbt vcf-match {params.match} {params.bcfs[0]} < {params.bcfs[1]} > {output}"
+
+
 rule concordance_to_tsv:
     input:
-        "concordance/{mode}-{caller}/{id}.{i}.bcf"
+        "concordance/{mode}-{caller}/{prefix}.bcf"
     output:
-        "concordance/{mode}-{caller}/{id}.{i}.tsv"
+        "concordance/{mode}-{caller}/{prefix}.tsv"
     params:
         info=get_info_tags,
         gt=lambda wc: "--genotypes" if config["caller"][wc.caller].get("genotypes") else ""
@@ -285,3 +300,15 @@ rule plot_concordance:
         "../envs/eval.yaml"
     script:
         "../scripts/plot-concordance.py"
+
+
+rule lancet_frequencies:
+    input:
+        "default-lancet/COLO_829-GSC.all.bcf"
+    output:
+        "plots/freqdist/lancet/COLO_829-GSC.svg"
+    conda:
+        "../envs/eval.yaml"
+    script:
+        "../scripts/plot-freqdist.py"
+

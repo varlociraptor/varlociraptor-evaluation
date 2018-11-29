@@ -107,9 +107,11 @@ datasets:
     case: COLO_829
   COLO_829-Ill:
     tumor:
-      ega: ega/EGAD00001002142/COLO_829_Illumina_BCGSCPipe.bam
+      bam: ../data/EGAD00001002142/EGAD00001002142/EGAZ00001226270_COLO_829_Illumina_BCGSCPipe.bam
+      name: Cancer
     normal:
-      ega: ega/EGAD00001002142/COLO_829BL_Illumina_BCGSCPipe.bam
+      bam: ../data/EGAD00001002142/EGAD00001002142/EGAZ00001226256_COLO_829BL_Illumina_BCGSCPipe.bam
+      name: Control
     case: COLO_829
   COLO_829-TGen:
     tumor:
@@ -259,7 +261,7 @@ plots:
   concordance:
     colo1:
       - COLO_829-GSC
-      - COLO_829-EBI
+      - COLO_829-Ill
     #- COLO_829-TGen
     #- COLO_829-Ill
     #TCGA-44-4112-1:

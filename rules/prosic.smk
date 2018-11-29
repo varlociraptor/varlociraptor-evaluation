@@ -1,3 +1,6 @@
+import math
+
+
 def get_prosic_input(ext):
     def get_prosic_input(wildcards):
         if wildcards.caller == "truth":
@@ -61,3 +64,14 @@ rule prosic_control_fdr:
         "prosic control-fdr {input} --event SOMATIC --var {wildcards.type} "
         "--min-len {wildcards.minlen} --max-len {wildcards.maxlen} "
         "--fdr {wildcards.fdr} > {output}"
+
+
+rule adhoc_prosic:
+    input:
+        "prosic-{caller}/{run}.all.bcf"
+    output:
+        "prosic-{caller}/{run}.adhoc.bcf"
+    params:
+        "-i 'INFO/PROB_SOMATIC<={}' -Ob".format(-10 * math.log10(0.85))
+    wrapper:
+        "0.22.0/bio/bcftools/view"
