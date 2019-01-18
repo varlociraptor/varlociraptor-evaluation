@@ -47,7 +47,7 @@ def plot_len_range(minlen, maxlen):
         plt.plot(alphas, fdrs, ".-", color=color, label=label)
 
 
-    for caller in calls.index:
+    for caller in calls.index.unique():
         plot(caller)
 
     plt.plot([0, 1], [0, 1], ":", color="grey")

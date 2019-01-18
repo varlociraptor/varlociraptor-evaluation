@@ -111,16 +111,17 @@ rule index_bcf:
 
 rule rank_fps:
     input:
-        "matched-calls/prosic-{caller}/{run}.{vartype}.{minlen}-{maxlen}.tsv"
+        "matched-calls/prosic-{caller}/{run}.{vartype}.{minlen}-{maxlen}.1.0.tsv"
     output:
         "ranked-{type,[ft]}ps/prosic-{caller}/{run}-0.75.{vartype}.{minlen}-{maxlen}.tsv"
     params:
         type=lambda wc: False if wc.type == "f" else True
     run:
-        calls = pd.read_table(input[0])
-        calls = calls[calls.is_tp == params.type]
-        calls.sort_values("PROB_SOMATIC", ascending=not params.type, inplace=True)
-        calls[["CHROM", "POS", "PROB_SOMATIC", "is_tp"]].to_csv(output[0], sep="\t")
+        calls = pd.read_table(input[0], header=[0, 1])
+        calls = calls["VARIANT"]
+        calls = calls[(calls.MATCHING >= 0 if params.type else calls.MATCHING < 0)]
+        calls.sort_values("PROB_SOMATIC_TUMOR", ascending=not params.type, inplace=True)
+        calls[["CHROM", "POS", "PROB_SOMATIC_TUMOR", "MATCHING"]].to_csv(output[0], sep="\t")
 
 
 def testcase_region(wildcards):

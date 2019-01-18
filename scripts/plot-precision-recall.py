@@ -47,7 +47,8 @@ def plot_len_range(minlen, maxlen):
                 r = common.recall(c, truth)
                 print(label, t, c.shape[0], p, r)
                 if len(c) < 10:
-                    print(c)
+                    print("skipping threshold: too few calls", c)
+                    continue
                 precision.append(p)
                 recall.append(r)
             if len(precision) <= 2:

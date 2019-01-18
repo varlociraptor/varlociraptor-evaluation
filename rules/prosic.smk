@@ -49,8 +49,19 @@ rule prosic_merge:
         expand("prosic-{{caller}}/{{run}}.{chrom}.bcf", chrom=CHROMOSOMES)
     output:
         "prosic-{caller}/{run}.all.bcf"
+    params:
+        "-Ob"
     wrapper:
         "0.19.1/bio/bcftools/concat"
+
+
+rule prosic_filter_by_odds:
+    input:
+        "prosic-{caller}/{run}.all.bcf"
+    output:
+        "prosic-{caller}/{run}.oddsfiltered.bcf"
+    shell:
+        "prosic filter-calls posterior-odds positive --events SOMATIC_TUMOR < {input} > {output}"
 
 
 rule prosic_control_fdr:
@@ -61,7 +72,7 @@ rule prosic_control_fdr:
     # conda:
     #     "../envs/prosic.yaml"
     shell:
-        "prosic control-fdr {input} --event SOMATIC --var {wildcards.type} "
+        "prosic filter-calls control-fdr {input} --events SOMATIC_TUMOR --var {wildcards.type} "
         "--min-len {wildcards.minlen} --max-len {wildcards.maxlen} "
         "--fdr {wildcards.fdr} > {output}"
 
@@ -72,6 +83,6 @@ rule adhoc_prosic:
     output:
         "prosic-{caller}/{run}.adhoc.bcf"
     params:
-        "-i 'INFO/PROB_SOMATIC<={}' -Ob".format(-10 * math.log10(0.85))
+        "-i 'INFO/PROB_SOMATIC_TUMOR<={}' -Ob".format(-10 * math.log10(0.999))
     wrapper:
         "0.22.0/bio/bcftools/view"

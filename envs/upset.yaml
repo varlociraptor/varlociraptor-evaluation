@@ -1,0 +1,5 @@
+channels:
+  - conda-forge
+dependencies:
+  - r-upsetr =1.3
+  - r-rlist =0.4

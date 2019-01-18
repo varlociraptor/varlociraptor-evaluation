@@ -26,8 +26,8 @@ def plot_len_range(minlen, maxlen):
         calls["caller"] = label
         if not calls.empty:
             color = colors[caller]
-            sns.kdeplot(calls[calls.is_tp].PROB_SOMATIC.map(np.log), color=color, label=label)
-            sns.kdeplot(calls[~calls.is_tp].PROB_SOMATIC.map(np.log), color=color, linestyle=":", label="")
+            sns.kdeplot(calls[calls.is_tp].PROB_SOMATIC_TUMOR.map(np.log), color=color, label=label)
+            sns.kdeplot(calls[~calls.is_tp].PROB_SOMATIC_TUMOR.map(np.log), color=color, linestyle=":", label="")
 
     ax = plt.gca()
     fmt_ticks = lambda ticks: ["{:.1g}".format(np.exp(t)) for t in ticks]

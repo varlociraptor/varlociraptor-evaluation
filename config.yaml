@@ -115,9 +115,11 @@ datasets:
     case: COLO_829
   COLO_829-TGen:
     tumor:
-      ega: ega/EGAD00001002142/COLO_829_TGEN_BCGSCPipe.bam
+      bam: ../data/EGAD00001002142/EGAD00001002142/EGAZ00001229972_COLO_829_TGEN_BCGSCPipe.bam
+      name: Cancer
     normal:
-      ega: ega/EGAD00001002142/COLO_829BL_TGEN_BCGSCPipe.bam
+      bam: ../data/EGAD00001002142/EGAD00001002142/EGAZ00001226249_COLO_829BL_TGEN_BCGSCPipe.bam
+      name: Control
     case: COLO_829
   TCGA-44-4112-1:
     type: Lung Adenocarcinoma
@@ -232,11 +234,13 @@ caller:
     blacklist:
       - bpi
     delly: "--exclusive-end"
-    score: PROB_SOMATIC
+    score: PROB_SOMATIC_TUMOR
     info:
-      - PROB_SOMATIC
-      - PROB_GERMLINE
+      - PROB_SOMATIC_TUMOR
+      - PROB_GERMLINE_HET
+      - PROB_GERMLINE_HOM
       - PROB_ABSENT
+      - PROB_SOMATIC_NORMAL
       - CASE_AF
       - CONTROL_AF
 
@@ -262,8 +266,8 @@ plots:
     colo1:
       - COLO_829-GSC
       - COLO_829-Ill
-    #- COLO_829-TGen
-    #- COLO_829-Ill
+      - COLO_829-TGen
+      - COLO_829-EBI
     #TCGA-44-4112-1:
     #  - TCGA-44-4112-1-bwa
     #  - TCGA-44-4112-2-bwa
