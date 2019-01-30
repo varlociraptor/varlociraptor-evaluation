@@ -5,7 +5,9 @@ library(grid)
 library(rlist)
 
 calls <- read.table(snakemake@input[[1]], row.names = NULL, sep = "\t", header = TRUE, check.names = FALSE)
-#calls <- calls[calls$max_case_af >= 0.2, ]
+#calls <- calls[calls$max_case_af >= 0.3, ]
+calls <- calls[calls$max_prob_somatic_tumor <= 0.1, ]
+print(calls)
 calls$max_case_af_log10 <- log10(calls$max_case_af)
 
 queries <- list()

@@ -83,6 +83,6 @@ rule adhoc_prosic:
     output:
         "prosic-{caller}/{run}.adhoc.bcf"
     params:
-        "-i 'INFO/PROB_SOMATIC_TUMOR<={}' -Ob".format(-10 * math.log10(0.999))
+        "-i 'INFO/PROB_SOMATIC_TUMOR<={}' -Ob".format(-10 * math.log10(0.95))
     wrapper:
         "0.22.0/bio/bcftools/view"

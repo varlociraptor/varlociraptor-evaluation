@@ -46,12 +46,17 @@ for dataset_id, calls in representatives.items():
     else:
         aggregated = aggregated.join(calls, how="outer", lsuffix="", rsuffix="")
 
+# Forget the component id. Otherwise, we might run into errors with duplicate elements 
+# in the index below. These can occur if there are multiple ambiguous calls.
+aggregated.reset_index(inplace=True)
+
 pos_cols = aggregated.columns[aggregated.columns.str.startswith("POS_")]
 is_called = (~aggregated[pos_cols].isnull()).astype(int)
 is_called.columns = pos_cols.str.replace("POS_", "")
 aggregated = aggregated.join(is_called, lsuffix="", rsuffix="")
 
-aggregated["concordance_count"] = is_called.sum(axis=1)
+aggregated.insert(len(aggregated.columns), "concordance_count", is_called.sum(axis=1))
+
 if is_prosic:
     aggregated["max_case_af"] = aggregated[aggregated.columns[aggregated.columns.str.startswith("CASE_AF")]].max(axis=1)
     aggregated["max_prob_somatic_tumor"] =  aggregated[aggregated.columns[aggregated.columns.str.startswith("PROB_SOMATIC")]].min(axis=1)
