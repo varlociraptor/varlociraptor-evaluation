@@ -83,7 +83,6 @@ def load_variants(path,
         else:
             print("use END")
             variants["SVLEN"] = variants["END"] - variants["POS"]
-            print(variants[["SVLEN", "POS", "END", "MATCHING"]].head())
     if minlen is not None and maxlen is not None:
         variants = variants[(variants["SVLEN"].abs() >= minlen)
                             & (variants["SVLEN"].abs() < maxlen)]

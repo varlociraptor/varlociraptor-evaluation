@@ -1,5 +1,7 @@
 from itertools import product
 from collections import namedtuple
+from operator import itemgetter
+
 
 
 rule annotate_truth:
@@ -80,6 +82,20 @@ rule prosic_calls_to_tsv:
         "../envs/rbt.yaml"
     shell:
         "rbt vcf-to-txt {params.gt} --info {params.info} MATCHING < {input} > {output}"
+
+
+rule prosic_all_calls_to_tsv:
+    input:
+        "prosic-{caller}/{run}.all.bcf"
+    output:
+        "prosic-{caller}/{run}.all.tsv"
+    params:
+        info=get_info_tags,
+        gt=get_genotypes_param
+    conda:
+        "../envs/rbt.yaml"
+    shell:
+        "rbt vcf-to-txt {params.gt} --info {params.info} < {input} > {output}"
 
 
 rule other_calls_to_tsv:
@@ -281,7 +297,9 @@ def get_concordance_combinations(id):
 
 rule aggregate_concordance:
     input:
-        lambda wc: expand("concordance/{mode}-{caller}/{id}.{i[0]}-vs-{i[1]}.tsv", i=get_concordance_combinations(wc.id), **wc)
+        calls=lambda wc: expand("concordance/{mode}-{caller}/{id}.{i[0]}-vs-{i[1]}.tsv", i=get_concordance_combinations(wc.id), **wc),
+        prosic_calls=lambda wc: expand("prosic-{caller}/{dataset}.all.tsv", 
+                                       dataset=[config["plots"]["concordance"][wc.id][c[0]] for c in get_concordance_combinations(wc.id)], **wc)
     output:
         "aggregated-concordance/{mode}-{caller}/{id}.{vartype}.tsv"
     params:

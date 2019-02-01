@@ -5,7 +5,7 @@ import numpy as np
 
 vartype = snakemake.wildcards.vartype
 
-all_variants = [load_variants(f, vartype=vartype) for f in snakemake.input]
+all_variants = [load_variants(f, vartype=vartype) for f in snakemake.input.calls]
 
 G = nx.Graph()
 for calls, (i, j) in zip(all_variants, snakemake.params.dataset_combinations):
@@ -20,6 +20,12 @@ for calls, (i, j) in zip(all_variants, snakemake.params.dataset_combinations):
 
 # get a set of calls for each dataset (we don't need all pairwise comparisons for that)
 representatives = {snakemake.params.dataset_combinations[i][0]: calls for i, calls in enumerate(all_variants)}
+
+if snakemake.wildcards.mode != "prosic":
+    prosic_variants = [load_variants(f, vartype=vartype) for f in snakemake.input.prosic_calls]
+    for calls in prosic_variants:
+        calls.set_index(["CHROM", "POS", "REF", "ALT", "SVLEN"], inplace=True)
+    prosic_representatives = {snakemake.params.dataset_combinations[i][0]: calls for i, calls in enumerate(prosic_variants)}
 
 # annotate calls with their component, i.e. their equivalence class
 for component_id, component in enumerate(nx.connected_components(G)):
@@ -40,6 +46,11 @@ for dataset_id, calls in representatives.items():
         cols.extend(["CASE_AF", "PROB_SOMATIC_TUMOR"])
         is_prosic = True
     calls = calls[cols]
+    if snakemake.wildcards.mode != "prosic":
+        caseaf = calls.set_index(cols, drop=False).join(prosic_representatives[dataset_id][["CASE_AF"]], how="left")["CASE_AF"]
+        caseaf = caseaf[~caseaf.index.duplicated()]
+        calls["CASE_AF"] = caseaf.values
+
     calls.columns = [c + suffix(dataset_name(dataset_id)) for c in calls.columns]
     if aggregated is None:
         aggregated = calls
@@ -48,7 +59,7 @@ for dataset_id, calls in representatives.items():
 
 # Forget the component id. Otherwise, we might run into errors with duplicate elements 
 # in the index below. These can occur if there are multiple ambiguous calls.
-aggregated.reset_index(inplace=True)
+aggregated.reset_index(inplace=True, drop=True)
 
 pos_cols = aggregated.columns[aggregated.columns.str.startswith("POS_")]
 is_called = (~aggregated[pos_cols].isnull()).astype(int)
@@ -57,8 +68,8 @@ aggregated = aggregated.join(is_called, lsuffix="", rsuffix="")
 
 aggregated.insert(len(aggregated.columns), "concordance_count", is_called.sum(axis=1))
 
+aggregated["max_case_af"] = aggregated[aggregated.columns[aggregated.columns.str.startswith("CASE_AF")]].max(axis=1)
 if is_prosic:
-    aggregated["max_case_af"] = aggregated[aggregated.columns[aggregated.columns.str.startswith("CASE_AF")]].max(axis=1)
     aggregated["max_prob_somatic_tumor"] =  aggregated[aggregated.columns[aggregated.columns.str.startswith("PROB_SOMATIC")]].min(axis=1)
 
 aggregated.to_csv(snakemake.output[0], sep="\t", index=False)
