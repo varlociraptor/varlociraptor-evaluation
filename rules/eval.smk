@@ -239,27 +239,6 @@ rule plot_softclips:
         "../scripts/bam-stats.py"
 
 
-def get_concordance_calls(mode, files=True):
-    def inner(wildcards):
-        runs = config["plots"]["concordance"][wildcards.id]
-        if files:
-            callers = get_callers(mode)
-            pattern = "aggregated-concordance/adhoc-{caller}/{id}.{vartype}.tsv"
-            if mode == "prosic":
-                pattern = "aggregated-concordance/prosic-{caller}/{id}.{vartype}.{minlen}-{maxlen}.tsv"
-            return expand(pattern,
-                          mode=mode,
-                          caller=callers,
-                          i=[0, 1],
-                          **wildcards)
-        else:
-            return get_caller_runs(mode, runs)
-    return inner
-
-
-#ruleorder: concordance_match_prosic > concordance_match
-
-
 rule concordance_match:
     input:
         lambda wc: expand("{mode}-{caller}/{run}.all.bcf" if wc.mode != "prosic" else "prosic-{caller}/{run}.adhoc.bcf",
@@ -273,21 +252,6 @@ rule concordance_match:
         "../envs/rbt.yaml"
     shell:
         "rbt vcf-match {params.match} {params.bcfs[1]} < {params.bcfs[0]} > {output}"
-
-
-#rule concordance_match_prosic:
-#    input:
-#        lambda wc: expand("prosic-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.bcf",
-#                          run=config["plots"]["concordance"][wc.id], **wc)
-#    output:
-#        "concordance/prosic-{caller}/{id}.{i}-vs-{j}.{vartype}.{minlen}-{maxlen}.{fdr}.bcf"
-#    params:
-#        match=config["vcf-match-params"],
-#        bcfs=lambda wc, input: (input[int(wc.i)], input[int(wc.j)])
-#    conda:
-#        "../envs/rbt.yaml"
-#    shell:
-#        "rbt vcf-match {params.match} {params.bcfs[1]} < {params.bcfs[0]} > {output}"
 
 
 def get_concordance_combinations(id):
@@ -311,20 +275,6 @@ rule aggregate_concordance:
         "../scripts/aggregate-concordance.py"
 
 
-#rule aggregate_concordance_prosic:
-#    input:
-#        lambda wc: expand("concordance/prosic-{caller}/{id}.{i[0]}-vs-{i[1]}.{vartype}.{minlen}-{maxlen}.0.05.tsv", i=get_concordance_combinations(wc.id), **wc)
-#    output:
-#        "aggregated-concordance/prosic-{caller}/{id}.{vartype}.{minlen}-{maxlen}.tsv"
-#    params:
-#        dataset_combinations=lambda wc: list(get_concordance_combinations(wc.id)),
-#        datasets=lambda wc: config["plots"]["concordance"][wc.id]
-#    conda:
-#        "../envs/eval.yaml"
-#    script:
-#        "../scripts/aggregate-concordance.py"
-
-
 rule concordance_to_tsv:
     input:
         "concordance/{mode}-{caller}/{prefix}.bcf"
@@ -338,18 +288,6 @@ rule concordance_to_tsv:
     shell:
         "rbt vcf-to-txt {params.gt} --info {params.info} MATCHING < {input} > {output}"
 
-
-#rule plot_concordance_upset_prosic:
-#    input:
-#        "aggregated-concordance/prosic-{caller}/{id}.{vartype}.{minlen}-{maxlen}.tsv"
-#    output:
-#        "plots/concordance/upset/prosic-{caller}/{id}.{vartype}.{minlen}-{maxlen}.concordance-upset.svg"
-#    params:
-#         datasets=lambda wc: config["plots"]["concordance"][wc.id]
-#    conda:
-#        "../envs/upset.yaml"
-#    script:
-#        "../scripts/plot-concordance-upset-prosic.R"
 
 
 rule plot_concordance_upset:
@@ -368,15 +306,13 @@ rule plot_concordance_upset:
 
 rule plot_concordance:
     input:
-        prosic_calls=get_concordance_calls("prosic"),
-        adhoc_calls=get_concordance_calls("adhoc")
+        prosic_calls=expand("aggregated-concordance/prosic-{caller}/{{id}}.{{vartype}}.tsv", caller=non_prosic_callers),
+        adhoc_calls=expand("aggregated-concordance/adhoc-{caller}/{{id}}.{{vartype}}.tsv", caller=non_prosic_callers)
     output:
-        "plots/concordance/{id}.{vartype}.{minlen}-{maxlen}.concordance.svg"
+        "plots/concordance/{id}.{vartype}.concordance.svg"
     params:
-        prosic_runs=get_concordance_calls("prosic", files=False),
-        adhoc_runs=get_concordance_calls("adhoc", files=False),
-        len_ranges=get_len_ranges,
-        runs=lambda wc: config["plots"]["concordance"][wc.id]
+        callers=non_prosic_callers,
+        len_ranges=get_len_ranges
     conda:
         "../envs/eval.yaml"
     script:
