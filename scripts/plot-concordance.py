@@ -21,7 +21,12 @@ adhoc_calls = [pd.read_table(f) for f in snakemake.input.adhoc_calls]
 
 
 
-def plot_len_range(minlen, maxlen):
+def calc_concordance(calls):
+    n = len(calls)
+    return (calls["concordance_count"] > 1).sum() / n
+
+
+def plot_len_range(minlen, maxlen, yfunc=None, pltfunc=plt.plot):
     for i, caller in enumerate(snakemake.params.callers):
         def plot_calls(calls, label, color, style):
             svlen = calls.loc[:, calls.columns.str.startswith("SVLEN")].abs()
@@ -29,7 +34,7 @@ def plot_len_range(minlen, maxlen):
             valid = ((svlen >= minlen) & (svlen <= maxlen)).sum(axis=1) >= 1
             calls = calls[valid]
             caseafs = calls["max_case_af"].unique()
-            concordance = []
+            y = []
             n_calls = []
             _caseafs = []
             for caseaf in sorted(caseafs):
@@ -37,11 +42,11 @@ def plot_len_range(minlen, maxlen):
                 if len(_calls) < MIN_CALLS:
                     continue
                 _caseafs.append(caseaf)
+                y.append(yfunc(_calls))
                 n = len(_calls)
-                concordance.append((_calls["concordance_count"] > 1).sum() / n)
                 n_calls.append(n)
 
-            plt.plot(_caseafs, concordance, style, label=label, color=color)
+            pltfunc(_caseafs, y, style, label=label, color=color)
 
         color = colors[snakemake.params.callers[i]]
         plot_calls(prosic_calls[i], "prosic+{}".format(caller), color=color, style="-")
@@ -52,11 +57,16 @@ def plot_len_range(minlen, maxlen):
     handles, _ = ax.get_legend_handles_labels()
     return ax, handles
 
+plt.figure(figsize=(4, 7))
+plt.subplot(211)
+plot_len_range(1, 2500, yfunc=calc_concordance)
+plt.ylabel("concordance")
 
-common.plot_len_ranges(
-    snakemake.params.len_ranges,
-    plot_len_range,
-    xlabel="tumor allele frequency",
-    ylabel="concordance")
+plt.subplot(212)
+plot_len_range(1, 2500, yfunc=lambda calls: len(calls), pltfunc=plt.semilogy)
+plt.xlabel("tumor allele frequency")
+plt.ylabel("# of calls")
+
+plt.tight_layout()
 
 plt.savefig(snakemake.output[0], bbox_inches="tight")
