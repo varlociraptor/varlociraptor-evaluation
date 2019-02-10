@@ -183,6 +183,24 @@ rule plot_precision_recall:
         "../scripts/plot-precision-recall.py"
 
 
+rule plot_allelefreq_recall:
+    input:
+        prosic_calls=get_calls("prosic"),
+        adhoc_calls=get_calls("adhoc"),
+        truth=lambda wc: "truth/{dataset}.annotated.tsv".format(**config["runs"][wc.run])
+    output:
+        "plots/allelefreq-recall/{run}.{vartype}.svg"
+    params:
+        prosic_callers=get_callers("prosic"),
+        adhoc_callers=get_callers("adhoc"),
+        len_ranges=get_len_ranges
+    conda:
+        "../envs/eval.yaml"
+    script:
+        "../scripts/plot-allelefreq-recall.py"
+
+
+
 rule plot_fdr:
     input:
         prosic_calls=get_calls("prosic", fdr=alphas),

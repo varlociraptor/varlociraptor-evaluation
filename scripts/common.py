@@ -120,7 +120,8 @@ def recall(calls, truth):
     if p == 0:
         return 0.0
     matches = calls.loc[calls.MATCHING.isin(truth.index), "MATCHING"]
-    tp = calls[calls.is_tp].MATCHING.unique().size
+    #tp = calls[calls.is_tp].MATCHING.unique().size
+    tp = matches.unique().size
     t = truth.shape[0]
     recall = tp / t
     return recall
