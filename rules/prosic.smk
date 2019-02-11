@@ -81,8 +81,10 @@ rule adhoc_prosic:
     input:
         "prosic-{caller}/{run}.all.bcf"
     output:
-        "prosic-{caller}/{run}.adhoc.bcf"
+        "prosic-{caller}/{run}.adhoc.{threshold}.bcf"
     params:
-        "-i 'INFO/PROB_SOMATIC_TUMOR<={}' -Ob".format(-10 * math.log10(0.98))
+        lambda wc: "-i 'INFO/PROB_SOMATIC_TUMOR<={}' -Ob".format(-10 * math.log10(float(wc.threshold)))
+    wildcard_constraints:
+        threshold="0.[0-9]+"
     wrapper:
         "0.22.0/bio/bcftools/view"

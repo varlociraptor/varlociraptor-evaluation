@@ -259,10 +259,10 @@ rule plot_softclips:
 
 rule concordance_match:
     input:
-        lambda wc: expand("{mode}-{caller}/{run}.all.bcf" if wc.mode != "prosic" else "prosic-{caller}/{run}.adhoc.bcf",
+        lambda wc: expand("{mode}-{caller}/{run}.all.bcf" if wc.mode != "prosic" else "prosic-{caller}/{run}.adhoc.{threshold}.bcf",
                           run=config["plots"]["concordance"][wc.id], **wc),
     output:
-        "concordance/{mode}-{caller}/{id}.{i}-vs-{j}.bcf"
+        "concordance/{mode}-{caller}-{threshold}/{id}.{i}-vs-{j}.bcf"
     params:
         match=config["vcf-match-params"],
         bcfs=lambda wc, input: (input[int(wc.i)], input[int(wc.j)])
@@ -279,11 +279,11 @@ def get_concordance_combinations(id):
 
 rule aggregate_concordance:
     input:
-        calls=lambda wc: expand("concordance/{mode}-{caller}/{id}.{i[0]}-vs-{i[1]}.tsv", i=get_concordance_combinations(wc.id), **wc),
+        calls=lambda wc: expand("concordance/{mode}-{caller}-{threshold}/{id}.{i[0]}-vs-{i[1]}.tsv", i=get_concordance_combinations(wc.id), **wc),
         prosic_calls=lambda wc: expand("prosic-{caller}/{dataset}.all.tsv", 
                                        dataset=[config["plots"]["concordance"][wc.id][c[0]] for c in get_concordance_combinations(wc.id)], **wc)
     output:
-        "aggregated-concordance/{mode}-{caller}/{id}.{vartype}.tsv"
+        "aggregated-concordance/{mode}-{caller}-{threshold}/{id}.{vartype}.tsv"
     params:
         dataset_combinations=lambda wc: list(get_concordance_combinations(wc.id)),
         datasets=lambda wc: config["plots"]["concordance"][wc.id]
@@ -295,9 +295,9 @@ rule aggregate_concordance:
 
 rule concordance_to_tsv:
     input:
-        "concordance/{mode}-{caller}/{prefix}.bcf"
+        "concordance/{mode}-{caller}-{threshold}/{prefix}.bcf"
     output:
-        "concordance/{mode}-{caller}/{prefix}.tsv"
+        "concordance/{mode}-{caller}-{threshold}/{prefix}.tsv"
     params:
         info=get_info_tags,
         gt=lambda wc: "--genotypes" if config["caller"][wc.caller].get("genotypes") else ""
@@ -310,9 +310,9 @@ rule concordance_to_tsv:
 
 rule plot_concordance_upset:
     input:
-        "aggregated-concordance/{mode}-{caller}/{id}.{vartype}.tsv"
+        "aggregated-concordance/{mode}-{caller}-{threshold}/{id}.{vartype}.tsv"
     output:
-        "plots/concordance/upset/{mode}-{caller}/{id}.{vartype}.concordance-upset.svg"
+        "plots/concordance/upset/{mode}-{caller}-{threshold}/{id}.{vartype}.concordance-upset.svg"
     params:
          datasets=lambda wc: config["plots"]["concordance"][wc.id]
     conda:
@@ -321,16 +321,19 @@ rule plot_concordance_upset:
         "../scripts/plot-concordance-upset.R"
 
 
+concordance_prosic_calls = lambda threshold: expand("aggregated-concordance/prosic-{caller}-{threshold}/{{id}}.{{vartype}}.tsv", caller=non_prosic_callers, threshold=threshold)
+
 
 rule plot_concordance:
     input:
-        prosic_calls=expand("aggregated-concordance/prosic-{caller}/{{id}}.{{vartype}}.tsv", caller=non_prosic_callers),
-        adhoc_calls=expand("aggregated-concordance/adhoc-{caller}/{{id}}.{{vartype}}.tsv", caller=non_prosic_callers)
+        prosic_calls_low=concordance_prosic_calls(0.90),
+        prosic_calls_high=concordance_prosic_calls(0.99),
+        adhoc_calls=expand("aggregated-concordance/adhoc-{caller}-default/{{id}}.{{vartype}}.tsv", caller=non_prosic_callers)
     output:
         "plots/concordance/{id}.{vartype}.concordance.svg"
     params:
         callers=non_prosic_callers,
-        len_ranges=get_len_ranges
+        len_ranges=get_len_ranges,
     conda:
         "../envs/eval.yaml"
     script:

@@ -41,40 +41,46 @@ def plot_len_range(minlen, maxlen):
                 c = calls[calls.score <= phred(p)]
                 return [common.recall(c, truth[truth.TAF >= af]) for af in afs]
 
-            plt.fill_between(
+            return plt.fill_between(
                 afs,
-                calc_recall(0.98),
-                calc_recall(0.8),
+                calc_recall(0.98 if maxlen > 30 else 0.99),
+                calc_recall(0.9),
                 color=color,
                 label=label,
-                alpha=0.8)
+                alpha=0.6)
         else:
             recall = [common.recall(calls, truth[truth.TAF >= af]) for af in afs]
-            plt.plot(
+            # plot a white background first to increase visibility
+            plt.plot(afs, recall, "-", color="white", alpha=0.8)
+            return plt.plot(
                 afs,
                 recall,
                 style,
                 color=color,
-                label=label,
-                markersize=markersize)
+                label=label)[0]
 
     handles = []
+    def register_handle(handle):
+        if handle is not None:
+            handles.append(handle)
     for calls, (caller,
                 len_range) in zip(snakemake.input.prosic_calls,
                                   props(snakemake.params.prosic_callers)):
         if len_range[0] != minlen and len_range[1] != maxlen:
             continue
         label = "prosic+{}".format(caller)
-        plot(calls, label, colors[caller], prosic=True)
-        handles.append(Line2D([0], [0], color=colors[caller], label=label))
+        handle = plot(calls, label, colors[caller], prosic=True)
+        register_handle(handle)
+        #handles.append(Line2D([0], [0], color=colors[caller], label=label))
 
     for calls, (caller, len_range) in zip(snakemake.input.adhoc_calls,
                              props(snakemake.params.adhoc_callers)):
         if len_range[0] != minlen and len_range[1] != maxlen:
             continue
         color = colors[caller]
-        plot(calls, caller, color, style=":", prosic=False)
-        handles.append(Line2D([0], [0], color=color, label=caller))
+        handle = plot(calls, caller, color, style=":", prosic=False)
+        register_handle(handle)
+        #handles.append(Line2D([0], [0], linestyle=":", color=color, label=caller))
 
     sns.despine()
     ax = plt.gca()
