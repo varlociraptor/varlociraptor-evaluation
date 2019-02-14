@@ -9,6 +9,11 @@ import numpy as np
 import math
 from matplotlib.lines import Line2D
 
+
+class NotEnoughObservationsException(Exception):
+    pass
+
+
 MIN_CALLS = 10
 
 vartype = snakemake.wildcards.vartype
@@ -50,6 +55,8 @@ def plot_len_range(minlen, maxlen, yfunc=None, yscale=None):
                 return _caseafs, y
 
             x, y = get_xy(calls)
+            if not x:
+                raise NotEnoughObservationsException()
             if calls_lower is not None:
                 _, y2 = get_xy(calls_lower, caseafs=x)
                 return plt.fill_between(x, y, y2, label=label, color=color, alpha=0.6)
@@ -59,13 +66,22 @@ def plot_len_range(minlen, maxlen, yfunc=None, yscale=None):
                 return plt.plot(x, y, style, label=label, color=color)[0]
 
         color = colors[snakemake.params.callers[i]]
-        handles_prosic.append(
-            plot_calls(
-                prosic_calls_high[i], 
-                "prosic+{}".format(caller), 
-                color=color, style="-", 
-                calls_lower=prosic_calls_low[i]))
-        handles_adhoc.append(plot_calls(adhoc_calls[i], caller, color=color, style=":"))
+        try:
+            handles_prosic.append(
+                plot_calls(
+                    prosic_calls_high[i], 
+                    "prosic+{}".format(caller), 
+                    color=color, style="-", 
+                    calls_lower=prosic_calls_low[i]))
+        except NotEnoughObservationsException:
+            # skip plot
+            pass
+        try:
+            handles_adhoc.append(plot_calls(adhoc_calls[i], caller, color=color, style=":"))
+        except NotEnoughObservationsException:
+            # skip plot
+            pass
+
     handles = handles_prosic + handles_adhoc
     sns.despine()
     ax = plt.gca()
@@ -76,12 +92,12 @@ def plot_len_range(minlen, maxlen, yfunc=None, yscale=None):
 plt.figure(figsize=(8, 4))
 plt.subplot(121)
 plot_len_range(1, 2500, yfunc=calc_concordance)
-plt.xlabel("tumor allele frequency")
+plt.xlabel("$\geq$ tumor allele frequency")
 plt.ylabel("concordance")
 
 plt.subplot(122)
 ax, handles = plot_len_range(1, 2500, yfunc=lambda calls: len(calls), yscale="log")
-plt.xlabel("tumor allele frequency")
+plt.xlabel("$\geq$ tumor allele frequency")
 plt.ylabel("# of calls")
 
 ax.legend(handles=handles, loc="best")

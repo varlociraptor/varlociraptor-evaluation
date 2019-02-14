@@ -20,6 +20,7 @@ CHROMOSOMES = list(map(str, range(1,23))) + ["M", "X", "Y"]
 tissues = ["tumor", "normal"]
 non_prosic_callers = [caller for caller in config["caller"] if caller != "prosic" and caller != "pindel"]
 alphas = [0.00001, 0.0001, 0.001, 0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+vartypes = ["INS", "DEL"]
 
 def get_bams(wildcards):
     run = config["runs"][wildcards.run]
@@ -72,10 +73,13 @@ wildcard_constraints:
 rule all:
     input:
         expand("plots/{plt}/{run}.{vartype}.{ext}",
-               plt=["precision-recall", "fdr-control", "allelefreqs", "score-dist"],
-               vartype=["INS", "DEL"],
+               plt=["precision-recall", "fdr-control", "allelefreqs", "score-dist", "allelefreq-recall"],
+               vartype=vartypes,
                run=config["plots"]["known-truth"],
                ext=["svg", "pdf"]),
+        expand("plots/concordance/{run}.{vartype}.concordance.svg",
+               run=config["plots"]["concordance"],
+               vartype=vartypes)
 
 
 include: "rules/mapping.smk"
