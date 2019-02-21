@@ -241,6 +241,7 @@ caller:
       - PROB_GERMLINE_HOM
       - PROB_ABSENT
       - PROB_SOMATIC_NORMAL
+      - SVLEN
     fmt:
       - AF
 
