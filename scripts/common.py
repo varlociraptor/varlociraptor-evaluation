@@ -128,7 +128,7 @@ def recall(calls, truth):
 
 
 def get_colors(config):
-    callers = [caller for caller in config["caller"] if caller != "prosic"]
+    callers = [caller for caller in config["caller"] if caller != "varlociraptor"]
     palette = sns.color_palette("colorblind", n_colors=len(callers))
     palette = sns.color_palette("tab10", n_colors=len(callers))
     return {caller: c for caller, c in zip(callers, palette)}

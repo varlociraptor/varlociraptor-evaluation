@@ -21,8 +21,8 @@ colors = common.get_colors(snakemake.config)
 
 
 
-prosic_calls_low = [pd.read_table(f) for f in snakemake.input.prosic_calls_low]
-prosic_calls_high = [pd.read_table(f) for f in snakemake.input.prosic_calls_high]
+varlociraptor_calls_low = [pd.read_table(f) for f in snakemake.input.varlociraptor_calls_low]
+varlociraptor_calls_high = [pd.read_table(f) for f in snakemake.input.varlociraptor_calls_high]
 adhoc_calls = [pd.read_table(f) for f in snakemake.input.adhoc_calls]
 
 
@@ -33,7 +33,7 @@ def calc_concordance(calls):
 
 
 def plot_len_range(minlen, maxlen, yfunc=None, yscale=None):
-    handles_prosic = []
+    handles_varlociraptor = []
     handles_adhoc = []
     for i, caller in enumerate(snakemake.params.callers):
         def plot_calls(calls, label, color, style, calls_lower=None):
@@ -67,12 +67,12 @@ def plot_len_range(minlen, maxlen, yfunc=None, yscale=None):
 
         color = colors[snakemake.params.callers[i]]
         try:
-            handles_prosic.append(
+            handles_varlociraptor.append(
                 plot_calls(
-                    prosic_calls_high[i], 
-                    "prosic+{}".format(caller), 
+                    varlociraptor_calls_high[i], 
+                    "varlociraptor+{}".format(caller), 
                     color=color, style="-", 
-                    calls_lower=prosic_calls_low[i]))
+                    calls_lower=varlociraptor_calls_low[i]))
         except NotEnoughObservationsException:
             # skip plot
             pass
@@ -82,7 +82,7 @@ def plot_len_range(minlen, maxlen, yfunc=None, yscale=None):
             # skip plot
             pass
 
-    handles = handles_prosic + handles_adhoc
+    handles = handles_varlociraptor + handles_adhoc
     sns.despine()
     ax = plt.gca()
     if yscale is not None:

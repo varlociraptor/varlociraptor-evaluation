@@ -69,11 +69,11 @@ def plot_len_range(minlen, maxlen):
 
     handles = []
     for calls, (caller,
-                len_range) in zip(snakemake.input.prosic_calls,
-                                  props(snakemake.params.prosic_callers)):
+                len_range) in zip(snakemake.input.varlociraptor_calls,
+                                  props(snakemake.params.varlociraptor_callers)):
         if len_range[0] != minlen and len_range[1] != maxlen:
             continue
-        label = "prosic+{}".format(caller)
+        label = "varlociraptor+{}".format(caller)
         plot(calls, label, colors[caller])
         handles.append(Line2D([0], [0], color=colors[caller], label=label))
 

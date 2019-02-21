@@ -29,13 +29,13 @@ def plot_len_range(minlen, maxlen):
     def plot(calls,
              label,
              color,
-             prosic=True,
+             varlociraptor=True,
              style="-.",
              markersize=4):
         calls = pd.read_table(calls, index_col=0)
         if len(calls) < 10:
             return
-        if prosic:
+        if varlociraptor:
             phred = lambda p: -10 * math.log10(p)
             def calc_recall(p):
                 c = calls[calls.score <= phred(p)]
@@ -64,12 +64,12 @@ def plot_len_range(minlen, maxlen):
         if handle is not None:
             handles.append(handle)
     for calls, (caller,
-                len_range) in zip(snakemake.input.prosic_calls,
-                                  props(snakemake.params.prosic_callers)):
+                len_range) in zip(snakemake.input.varlociraptor_calls,
+                                  props(snakemake.params.varlociraptor_callers)):
         if len_range[0] != minlen and len_range[1] != maxlen:
             continue
-        label = "prosic+{}".format(caller)
-        handle = plot(calls, label, colors[caller], prosic=True)
+        label = "varlociraptor+{}".format(caller)
+        handle = plot(calls, label, colors[caller], varlociraptor=True)
         register_handle(handle)
         #handles.append(Line2D([0], [0], color=colors[caller], label=label))
 
@@ -78,7 +78,7 @@ def plot_len_range(minlen, maxlen):
         if len_range[0] != minlen and len_range[1] != maxlen:
             continue
         color = colors[caller]
-        handle = plot(calls, caller, color, style=":", prosic=False)
+        handle = plot(calls, caller, color, style=":", varlociraptor=False)
         register_handle(handle)
         #handles.append(Line2D([0], [0], linestyle=":", color=color, label=caller))
 

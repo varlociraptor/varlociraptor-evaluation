@@ -17,7 +17,7 @@ props = product(snakemake.params.callers,
 
 calls = []
 
-for _calls, (caller, len_range, fdr) in zip(snakemake.input.prosic_calls, props):
+for _calls, (caller, len_range, fdr) in zip(snakemake.input.varlociraptor_calls, props):
     calls.append({"caller": caller, "len_range": len_range, "fdr": float(fdr), "calls": _calls})
 
 calls = pd.DataFrame(calls)
@@ -28,7 +28,7 @@ def plot_len_range(minlen, maxlen):
 
     def plot(caller):
         color = colors[caller]
-        label = "prosic+{}".format(caller)
+        label = "varlociraptor+{}".format(caller)
         fdrs = []
         alphas = []
         calls_ = calls.loc[caller]

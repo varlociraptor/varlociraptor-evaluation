@@ -62,10 +62,10 @@ def plot_len_range(minlen, maxlen):
 
     all_calls = []
     all_colors = []
-    for calls, (caller, len_range) in zip(snakemake.input.prosic_calls, props(snakemake.params.prosic_callers)):
+    for calls, (caller, len_range) in zip(snakemake.input.varlociraptor_calls, props(snakemake.params.varlociraptor_callers)):
         if len_range[0] != minlen and len_range[1] != maxlen:
             continue
-        label = "prosic+{}".format(caller)
+        label = "varlociraptor+{}".format(caller)
         calls = pd.read_table(calls)
         calls["caller"] = label
         if not calls.empty:
