@@ -48,6 +48,15 @@ def load_variants(path,
                   min_af=None,
                   max_af=None):
     variants = pd.read_table(path, header=[0, 1])
+
+    # store tumor AF estimate in CASE_AF column
+    try:
+        case_af = variants.loc[:, ("tumor", "AF")]
+        variants.loc[:, ("VARIANT", "CASE_AF")] = case_af
+    except KeyError:
+        # ignore if no AF estimate for tumor is present
+        pass
+
     variants = variants["VARIANT"]
     variants["CHROM"] = variants["CHROM"].astype(str)
 
@@ -83,9 +92,11 @@ def load_variants(path,
         else:
             print("use END")
             variants["SVLEN"] = variants["END"] - variants["POS"]
+    # convert to positive value
+    variants.loc[:, "SVLEN"] = variants["SVLEN"].abs()
     if minlen is not None and maxlen is not None:
-        variants = variants[(variants["SVLEN"].abs() >= minlen)
-                            & (variants["SVLEN"].abs() < maxlen)]
+        variants = variants[(variants["SVLEN"] >= minlen)
+                            & (variants["SVLEN"] < maxlen)]
 
     # only autosomes
     variants = variants[variants["CHROM"].str.match(r"(chr)?[0-9]+")]

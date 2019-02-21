@@ -5,6 +5,8 @@ import numpy as np
 
 vartype = snakemake.wildcards.vartype
 
+index_cols = ["CHROM", "POS", "SVLEN"] if vartype == "INS" or vartype == "DEL" else ["CHROM", "POS", "ALT"]
+
 all_variants = [load_variants(f, vartype=vartype) for f in snakemake.input.calls]
 
 G = nx.Graph()
@@ -24,7 +26,7 @@ representatives = {snakemake.params.dataset_combinations[i][0]: calls for i, cal
 if snakemake.wildcards.mode != "varlociraptor":
     varlociraptor_variants = [load_variants(f, vartype=vartype) for f in snakemake.input.varlociraptor_calls]
     for calls in varlociraptor_variants:
-        calls.set_index(["CHROM", "POS", "REF", "ALT", "SVLEN"], inplace=True)
+        calls.set_index(index_cols, inplace=True)
     varlociraptor_representatives = {snakemake.params.dataset_combinations[i][0]: calls for i, calls in enumerate(varlociraptor_variants)}
 
 # annotate calls with their component, i.e. their equivalence class
@@ -41,7 +43,7 @@ suffix = "_{}".format
 dataset_name = lambda i: snakemake.params.datasets[i]
 is_varlociraptor = False
 for dataset_id, calls in representatives.items():
-    cols = ["CHROM", "POS", "REF", "ALT", "SVLEN"]
+    cols = list(index_cols)
     if "CASE_AF" in calls.columns:
         cols.extend(["CASE_AF", "PROB_SOMATIC_TUMOR"])
         is_varlociraptor = True
@@ -57,7 +59,7 @@ for dataset_id, calls in representatives.items():
     else:
         aggregated = aggregated.join(calls, how="outer", lsuffix="", rsuffix="")
 
-# Forget the component id. Otherwise, we might run into errors with duplicate elements 
+# Forget the component id. Otherwise, we might run into errors with duplicate elements
 # in the index below. These can occur if there are multiple ambiguous calls.
 aggregated.reset_index(inplace=True, drop=True)
 
