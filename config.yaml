@@ -26,7 +26,7 @@ runs:
     mapper: bwa
     ref: hg38
     purity: 1.0
-  
+
   TCGA-44-4112-1-bwa:
     mapper: bwa
     ref: hg38
@@ -75,7 +75,7 @@ runs:
     params:
       strelka: --exome
       manta: --exome
-  
+
 
 datasets:
   simulated:
@@ -229,8 +229,8 @@ caller:
       - SOMATIC
       - SVLEN
       - SVTYPE
-  prosic:
-    params: "--flat-priors --indel-window 100 --omit-snvs"
+  varlociraptor:
+    params: "--indel-window 100 --omit-snvs"
     blacklist:
       - bpi
     delly: "--exclusive-end"
@@ -241,8 +241,8 @@ caller:
       - PROB_GERMLINE_HOM
       - PROB_ABSENT
       - PROB_SOMATIC_NORMAL
-      - CASE_AF
-      - CONTROL_AF
+    fmt:
+      - AF
 
 vcf-match-params: "--max-dist 50 --max-len-diff 50"
 

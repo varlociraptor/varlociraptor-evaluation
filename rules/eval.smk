@@ -58,11 +58,19 @@ rule truth_to_tsv:
         "rbt vcf-to-txt --genotypes --info SOMATIC SVLEN SVTYPE TAF NAF < {input} > {output}"
 
 
-def get_info_tags(wildcards):
+def get_bcf_tags(wildcards):
     mode = wildcards.get("mode")
-    tags = list(config["caller"][wildcards.caller].get("info", []))
-    if mode != "adhoc" and mode != "default":
-        tags += config["caller"]["varlociraptor"].get("info", [])
+    caller = wildcards.caller
+    if mode == "varlociraptor":
+        caller = "varlociraptor"
+    info_tags = list(config["caller"][caller].get("info", []))
+    fmt_tags = list(config["caller"][caller].get("fmt", []))
+
+    tags = ""
+    if fmt_tags:
+        tags += " --fmt {}".format(" ".join(fmt_tags))
+    if info_tags:
+        tags += " --info {}".format(" ".join(info_tags))
     return tags
 
 
@@ -76,12 +84,12 @@ rule varlociraptor_calls_to_tsv:
     output:
         "matched-calls/varlociraptor-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.tsv"
     params:
-        info=get_info_tags,
+        tags=get_bcf_tags,
         gt=get_genotypes_param
     conda:
         "../envs/rbt.yaml"
     shell:
-        "rbt vcf-to-txt {params.gt} --info {params.info} MATCHING < {input} > {output}"
+        "rbt vcf-to-txt {params.gt} --fmt AF {params.tags} --info MATCHING < {input} > {output}"
 
 
 rule varlociraptor_all_calls_to_tsv:
@@ -90,12 +98,12 @@ rule varlociraptor_all_calls_to_tsv:
     output:
         "varlociraptor-{caller}/{run}.all.tsv"
     params:
-        info=get_info_tags,
+        tags=get_bcf_tags,
         gt=get_genotypes_param
     conda:
         "../envs/rbt.yaml"
     shell:
-        "rbt vcf-to-txt {params.gt} --info {params.info} < {input} > {output}"
+        "rbt vcf-to-txt {params.gt} {params.tags} < {input} > {output}"
 
 
 rule other_calls_to_tsv:
@@ -104,12 +112,12 @@ rule other_calls_to_tsv:
     output:
         "matched-calls/{mode}-{caller}/{run}.all.tsv"
     params:
-        info=get_info_tags,
+        tags=get_bcf_tags,
         gt=get_genotypes_param
     conda:
         "../envs/rbt.yaml"
     shell:
-        "rbt vcf-to-txt {params.gt} --info {params.info} MATCHING < {input} > {output}"
+        "rbt vcf-to-txt {params.gt} {params.tags} --info MATCHING < {input} > {output}"
 
 
 def get_tsv_calls(wildcards):
@@ -280,7 +288,7 @@ def get_concordance_combinations(id):
 rule aggregate_concordance:
     input:
         calls=lambda wc: expand("concordance/{mode}-{caller}-{threshold}/{id}.{i[0]}-vs-{i[1]}.tsv", i=get_concordance_combinations(wc.id), **wc),
-        varlociraptor_calls=lambda wc: expand("varlociraptor-{caller}/{dataset}.all.tsv", 
+        varlociraptor_calls=lambda wc: expand("varlociraptor-{caller}/{dataset}.all.tsv",
                                        dataset=[config["plots"]["concordance"][wc.id][c[0]] for c in get_concordance_combinations(wc.id)], **wc)
     output:
         "aggregated-concordance/{mode}-{caller}-{threshold}/{id}.{vartype}.tsv"
@@ -299,12 +307,12 @@ rule concordance_to_tsv:
     output:
         "concordance/{mode}-{caller}-{threshold}/{prefix}.tsv"
     params:
-        info=get_info_tags,
+        tags=get_bcf_tags,
         gt=lambda wc: "--genotypes" if config["caller"][wc.caller].get("genotypes") else ""
     conda:
         "../envs/rbt.yaml"
     shell:
-        "rbt vcf-to-txt {params.gt} --info {params.info} MATCHING < {input} > {output}"
+        "rbt vcf-to-txt {params.gt} {params.tags} --info MATCHING < {input} > {output}"
 
 
 
@@ -349,4 +357,3 @@ rule lancet_frequencies:
         "../envs/eval.yaml"
     script:
         "../scripts/plot-freqdist.py"
-
