@@ -59,7 +59,7 @@ rule truth_to_tsv:
 
 
 def get_bcf_tags(wildcards):
-    mode = wildcards.get("mode")
+    mode = wildcards.get("mode", "varlociraptor")
     caller = wildcards.caller
     if mode == "varlociraptor":
         caller = "varlociraptor"
@@ -75,7 +75,11 @@ def get_bcf_tags(wildcards):
 
 
 def get_genotypes_param(wildcards):
-    return "--genotypes" if config["caller"][wildcards.caller].get("genotypes") else ""
+    mode = wildcards.get("mode", "varlociraptor")
+    caller = wildcards.caller
+    if mode == "varlociraptor":
+        caller = "varlociraptor"
+    return "--genotypes" if config["caller"][caller].get("genotypes") else ""
 
 
 rule varlociraptor_calls_to_tsv:
@@ -89,7 +93,7 @@ rule varlociraptor_calls_to_tsv:
     conda:
         "../envs/rbt.yaml"
     shell:
-        "rbt vcf-to-txt {params.gt} --fmt AF {params.tags} --info MATCHING < {input} > {output}"
+        "rbt vcf-to-txt {params.gt} {params.tags} --info MATCHING < {input} > {output}"
 
 
 rule varlociraptor_all_calls_to_tsv:

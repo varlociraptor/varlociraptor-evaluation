@@ -65,7 +65,7 @@ def load_variants(path,
     # constrain type
     if vartype == "DEL":
         isdel = (variants["REF"].str.len() >
-                 1) & (variants["ALT"].str.len() == 1)
+                 1) & ((variants["ALT"].str.len() == 1) | (variants["ALT"] == "<DEL>"))
         if "SVTYPE" in variants.columns:
             variants = variants[(variants["SVTYPE"].astype(str) == "DEL")
                                 | (isdel & variants["SVTYPE"].isnull())]

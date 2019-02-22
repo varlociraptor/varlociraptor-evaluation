@@ -20,8 +20,6 @@ def props(callers):
     return product(callers, snakemake.params.len_ranges)
 
 def plot_len_range(minlen, maxlen):
-
-
     def plot(calls, colors):
         calls = calls[calls.is_tp]
         true_af = truth.loc[calls.MATCHING].reset_index().TAF

@@ -235,6 +235,7 @@ caller:
       - bpi
     delly: "--exclusive-end"
     score: PROB_SOMATIC_TUMOR
+    genotypes: false
     info:
       - PROB_SOMATIC_TUMOR
       - PROB_GERMLINE_HET
