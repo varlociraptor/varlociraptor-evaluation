@@ -73,7 +73,7 @@ rule varlociraptor_control_fdr:
     #     "../envs/varlociraptor.yaml"
     shell:
         "varlociraptor filter-calls control-fdr {input} --events SOMATIC_TUMOR --var {wildcards.type} "
-        "--min-len {wildcards.minlen} --max-len {wildcards.maxlen} "
+        "--minlen {wildcards.minlen} --maxlen {wildcards.maxlen} "
         "--fdr {wildcards.fdr} > {output}"
 
 
