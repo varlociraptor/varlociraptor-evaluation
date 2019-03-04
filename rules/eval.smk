@@ -27,8 +27,8 @@ rule match_varlociraptor_calls:
         "matched-calls/varlociraptor-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.bcf"
     params:
         config["vcf-match-params"]
-    conda:
-        "../envs/rbt.yaml"
+    #conda:
+    #    "../envs/rbt.yaml"
     shell:
         "rbt vcf-match {params} {input.truth} < {input.calls} > {output}"
 
@@ -41,8 +41,8 @@ rule match_other_calls:
         "matched-calls/{mode}-{caller}/{run}.all.bcf"
     params:
         config["vcf-match-params"]
-    conda:
-        "../envs/rbt.yaml"
+    #conda:
+    #    "../envs/rbt.yaml"
     shell:
         "rbt vcf-match {params} {input.truth} < {input.calls} > {output}"
 
@@ -278,8 +278,8 @@ rule concordance_match:
     params:
         match=config["vcf-match-params"],
         bcfs=lambda wc, input: (input[int(wc.i)], input[int(wc.j)])
-    conda:
-        "../envs/rbt.yaml"
+    #conda:
+    #    "../envs/rbt.yaml"
     shell:
         "rbt vcf-match {params.match} {params.bcfs[1]} < {params.bcfs[0]} > {output}"
 

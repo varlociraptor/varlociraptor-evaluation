@@ -37,7 +37,7 @@ rule varlociraptor_call:
     # conda:
     #     "../envs/varlociraptor.yaml"
     shell:
-        "bcftools view {input.calls} {params.chrom_prefix} | "
+        "bcftools view -Ou {input.calls} {params.chrom_prefix} | "
         "varlociraptor call-tumor-normal {input.bams} {input.ref} "
         "--purity {params.purity} "
         "{config[caller][varlociraptor][params]} {params.caller} "

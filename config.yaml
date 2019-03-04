@@ -233,7 +233,6 @@ caller:
     params: "--indel-window 100 --omit-snvs"
     blacklist:
       - bpi
-    delly: "--exclusive-end"
     score: PROB_SOMATIC_TUMOR
     genotypes: false
     info:
