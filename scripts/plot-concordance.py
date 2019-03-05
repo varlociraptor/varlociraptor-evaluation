@@ -100,14 +100,14 @@ def plot_len_range(minlen, maxlen, yfunc=None, yscale=None):
         ax.set_yscale(yscale)
     return ax, handles
 
-plt.figure(figsize=(8, 4))
+plt.figure(figsize=(10, 4))
 plt.subplot(121)
 plot_len_range(1, 1000, yfunc=calc_concordance)
 plt.xlabel("$\geq$ tumor allele frequency")
 plt.ylabel("concordance")
 
 plt.subplot(122)
-for effective_mutation_rate in 10 ** np.linspace(1, 5, 10):
+for effective_mutation_rate in 10 ** np.linspace(1, 5, 7):
     afs = np.linspace(0.0, 1.0, 100, endpoint=False)
     plt.semilogy(afs, expected_counts(afs, effective_mutation_rate), "-", color="grey", alpha=0.4)
 
@@ -116,7 +116,7 @@ ax, handles = plot_len_range(1, 2500, yfunc=lambda calls: len(calls), yscale="lo
 plt.xlabel("$\geq$ tumor allele frequency")
 plt.ylabel("# of calls")
 
-#ax.legend(handles=handles, loc="best")
+ax.legend(handles=handles, loc="upper left", bbox_to_anchor=(1.0, 1.0))
 
 plt.tight_layout()
 
