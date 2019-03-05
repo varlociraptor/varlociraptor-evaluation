@@ -18,7 +18,7 @@ units = pd.DataFrame({
 units.index = gdc_manifest.id
 CHROMOSOMES = list(map(str, range(1,23))) + ["M", "X", "Y"]
 tissues = ["tumor", "normal"]
-non_prosic_callers = [caller for caller in config["caller"] if caller != "prosic" and caller != "pindel"]
+non_varlociraptor_callers = [caller for caller in config["caller"] if caller != "varlociraptor" and caller != "pindel"]
 alphas = [0.00001, 0.0001, 0.001, 0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 vartypes = ["INS", "DEL"]
 
@@ -63,7 +63,7 @@ wildcard_constraints:
     ref="|".join(config["ref"]),
     run="|".join(config["runs"]),
     purity="[01]\.[0-9]+",
-    mode="prosic|adhoc|default",
+    mode="varlociraptor|adhoc|default",
     minlen="[0-9]+",
     maxlen="[0-9]+"
 
@@ -89,7 +89,7 @@ include: "rules/lancet.smk"
 include: "rules/manta.smk"
 include: "rules/strelka.smk"
 include: "rules/bpi.smk"
-include: "rules/prosic.smk"
+include: "rules/varlociraptor.smk"
 include: "rules/adhoc.smk"
 include: "rules/eval.smk"
 include: "rules/stats.smk"
@@ -109,9 +109,9 @@ rule index_bcf:
 
 rule rank_fps:
     input:
-        "matched-calls/prosic-{caller}/{run}.{vartype}.{minlen}-{maxlen}.1.0.tsv"
+        "matched-calls/varlociraptor-{caller}/{run}.{vartype}.{minlen}-{maxlen}.1.0.tsv"
     output:
-        "ranked-{type,[ft]}ps/prosic-{caller}/{run}-0.75.{vartype}.{minlen}-{maxlen}.tsv"
+        "ranked-{type,[ft]}ps/varlociraptor-{caller}/{run}-0.75.{vartype}.{minlen}-{maxlen}.tsv"
     params:
         type=lambda wc: False if wc.type == "f" else True
     run:
@@ -130,7 +130,7 @@ def testcase_region(wildcards):
 
 rule testcase:
     input:
-        bcf=get_prosic_input(".bcf"),
+        bcf=get_varlociraptor_input(".bcf"),
         bams=get_bams,
         bais=get_bais
     output:

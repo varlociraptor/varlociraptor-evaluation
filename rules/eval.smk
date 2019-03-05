@@ -19,16 +19,16 @@ def get_truth(wildcards, ext="bcf"):
     return "truth/{dataset}.annotated.{ext}".format(ext=ext, **config["runs"][wildcards.run])
 
 
-rule match_prosic_calls:
+rule match_varlociraptor_calls:
     input:
-        calls="prosic-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.bcf",
+        calls="varlociraptor-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.bcf",
         truth=get_truth
     output:
-        "matched-calls/prosic-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.bcf"
+        "matched-calls/varlociraptor-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.bcf"
     params:
         config["vcf-match-params"]
-    conda:
-        "../envs/rbt.yaml"
+    #conda:
+    #    "../envs/rbt.yaml"
     shell:
         "rbt vcf-match {params} {input.truth} < {input.calls} > {output}"
 
@@ -41,8 +41,8 @@ rule match_other_calls:
         "matched-calls/{mode}-{caller}/{run}.all.bcf"
     params:
         config["vcf-match-params"]
-    conda:
-        "../envs/rbt.yaml"
+    #conda:
+    #    "../envs/rbt.yaml"
     shell:
         "rbt vcf-match {params} {input.truth} < {input.calls} > {output}"
 
@@ -58,44 +58,56 @@ rule truth_to_tsv:
         "rbt vcf-to-txt --genotypes --info SOMATIC SVLEN SVTYPE TAF NAF < {input} > {output}"
 
 
-def get_info_tags(wildcards):
-    mode = wildcards.get("mode")
-    tags = list(config["caller"][wildcards.caller].get("info", []))
-    if mode != "adhoc" and mode != "default":
-        tags += config["caller"]["prosic"].get("info", [])
+def get_bcf_tags(wildcards):
+    mode = wildcards.get("mode", "varlociraptor")
+    caller = wildcards.caller
+    if mode == "varlociraptor":
+        caller = "varlociraptor"
+    info_tags = list(config["caller"][caller].get("info", []))
+    fmt_tags = list(config["caller"][caller].get("fmt", []))
+
+    tags = ""
+    if fmt_tags:
+        tags += " --fmt {}".format(" ".join(fmt_tags))
+    if info_tags:
+        tags += " --info {}".format(" ".join(info_tags))
     return tags
 
 
 def get_genotypes_param(wildcards):
-    return "--genotypes" if config["caller"][wildcards.caller].get("genotypes") else ""
+    mode = wildcards.get("mode", "varlociraptor")
+    caller = wildcards.caller
+    if mode == "varlociraptor":
+        caller = "varlociraptor"
+    return "--genotypes" if config["caller"][caller].get("genotypes") else ""
 
 
-rule prosic_calls_to_tsv:
+rule varlociraptor_calls_to_tsv:
     input:
-        "matched-calls/prosic-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.bcf"
+        "matched-calls/varlociraptor-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.bcf"
     output:
-        "matched-calls/prosic-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.tsv"
+        "matched-calls/varlociraptor-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.tsv"
     params:
-        info=get_info_tags,
+        tags=get_bcf_tags,
         gt=get_genotypes_param
     conda:
         "../envs/rbt.yaml"
     shell:
-        "rbt vcf-to-txt {params.gt} --info {params.info} MATCHING < {input} > {output}"
+        "rbt vcf-to-txt {params.gt} {params.tags} --info MATCHING < {input} > {output}"
 
 
-rule prosic_all_calls_to_tsv:
+rule varlociraptor_all_calls_to_tsv:
     input:
-        "prosic-{caller}/{run}.all.bcf"
+        "varlociraptor-{caller}/{run}.all.bcf"
     output:
-        "prosic-{caller}/{run}.all.tsv"
+        "varlociraptor-{caller}/{run}.all.tsv"
     params:
-        info=get_info_tags,
+        tags=get_bcf_tags,
         gt=get_genotypes_param
     conda:
         "../envs/rbt.yaml"
     shell:
-        "rbt vcf-to-txt {params.gt} --info {params.info} < {input} > {output}"
+        "rbt vcf-to-txt {params.gt} {params.tags} < {input} > {output}"
 
 
 rule other_calls_to_tsv:
@@ -104,17 +116,17 @@ rule other_calls_to_tsv:
     output:
         "matched-calls/{mode}-{caller}/{run}.all.tsv"
     params:
-        info=get_info_tags,
+        tags=get_bcf_tags,
         gt=get_genotypes_param
     conda:
         "../envs/rbt.yaml"
     shell:
-        "rbt vcf-to-txt {params.gt} --info {params.info} MATCHING < {input} > {output}"
+        "rbt vcf-to-txt {params.gt} {params.tags} --info MATCHING < {input} > {output}"
 
 
 def get_tsv_calls(wildcards):
     pattern = "matched-calls/{mode}-{caller}/{run}.all.tsv"
-    if wildcards.mode == "prosic":
+    if wildcards.mode == "varlociraptor":
         pattern = "matched-calls/{mode}-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.tsv"
     return pattern.format(**wildcards)
 
@@ -131,13 +143,13 @@ rule obtain_tp_fp:
 
 
 def get_callers(mode):
-    if mode == "prosic":
-        blacklist = config["caller"]["prosic"]["blacklist"]
-        callers = [caller for caller in config["caller"] if caller != "prosic" and caller not in blacklist]
+    if mode == "varlociraptor":
+        blacklist = config["caller"]["varlociraptor"]["blacklist"]
+        callers = [caller for caller in config["caller"] if caller != "varlociraptor" and caller not in blacklist]
     elif mode == "default":
-        callers = [caller for caller, p in config["caller"].items() if "score" in p and caller != "prosic"]
+        callers = [caller for caller, p in config["caller"].items() if "score" in p and caller != "varlociraptor"]
     elif mode == "adhoc":
-        callers = [caller for caller, p in config["caller"].items() if p.get("adhoc", False) and caller != "prosic"]
+        callers = [caller for caller, p in config["caller"].items() if p.get("adhoc", False) and caller != "varlociraptor"]
     else:
         raise ValueError("Invalid mode: " + mode)
     return callers
@@ -166,14 +178,14 @@ def get_calls(mode, runs=None, fdr=[1.0]):
 
 rule plot_precision_recall:
     input:
-        prosic_calls=get_calls("prosic"),
+        varlociraptor_calls=get_calls("varlociraptor"),
         default_calls=get_calls("default"),
         adhoc_calls=get_calls("adhoc"),
         truth=lambda wc: "truth/{dataset}.annotated.tsv".format(**config["runs"][wc.run])
     output:
         "plots/precision-recall/{run}.{vartype}.svg"
     params:
-        prosic_callers=get_callers("prosic"),
+        varlociraptor_callers=get_callers("varlociraptor"),
         default_callers=get_callers("default"),
         adhoc_callers=get_callers("adhoc"),
         len_ranges=get_len_ranges
@@ -185,13 +197,13 @@ rule plot_precision_recall:
 
 rule plot_allelefreq_recall:
     input:
-        prosic_calls=get_calls("prosic"),
+        varlociraptor_calls=get_calls("varlociraptor"),
         adhoc_calls=get_calls("adhoc"),
         truth=lambda wc: "truth/{dataset}.annotated.tsv".format(**config["runs"][wc.run])
     output:
         "plots/allelefreq-recall/{run}.{vartype}.svg"
     params:
-        prosic_callers=get_callers("prosic"),
+        varlociraptor_callers=get_callers("varlociraptor"),
         adhoc_callers=get_callers("adhoc"),
         len_ranges=get_len_ranges
     conda:
@@ -203,11 +215,11 @@ rule plot_allelefreq_recall:
 
 rule plot_fdr:
     input:
-        prosic_calls=get_calls("prosic", fdr=alphas),
+        varlociraptor_calls=get_calls("varlociraptor", fdr=alphas),
     output:
         "plots/fdr-control/{run}.{vartype}.svg"
     params:
-        callers=get_callers("prosic"),
+        callers=get_callers("varlociraptor"),
         purity=lambda wc: config["runs"][wc.run]["purity"],
         len_ranges=get_len_ranges,
         fdrs=alphas
@@ -219,12 +231,12 @@ rule plot_fdr:
 
 rule plot_allelefreq:
     input:
-        prosic_calls=get_calls("prosic"),
+        varlociraptor_calls=get_calls("varlociraptor"),
         truth=lambda wc: "truth/{dataset}.annotated.tsv".format(**config["runs"][wc.run])
     output:
         "plots/allelefreqs/{run}.{vartype}.svg"
     params:
-        prosic_callers=get_callers("prosic"),
+        varlociraptor_callers=get_callers("varlociraptor"),
         len_ranges=get_len_ranges
     conda:
         "../envs/eval.yaml"
@@ -234,11 +246,11 @@ rule plot_allelefreq:
 
 rule plot_score_dist:
     input:
-        prosic_calls=get_calls("prosic")
+        varlociraptor_calls=get_calls("varlociraptor")
     output:
         "plots/score-dist/{run}.{vartype}.svg"
     params:
-        prosic_callers=get_callers("prosic"),
+        varlociraptor_callers=get_callers("varlociraptor"),
         len_ranges=get_len_ranges
     conda:
         "../envs/eval.yaml"
@@ -259,15 +271,15 @@ rule plot_softclips:
 
 rule concordance_match:
     input:
-        lambda wc: expand("{mode}-{caller}/{run}.all.bcf" if wc.mode != "prosic" else "prosic-{caller}/{run}.adhoc.{threshold}.bcf",
+        lambda wc: expand("{mode}-{caller}/{run}.all.bcf" if wc.mode != "varlociraptor" else "varlociraptor-{caller}/{run}.adhoc.{threshold}.bcf",
                           run=config["plots"]["concordance"][wc.id], **wc),
     output:
         "concordance/{mode}-{caller}-{threshold}/{id}.{i}-vs-{j}.bcf"
     params:
         match=config["vcf-match-params"],
         bcfs=lambda wc, input: (input[int(wc.i)], input[int(wc.j)])
-    conda:
-        "../envs/rbt.yaml"
+    #conda:
+    #    "../envs/rbt.yaml"
     shell:
         "rbt vcf-match {params.match} {params.bcfs[1]} < {params.bcfs[0]} > {output}"
 
@@ -280,7 +292,7 @@ def get_concordance_combinations(id):
 rule aggregate_concordance:
     input:
         calls=lambda wc: expand("concordance/{mode}-{caller}-{threshold}/{id}.{i[0]}-vs-{i[1]}.tsv", i=get_concordance_combinations(wc.id), **wc),
-        prosic_calls=lambda wc: expand("prosic-{caller}/{dataset}.all.tsv", 
+        varlociraptor_calls=lambda wc: expand("varlociraptor-{caller}/{dataset}.all.tsv",
                                        dataset=[config["plots"]["concordance"][wc.id][c[0]] for c in get_concordance_combinations(wc.id)], **wc)
     output:
         "aggregated-concordance/{mode}-{caller}-{threshold}/{id}.{vartype}.tsv"
@@ -299,12 +311,12 @@ rule concordance_to_tsv:
     output:
         "concordance/{mode}-{caller}-{threshold}/{prefix}.tsv"
     params:
-        info=get_info_tags,
-        gt=lambda wc: "--genotypes" if config["caller"][wc.caller].get("genotypes") else ""
+        tags=get_bcf_tags,
+        gt=get_genotypes_param
     conda:
         "../envs/rbt.yaml"
     shell:
-        "rbt vcf-to-txt {params.gt} --info {params.info} MATCHING < {input} > {output}"
+        "rbt vcf-to-txt {params.gt} {params.tags} --info MATCHING < {input} > {output}"
 
 
 
@@ -321,18 +333,18 @@ rule plot_concordance_upset:
         "../scripts/plot-concordance-upset.R"
 
 
-concordance_prosic_calls = lambda threshold: expand("aggregated-concordance/prosic-{caller}-{threshold}/{{id}}.{{vartype}}.tsv", caller=non_prosic_callers, threshold=threshold)
+concordance_varlociraptor_calls = lambda threshold: expand("aggregated-concordance/varlociraptor-{caller}-{threshold}/{{id}}.{{vartype}}.tsv", caller=non_varlociraptor_callers, threshold=threshold)
 
 
 rule plot_concordance:
     input:
-        prosic_calls_low=concordance_prosic_calls(0.90),
-        prosic_calls_high=concordance_prosic_calls(0.99),
-        adhoc_calls=expand("aggregated-concordance/adhoc-{caller}-default/{{id}}.{{vartype}}.tsv", caller=non_prosic_callers)
+        varlociraptor_calls_low=concordance_varlociraptor_calls(0.90),
+        varlociraptor_calls_high=concordance_varlociraptor_calls(0.99),
+        adhoc_calls=expand("aggregated-concordance/adhoc-{caller}-default/{{id}}.{{vartype}}.tsv", caller=non_varlociraptor_callers)
     output:
         "plots/concordance/{id}.{vartype}.concordance.svg"
     params:
-        callers=non_prosic_callers,
+        callers=non_varlociraptor_callers,
         len_ranges=get_len_ranges,
     conda:
         "../envs/eval.yaml"
@@ -349,4 +361,3 @@ rule lancet_frequencies:
         "../envs/eval.yaml"
     script:
         "../scripts/plot-freqdist.py"
-

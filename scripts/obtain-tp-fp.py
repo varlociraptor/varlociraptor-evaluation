@@ -7,8 +7,8 @@ minlen = int(snakemake.wildcards.minlen)
 maxlen = int(snakemake.wildcards.maxlen)
 vartype = snakemake.wildcards.vartype
 
-if snakemake.wildcards.mode == "prosic":
-    score = snakemake.config["caller"]["prosic"]["score"]
+if snakemake.wildcards.mode == "varlociraptor":
+    score = snakemake.config["caller"]["varlociraptor"]["score"]
     # calls are already filtered by FDR control step
     minlen = None
     maxlen = None

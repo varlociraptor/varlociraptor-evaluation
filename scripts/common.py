@@ -48,6 +48,15 @@ def load_variants(path,
                   min_af=None,
                   max_af=None):
     variants = pd.read_table(path, header=[0, 1])
+
+    # store tumor AF estimate in CASE_AF column
+    try:
+        case_af = variants.loc[:, ("tumor", "AF")]
+        variants.loc[:, ("VARIANT", "CASE_AF")] = case_af
+    except KeyError:
+        # ignore if no AF estimate for tumor is present
+        pass
+
     variants = variants["VARIANT"]
     variants["CHROM"] = variants["CHROM"].astype(str)
 
@@ -55,8 +64,10 @@ def load_variants(path,
 
     # constrain type
     if vartype == "DEL":
-        isdel = (variants["REF"].str.len() >
-                 1) & (variants["ALT"].str.len() == 1)
+        is_allele_del = (variants["REF"].str.len() > 1) & (variants["ALT"].str.len() == 1)
+        is_sv_del = variants["ALT"] == "<DEL>"
+        isdel = is_allele_del | is_sv_del
+
         if "SVTYPE" in variants.columns:
             variants = variants[(variants["SVTYPE"].astype(str) == "DEL")
                                 | (isdel & variants["SVTYPE"].isnull())]
@@ -82,10 +93,12 @@ def load_variants(path,
             print("REF ALT comp")
         else:
             print("use END")
-            variants["SVLEN"] = variants["END"] - variants["POS"]
+            variants["SVLEN"] = variants["END"] - (variants["POS"] + 1)
+    # convert to positive value
+    variants.loc[:, "SVLEN"] = variants["SVLEN"].abs()
     if minlen is not None and maxlen is not None:
-        variants = variants[(variants["SVLEN"].abs() >= minlen)
-                            & (variants["SVLEN"].abs() < maxlen)]
+        variants = variants[(variants["SVLEN"] >= minlen)
+                            & (variants["SVLEN"] < maxlen)]
 
     # only autosomes
     variants = variants[variants["CHROM"].str.match(r"(chr)?[0-9]+")]
@@ -128,7 +141,7 @@ def recall(calls, truth):
 
 
 def get_colors(config):
-    callers = [caller for caller in config["caller"] if caller != "prosic"]
+    callers = [caller for caller in config["caller"] if caller != "varlociraptor"]
     palette = sns.color_palette("colorblind", n_colors=len(callers))
     palette = sns.color_palette("tab10", n_colors=len(callers))
     return {caller: c for caller, c in zip(callers, palette)}

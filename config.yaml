@@ -26,7 +26,7 @@ runs:
     mapper: bwa
     ref: hg38
     purity: 1.0
-  
+
   TCGA-44-4112-1-bwa:
     mapper: bwa
     ref: hg38
@@ -75,7 +75,7 @@ runs:
     params:
       strelka: --exome
       manta: --exome
-  
+
 
 datasets:
   simulated:
@@ -229,20 +229,21 @@ caller:
       - SOMATIC
       - SVLEN
       - SVTYPE
-  prosic:
-    params: "--flat-priors --indel-window 100 --omit-snvs"
+  varlociraptor:
+    params: "--indel-window 100 --omit-snvs"
     blacklist:
       - bpi
-    delly: "--exclusive-end"
     score: PROB_SOMATIC_TUMOR
+    genotypes: false
     info:
       - PROB_SOMATIC_TUMOR
       - PROB_GERMLINE_HET
       - PROB_GERMLINE_HOM
       - PROB_ABSENT
       - PROB_SOMATIC_NORMAL
-      - CASE_AF
-      - CONTROL_AF
+      - SVLEN
+    fmt:
+      - AF
 
 vcf-match-params: "--max-dist 50 --max-len-diff 50"
 
@@ -250,15 +251,11 @@ len-ranges:
   DEL:
     - [1, 30]
     - [30, 50]
-    - [50, 70]
-    - [70, 100]
-    - [100, 150]
-    - [150, 250]
+    - [50, 100]
+    - [100, 250]
   INS:
     - [1, 30]
-    - [30, 50]
-    - [50, 70]
-    - [70, 100]
+    - [30, 100]
 
 
 plots:
