@@ -312,7 +312,7 @@ rule concordance_to_tsv:
         "concordance/{mode}-{caller}-{threshold}/{prefix}.tsv"
     params:
         tags=get_bcf_tags,
-        gt=lambda wc: "--genotypes" if config["caller"][wc.caller].get("genotypes") else ""
+        gt=get_genotypes_param
     conda:
         "../envs/rbt.yaml"
     shell:

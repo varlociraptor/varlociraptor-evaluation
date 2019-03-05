@@ -93,7 +93,7 @@ def load_variants(path,
             print("REF ALT comp")
         else:
             print("use END")
-            variants["SVLEN"] = variants["END"] - variants["POS"]
+            variants["SVLEN"] = variants["END"] - (variants["POS"] + 1)
     # convert to positive value
     variants.loc[:, "SVLEN"] = variants["SVLEN"].abs()
     if minlen is not None and maxlen is not None:

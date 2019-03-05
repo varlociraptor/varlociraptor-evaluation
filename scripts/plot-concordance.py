@@ -14,7 +14,7 @@ class NotEnoughObservationsException(Exception):
     pass
 
 
-MIN_CALLS = 10
+MIN_CALLS = 5
 
 vartype = snakemake.wildcards.vartype
 colors = common.get_colors(snakemake.config)
@@ -25,6 +25,17 @@ varlociraptor_calls_low = [pd.read_table(f) for f in snakemake.input.varlocirapt
 varlociraptor_calls_high = [pd.read_table(f) for f in snakemake.input.varlociraptor_calls_high]
 adhoc_calls = [pd.read_table(f) for f in snakemake.input.adhoc_calls]
 
+
+def expected_count(af, effective_mutation_rate):
+    """Calculate the expected number of somatic variants
+       for a given allele frequency and an effective mutation
+       rate, according to the model of Williams et al. Nature 
+       Genetics 2016"""
+    return effective_mutation_rate * (1.0 / af - 1.0)
+
+
+def expected_counts(afs, effective_mutation_rate):
+    return [expected_count(af, effective_mutation_rate) for af in afs]
 
 
 def calc_concordance(calls):
@@ -91,16 +102,21 @@ def plot_len_range(minlen, maxlen, yfunc=None, yscale=None):
 
 plt.figure(figsize=(8, 4))
 plt.subplot(121)
-plot_len_range(1, 2500, yfunc=calc_concordance)
+plot_len_range(1, 1000, yfunc=calc_concordance)
 plt.xlabel("$\geq$ tumor allele frequency")
 plt.ylabel("concordance")
 
 plt.subplot(122)
+for effective_mutation_rate in 10 ** np.linspace(1, 5, 10):
+    afs = np.linspace(0.0, 1.0, 100, endpoint=False)
+    plt.semilogy(afs, expected_counts(afs, effective_mutation_rate), "-", color="grey", alpha=0.4)
+
 ax, handles = plot_len_range(1, 2500, yfunc=lambda calls: len(calls), yscale="log")
+
 plt.xlabel("$\geq$ tumor allele frequency")
 plt.ylabel("# of calls")
 
-ax.legend(handles=handles, loc="best")
+#ax.legend(handles=handles, loc="best")
 
 plt.tight_layout()
 
