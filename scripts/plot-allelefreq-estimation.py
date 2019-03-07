@@ -33,12 +33,12 @@ def plot_len_range(minlen, maxlen):
         true_af = pd.Series(calls["true_af"].unique()).sort_values()
         # standard deviation when sampling in binomial process from allele freq
         # this is the expected sampling error within the correctly mapped fragments
-        sd = true_af.apply(lambda af: math.sqrt(af * (1 - af)))
-        x = np.arange(len(true_af))
-        offsets = [-0.5, 0.5]
-        y_upper = np.array([v for v in sd for o in offsets])
-        y_lower = np.maximum(-y_upper, [-f for f in true_af for o in offsets])
-        plt.fill_between([v + o for v in x for o in offsets], y_lower, y_upper, color="#EEEEEE", zorder=-5)
+        # sd = true_af.apply(lambda af: 1 / 40 * math.sqrt(40 * af * (1 - af)))
+        # x = np.arange(len(true_af))
+        # offsets = [-0.5, 0.5]
+        # y_upper = np.array([v for v in sd for o in offsets])
+        #  y_lower = np.maximum(-y_upper, [-f for f in true_af for o in offsets])
+        # plt.fill_between([v + o for v in x for o in offsets], y_lower, y_upper, color="#EEEEEE", zorder=-5)
 
         calls["true_af"] = calls["true_af"].apply("{:.3f}".format)
 
@@ -58,6 +58,10 @@ def plot_len_range(minlen, maxlen):
 
         return ax, handles[n:]
 
+    all_calls, all_colors = load_calls(minlen, maxlen)
+    return plot(all_calls, all_colors)
+
+def load_calls(minlen, maxlen):
     all_calls = []
     all_colors = []
     for calls, (caller, len_range) in zip(snakemake.input.varlociraptor_calls, props(snakemake.params.varlociraptor_callers)):
@@ -71,10 +75,9 @@ def plot_len_range(minlen, maxlen):
             all_colors.append(colors[caller])
 
     all_calls = pd.concat(all_calls)
+    return all_calls, all_colors
 
-    return plot(all_calls, all_colors)
-
-common.plot_len_ranges(
+common.plot_ranges(
     snakemake.params.len_ranges,
     plot_len_range,
     xlabel="true allele frequency",

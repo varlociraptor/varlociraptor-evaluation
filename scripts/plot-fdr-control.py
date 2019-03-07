@@ -57,7 +57,7 @@ def plot_len_range(minlen, maxlen):
     handles, _ = ax.get_legend_handles_labels()
     return ax, handles
 
-common.plot_len_ranges(
+common.plot_ranges(
     snakemake.params.len_ranges,
     plot_len_range,
     xlabel="FDR threshold",

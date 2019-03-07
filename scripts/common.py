@@ -7,16 +7,16 @@ import seaborn as sns
 import math
 
 
-def plot_len_ranges(len_ranges, plot_len_range, xlabel, ylabel):
-    ncols = 2 if len(len_ranges) == 4 else 3
-    nrows = int(math.ceil(len(len_ranges) / ncols))
+def plot_ranges(ranges, plot_range, xlabel, ylabel):
+    ncols = 2 if len(ranges) == 4 else 3
+    nrows = int(math.ceil(len(ranges) / ncols))
     plt.figure(figsize=(4 * ncols, 4 * nrows))
     axes = []
     all_handles = []
     seen = set()
-    for i, (minlen, maxlen) in enumerate(len_ranges):
+    for i, (lower, upper) in enumerate(ranges):
         plt.subplot(nrows, ncols, i + 1)
-        ax, handles = plot_len_range(minlen, maxlen)
+        ax, handles = plot_range(lower, upper)
 
         if i % ncols == 0:
             plt.ylabel(ylabel)
@@ -26,7 +26,7 @@ def plot_len_ranges(len_ranges, plot_len_range, xlabel, ylabel):
             plt.xlabel(xlabel)
         else:
             plt.xlabel("")
-        plt.title("{} - {}".format(minlen, maxlen))
+        plt.title("{} - {}".format(lower, upper))
 
         axes.append(ax)
         for handle in handles:

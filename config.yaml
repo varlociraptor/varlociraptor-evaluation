@@ -241,9 +241,11 @@ caller:
       - PROB_GERMLINE_HOM
       - PROB_ABSENT
       - PROB_SOMATIC_NORMAL
+      - PROB_ARTIFACT
       - SVLEN
     fmt:
       - AF
+      - DP
 
 vcf-match-params: "--max-dist 50 --max-len-diff 50"
 

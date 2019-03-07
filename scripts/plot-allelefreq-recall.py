@@ -87,7 +87,7 @@ def plot_len_range(minlen, maxlen):
     return ax, handles
 
 
-common.plot_len_ranges(
+common.plot_ranges(
     snakemake.params.len_ranges,
     plot_len_range,
     xlabel="allele frequency",

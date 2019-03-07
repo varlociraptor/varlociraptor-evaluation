@@ -77,9 +77,10 @@ rule all:
                vartype=vartypes,
                run=config["plots"]["known-truth"],
                ext=["svg", "pdf"]),
-        expand("plots/concordance/{run}.{vartype}.concordance.svg",
+        expand("plots/concordance/{run}.{vartype}.concordance.{ext}",
                run=config["plots"]["concordance"],
-               vartype=vartypes)
+               vartype=vartypes,
+               ext=["svg", "pdf"])
 
 
 include: "rules/mapping.smk"
