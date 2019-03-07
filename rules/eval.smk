@@ -244,6 +244,21 @@ rule plot_allelefreq:
         "../scripts/plot-allelefreq-estimation.py"
 
 
+rule plot_allelefreq_scatter:
+    input:
+        calls=expand("annotated-calls/varlociraptor-{caller}/{{run}}.{{vartype}}.1-250.1.0.tsv", caller=get_callers("varlociraptor")),
+        truth=lambda wc: "truth/{dataset}.annotated.tsv".format(**config["runs"][wc.run])
+    output:
+        "plots/allelefreq-scatter/{run}.{vartype}.svg"
+    params:
+        depth_ranges=lambda w: config["depth-ranges"][w.vartype],
+        callers=get_callers("varlociraptor")
+    conda:
+        "../envs/eval.yaml"
+    script:
+        "../scripts/plot-allelefreq-scatter.py"
+
+
 rule plot_score_dist:
     input:
         varlociraptor_calls=get_calls("varlociraptor")

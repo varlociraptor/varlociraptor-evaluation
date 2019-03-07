@@ -56,6 +56,12 @@ def load_variants(path,
     except KeyError:
         # ignore if no AF estimate for tumor is present
         pass
+    try:
+        dp = variants.loc[:, ("tumor", "DP")]
+        variants.loc[:, ("VARIANT", "TUMOR_DP")] = dp
+    except KeyError:
+        # ignore if not present
+        pass
 
     variants = variants["VARIANT"]
     variants["CHROM"] = variants["CHROM"].astype(str)

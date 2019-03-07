@@ -260,6 +260,17 @@ len-ranges:
     - [30, 100]
 
 
+depth-ranges:
+  DEL:
+    - [1, 20]
+    - [20, 40]
+  INS:
+    - [1, 10]
+    - [10, 20]
+    - [20, 40]
+    - [40, 100]
+
+
 plots:
   concordance:
     colo1:
