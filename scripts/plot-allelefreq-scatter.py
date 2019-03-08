@@ -7,7 +7,8 @@ import pandas as pd
 import common
 import numpy as np
 
-MIN_COUNT=20
+MIN_COUNT = 20
+MAX_DEPTH = 60
 
 vartype = snakemake.wildcards.vartype
 colors = common.get_colors(snakemake.config)
@@ -43,8 +44,7 @@ def plot(af, _):
     plt.plot(by_depth.TUMOR_DP, by_depth["-std"], "--", color="k")
     plt.plot(by_depth.TUMOR_DP, by_depth["mean"], "-", color="k")
 
-    max_depth = calls["TUMOR_DP"].max()
-    depths = np.arange(0, max_depth)
+    depths = np.arange(0, MAX_DEPTH)
     # standard deviation when sampling in binomial process from allele freq
     # this is the expected sampling error within the correctly mapped fragments
     sd = np.array([1.0 / depth * math.sqrt(depth * af * (1.0 - af)) for depth in depths])
@@ -56,7 +56,7 @@ def plot(af, _):
     ax.legend().remove()
     handles, labels = ax.get_legend_handles_labels()
     plt.ylim((-1.0, 1.0))
-    plt.xlim((0, 60))
+    plt.xlim((0, MAX_DEPTH))
 
     return ax, []
 
