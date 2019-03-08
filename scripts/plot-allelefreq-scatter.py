@@ -7,6 +7,7 @@ import pandas as pd
 import common
 import numpy as np
 
+MIN_COUNT=20
 
 vartype = snakemake.wildcards.vartype
 colors = common.get_colors(snakemake.config)
@@ -20,49 +21,51 @@ for caller, calls in zip(snakemake.params.callers, snakemake.input.calls):
     all_calls.append(calls)
 all_calls = pd.concat(all_calls)
 
-def plot_depth_range(min_depth, max_depth):
+def plot(af, _):
+    constrain_lower = lambda error: np.maximum(error, -af)
+    constrain_upper = lambda error: np.minimum(error, 1.0 - af)
+
     dp = all_calls["TUMOR_DP"]
-    calls = all_calls[(dp >= min_depth) & (dp <= max_depth)]
-    calls = calls[calls.is_tp]
+    calls = all_calls[all_calls.is_tp]
     true_af = truth.loc[calls.MATCHING].reset_index().TAF
     calls = calls.reset_index()
     calls["true_af"] = true_af
+    calls = calls[calls["true_af"] == af]
     calls["error"] = calls.CASE_AF - true_af
-    true_af = pd.Series(calls["true_af"].unique()).sort_values()
 
+    sns.kdeplot(calls["TUMOR_DP"], calls["error"], cmap="Blues", n_levels=50, shade=True, alpha=0.7, shade_lowest=False) #alpha=0.5, clip=((0.0, 1.0), (0.0, af)))
+    plt.plot(calls["TUMOR_DP"], calls["error"], ",", color="k", lw=0, alpha=1.0, rasterized=True)
+    by_depth = calls.groupby("TUMOR_DP")["error"].describe().reset_index()
+    by_depth["-std"] = constrain_lower(-by_depth["std"])
+    by_depth["std"] = constrain_upper(by_depth["std"])
+    by_depth = by_depth[by_depth["count"] >= MIN_COUNT]
+    plt.plot(by_depth.TUMOR_DP, by_depth["std"], "--", color="k")
+    plt.plot(by_depth.TUMOR_DP, by_depth["-std"], "--", color="k")
+    plt.plot(by_depth.TUMOR_DP, by_depth["mean"], "-", color="k")
+
+    max_depth = calls["TUMOR_DP"].max()
+    depths = np.arange(0, max_depth)
     # standard deviation when sampling in binomial process from allele freq
     # this is the expected sampling error within the correctly mapped fragments
-    avg_depth = calls["TUMOR_DP"].mean()
-    sd = true_af.apply(lambda af: 1 / avg_depth * math.sqrt(avg_depth * af * (1 - af)))
-    x = np.arange(len(true_af))
-    offsets = [-0.5, 0.5]
-    y_upper = np.array([v for v in sd for o in offsets])
-    y_lower = np.maximum(-y_upper, [-f for f in true_af for o in offsets])
-    plt.fill_between([v + o for v in x for o in offsets], y_lower, y_upper, color="#EEEEEE", zorder=-5)
-
-    calls["true_af"] = calls["true_af"].apply("{:.3f}".format)
-    size = 1 if min_depth > 20 else 2
-    sns.boxplot(x="true_af", y="error", data=calls, color="white", fliersize=0, linewidth=1)
-    sns.stripplot("true_af", "error", hue="caller", data=calls, palette=colors, dodge=True, jitter=True, alpha=0.5, size=size, rasterized=True)
-    #sns.scatterplot(x="true_af", y="CASE_AF", hue="caller", hue_order=colors.keys(), palette=colors.values(), data=calls, rasterized=True)
+    sd = np.array([1.0 / depth * math.sqrt(depth * af * (1.0 - af)) for depth in depths])
+    plt.fill_between(depths, constrain_lower(-sd), constrain_upper(sd), color="grey", alpha=0.5)
     
-    #sd = lambda af, n: 1 / n * math.sqrt(n * af * (1 - af))
-    #all_sd = lambda n: np.array([sd(af, n) for af in true_af])
-    # lower
-    #plt.fill_between(true_af, true_af - all_sd(avg_depth), true_af + all_sd(avg_depth), color="grey")
-
     sns.despine()
     plt.xticks(rotation="vertical")
     ax = plt.gca()
     ax.legend().remove()
     handles, labels = ax.get_legend_handles_labels()
+    plt.ylim((-1.0, 1.0))
+    plt.xlim((0, 60))
 
-    return ax, handles
+    return ax, []
+
+afs = [(af, af) for af in truth.TAF.sort_values().unique()]
 
 common.plot_ranges(
-    snakemake.params.depth_ranges,
-    plot_depth_range,
-    "true allele frequency",
+    afs,
+    plot,
+    "depth",
     "predicted - truth")
 
 plt.savefig(snakemake.output[0], bbox_inches="tight")

@@ -26,7 +26,12 @@ def plot_ranges(ranges, plot_range, xlabel, ylabel):
             plt.xlabel(xlabel)
         else:
             plt.xlabel("")
-        plt.title("{} - {}".format(lower, upper))
+        if lower == upper:
+            if isinstance(lower, float):
+                lower = "{:.3g}".format(lower)
+            plt.title(lower)
+        else:
+            plt.title("{} - {}".format(lower, upper))
 
         axes.append(ax)
         for handle in handles:

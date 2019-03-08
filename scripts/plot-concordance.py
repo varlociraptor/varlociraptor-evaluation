@@ -28,7 +28,7 @@ adhoc_calls = [pd.read_table(f) for f in snakemake.input.adhoc_calls]
 
 def expected_count(af, effective_mutation_rate):
     """Calculate the expected number of somatic variants
-       for a given allele frequency and an effective mutation
+       greater than a given allele frequency given an effective mutation
        rate, according to the model of Williams et al. Nature 
        Genetics 2016"""
     return effective_mutation_rate * (1.0 / af - 1.0)
@@ -43,7 +43,7 @@ def calc_concordance(calls):
     return (calls["concordance_count"] > 1).sum() / n
 
 
-def plot_len_range(minlen, maxlen, yfunc=None, yscale=None):
+def plot_len_range(minlen, maxlen, yfunc=None, yscale=None, upper_bound=None):
     handles_varlociraptor = []
     handles_adhoc = []
     for i, caller in enumerate(snakemake.params.callers):
@@ -59,6 +59,8 @@ def plot_len_range(minlen, maxlen, yfunc=None, yscale=None):
                 _caseafs = []
                 for caseaf in sorted(caseafs):
                     _calls = calls[calls["max_case_af"] >= caseaf]
+                    if upper_bound is not None:
+                        _calls = _calls[_calls["max_case_af"] <= caseaf + upper_bound]
                     if len(_calls) < MIN_CALLS:
                         continue
                     _caseafs.append(caseaf)

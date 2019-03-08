@@ -73,7 +73,7 @@ wildcard_constraints:
 rule all:
     input:
         expand("plots/{plt}/{run}.{vartype}.{ext}",
-               plt=["precision-recall", "fdr-control", "allelefreqs", "score-dist", "allelefreq-recall"],
+               plt=["precision-recall", "fdr-control", "allelefreqs", "score-dist", "allelefreq-recall", "allelefreq-scatter"],
                vartype=vartypes,
                run=config["plots"]["known-truth"],
                ext=["svg", "pdf"]),
