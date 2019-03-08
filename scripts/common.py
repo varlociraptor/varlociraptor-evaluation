@@ -8,7 +8,7 @@ import math
 
 
 def plot_ranges(ranges, plot_range, xlabel, ylabel):
-    ncols = 2 if len(ranges) == 4 else 3
+    ncols = 4 if len(ranges) == 4 else 3
     nrows = int(math.ceil(len(ranges) / ncols))
     plt.figure(figsize=(4 * ncols, 4 * nrows))
     axes = []
