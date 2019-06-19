@@ -38,9 +38,10 @@ rule varlociraptor_call:
     #     "../envs/varlociraptor.yaml"
     shell:
         "bcftools view -Ou {input.calls} {params.chrom_prefix} | "
-        "varlociraptor call-tumor-normal {input.bams} {input.ref} "
-        "--purity {params.purity} "
+        "varlociraptor call variants {input.ref} "
         "{config[caller][varlociraptor][params]} {params.caller} "
+        "tumor-normal {input.bams} "
+        "--purity {params.purity} "
         "> {output} 2> {log}"
 
 
