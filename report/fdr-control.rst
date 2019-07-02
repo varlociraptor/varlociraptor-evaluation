@@ -1,0 +1,1 @@
+Performance of FDR control on simulated data. Horizontal axis shows the applied FDR threshold, vertical axis shows the true FDR of the selected set of variants. Perfect FDR control would result in a line directly on the diagonal. Conservative control would lie in the area below the diagonal. Anything above the diagonal would be overly optimistic.

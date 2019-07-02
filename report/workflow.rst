@@ -1,0 +1,1 @@
+We compared varlociraptor with the application of `Delly <https://github.com/dellytools/delly>`_, `Strelka <https://github.com/Illumina/strelka>`_, `Lancet <https://github.com/nygenome/lancet>`_, and `Manta <https://github.com/Illumina/manta>`_ on simulated and real tumor/normal datasets. A detailed explanation of the experimental setup can be found in the corresponding paper.

@@ -1,0 +1,1 @@
+Allele frequency estimation error vs. true allele frequency on simulated data. The dashed lines depict the standard deviation, solid line depicts the mean. The grey area shows the standard deviation of a corresponding binomial sampling, which marks the maximum theoretically achievable accuracy.
