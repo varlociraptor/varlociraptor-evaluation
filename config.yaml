@@ -230,7 +230,7 @@ caller:
       - SVLEN
       - SVTYPE
   varlociraptor:
-    params: "--indel-window 100 --omit-snvs"
+    params: "--indel-window 64 --omit-snvs"
     blacklist:
       - bpi
     score: PROB_SOMATIC_TUMOR

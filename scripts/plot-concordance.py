@@ -14,7 +14,7 @@ class NotEnoughObservationsException(Exception):
     pass
 
 
-MIN_CALLS = 5
+MIN_CALLS = 20
 
 vartype = snakemake.wildcards.vartype
 colors = common.get_colors(snakemake.config)

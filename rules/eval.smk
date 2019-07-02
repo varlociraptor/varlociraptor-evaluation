@@ -183,7 +183,7 @@ rule plot_precision_recall:
         adhoc_calls=get_calls("adhoc"),
         truth=lambda wc: "truth/{dataset}.annotated.tsv".format(**config["runs"][wc.run])
     output:
-        "plots/precision-recall/{run}.{vartype}.svg"
+        report("plots/precision-recall/{run}.{vartype}.svg", category="Precision and Recall", caption="../report/precision-recall.rst")
     params:
         varlociraptor_callers=get_callers("varlociraptor"),
         default_callers=get_callers("default"),
@@ -217,7 +217,7 @@ rule plot_fdr:
     input:
         varlociraptor_calls=get_calls("varlociraptor", fdr=alphas),
     output:
-        "plots/fdr-control/{run}.{vartype}.svg"
+        report("plots/fdr-control/{run}.{vartype}.svg", category="FDR Control", caption="../report/fdr-control.rst")
     params:
         callers=get_callers("varlociraptor"),
         purity=lambda wc: config["runs"][wc.run]["purity"],
@@ -234,7 +234,7 @@ rule plot_allelefreq:
         varlociraptor_calls=get_calls("varlociraptor"),
         truth=lambda wc: "truth/{dataset}.annotated.tsv".format(**config["runs"][wc.run])
     output:
-        "plots/allelefreqs/{run}.{vartype}.svg"
+        report("plots/allelefreqs/{run}.{vartype}.svg", category="Allele Frequency Estimation", caption="../report/allele-freq.rst")
     params:
         varlociraptor_callers=get_callers("varlociraptor"),
         len_ranges=get_len_ranges
@@ -249,7 +249,7 @@ rule plot_allelefreq_scatter:
         calls=expand("annotated-calls/varlociraptor-{caller}/{{run}}.{{vartype}}.1-250.1.0.tsv", caller=get_callers("varlociraptor")),
         truth=lambda wc: "truth/{dataset}.annotated.tsv".format(**config["runs"][wc.run])
     output:
-        "plots/allelefreq-scatter/{run}.{vartype}.svg"
+        report("plots/allelefreq-scatter/{run}.{vartype}.svg", category="Allele Frequency Estimation", caption="../report/allele-freq-scatter.rst")
     params:
         depth_ranges=lambda w: config["depth-ranges"][w.vartype],
         callers=get_callers("varlociraptor")
@@ -263,7 +263,7 @@ rule plot_score_dist:
     input:
         varlociraptor_calls=get_calls("varlociraptor")
     output:
-        "plots/score-dist/{run}.{vartype}.svg"
+        report("plots/score-dist/{run}.{vartype}.svg", category="Score Distribution", caption="../report/score-dist.rst")
     params:
         varlociraptor_callers=get_callers("varlociraptor"),
         len_ranges=get_len_ranges
@@ -354,10 +354,10 @@ concordance_varlociraptor_calls = lambda threshold: expand("aggregated-concordan
 rule plot_concordance:
     input:
         varlociraptor_calls_low=concordance_varlociraptor_calls(0.90),
-        varlociraptor_calls_high=concordance_varlociraptor_calls(0.99),
+        varlociraptor_calls_high=concordance_varlociraptor_calls(0.98),
         adhoc_calls=expand("aggregated-concordance/adhoc-{caller}-default/{{id}}.{{vartype}}.tsv", caller=non_varlociraptor_callers)
     output:
-        "plots/concordance/{id}.{vartype}.concordance.svg"
+        report("plots/concordance/{id}.{vartype}.concordance.svg", category="Concordance", caption="../report/concordance.rst")
     params:
         callers=non_varlociraptor_callers,
         len_ranges=get_len_ranges,
