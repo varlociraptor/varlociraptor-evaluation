@@ -8,6 +8,7 @@ import common
 import numpy as np
 import math
 from matplotlib.lines import Line2D
+from matplotlib.colors import to_rgba
 
 
 class NotEnoughObservationsException(Exception):
@@ -15,6 +16,7 @@ class NotEnoughObservationsException(Exception):
 
 
 MIN_CALLS = 20
+MAX_LEN = 1000
 
 vartype = snakemake.wildcards.vartype
 colors = common.get_colors(snakemake.config)
@@ -72,7 +74,7 @@ def plot_len_range(minlen, maxlen, yfunc=None, yscale=None, upper_bound=None):
                 raise NotEnoughObservationsException()
             if calls_lower is not None:
                 _, y2 = get_xy(calls_lower, caseafs=x)
-                return plt.fill_between(x, y, y2, label=label, color=color, alpha=0.6)
+                return plt.fill_between(x, y, y2, label=label, edgecolor=color, facecolor=to_rgba(color, alpha=0.2))
             else:
                 if style != "-":
                     plt.plot(x, y, "-", color="white", alpha=0.8)
@@ -104,7 +106,7 @@ def plot_len_range(minlen, maxlen, yfunc=None, yscale=None, upper_bound=None):
 
 plt.figure(figsize=(10, 4))
 plt.subplot(121)
-plot_len_range(1, 1000, yfunc=calc_concordance)
+plot_len_range(1, MAX_LEN, yfunc=calc_concordance)
 plt.xlabel("$\geq$ tumor allele frequency")
 plt.ylabel("concordance")
 
@@ -113,7 +115,7 @@ for effective_mutation_rate in 10 ** np.linspace(1, 5, 7):
     afs = np.linspace(0.0, 1.0, 100, endpoint=False)
     plt.semilogy(afs, expected_counts(afs, effective_mutation_rate), "-", color="grey", alpha=0.4)
 
-ax, handles = plot_len_range(1, 2500, yfunc=lambda calls: len(calls), yscale="log")
+ax, handles = plot_len_range(1, MAX_LEN, yfunc=lambda calls: len(calls), yscale="log")
 
 plt.xlabel("$\geq$ tumor allele frequency")
 plt.ylabel("# of calls")
