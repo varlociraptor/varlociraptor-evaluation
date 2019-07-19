@@ -360,7 +360,6 @@ rule plot_concordance:
         report("plots/concordance/{id}.{vartype}.concordance.svg", category="Concordance", caption="../report/concordance.rst")
     params:
         callers=non_varlociraptor_callers,
-        len_ranges=get_len_ranges,
     conda:
         "../envs/eval.yaml"
     script:
