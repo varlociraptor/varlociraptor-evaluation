@@ -3,7 +3,7 @@
 
 # Data analysis for the initial Varlociraptor paper
 
-This Snakemake workflow automatically generates all results and figures from the paper.
+This Snakemake workflow automatically generates all results and figures from the [initial Varlociraptor paper focusing on somatic variant calling](https://doi.org/10.1101/741256).
 
 Rerunning the workflow requires a lot of computation time and some unavoidable [external resources that have to be manually deployed](#resources).
 We therefore hope that the [Snakemake report in the supplementary material of the paper](https://www.biorxiv.org/content/10.1101/741256v1.supplementary-material), providing all results together with comprehensive provenance information (workflow steps, parameters, software versions, code) will already yield sufficient information in most of the cases.
