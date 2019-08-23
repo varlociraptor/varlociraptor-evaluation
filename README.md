@@ -4,17 +4,14 @@
 # Data analysis for the initial Varlociraptor paper
 
 This Snakemake workflow automatically generates all results and figures from the paper.
+Rerunning the workflow requires a lot of computation time and some unavoidable external resources.
+We therefore hope that the [Snakemake report in the supplementary material of the paper](https://www.biorxiv.org/content/10.1101/741256v1.supplementary-material), providing all results together with comprehensive provenance information will already generate sufficient trust in most of the cases.
+If you nevertheless intend to rerun the analysis, feel free to follow the steps below, and please inform us about any potential issues.
 
-## Requirements
+## General Requirements
 
 Any 64-bit Linux installation with [GLIBC 2.5](http://unix.stackexchange.com/a/120381) or newer (i.e. any Linux distribution that is newer than CentOS 6).
 Note that the restriction of this workflow to Linux is purely a design decision (to save space and ensure reproducibility) and not related to Conda/Bioconda. Bioconda packages are available for both Linux and MacOS in general.
-
-In this special case there are unfortunately unavoidable additional requirements, due to licensing restrictions and data size.
-
-1. The required real data has to be obtained from EGA: https://ega-archive.org/datasets/EGAD00001002142
-2. The [Lancet](https://github.com/nygenome/lancet) variant caller has to be manually installed (and available in your PATH). It cannot be automatically deployed by Snakemake due to licensing restrictions.
-3. The required simulated data has to be obtained from Zenodo. Due to technical issues, we have not yet managed to upload it. This is being worked on with Zenodo support.
 
 ## Usage
 
@@ -75,8 +72,16 @@ First, create a working directory:
 Then, download the workflow archive from https://doi.org/10.5281/zenodo.3361700 and unpack it with
 
     tar -xf workflow.tar.gz
+    
+### Step 5: Obtain additional requirements
 
-### Step 5: Run the workflow
+In this special case there are unfortunately unavoidable additional requirements, due to licensing restrictions and data size.
+
+1. The required real data has to be obtained [from EGA (EGAD00001002142)](https://ega-archive.org/datasets/EGAD00001002142). After downloading it, edit the [config.yaml](https://github.com/varlociraptor/varlociraptor-evaluation/blob/master/config.yaml) in order to point to the right paths [here and below](https://github.com/varlociraptor/varlociraptor-evaluation/blob/master/config.yaml#L45).
+2. The [Lancet](https://github.com/nygenome/lancet) variant caller has to be manually installed (and available in your PATH). It cannot be automatically deployed by Snakemake+Conda due to licensing restrictions.
+3. The required simulated data has to be obtained from Zenodo: https://doi.org/10.5281/zenodo.1421298. Download it, convert back to BAM, and edit the [config.yaml](https://github.com/varlociraptor/varlociraptor-evaluation/blob/master/config.yaml) in order to point to the right paths [here](https://github.com/varlociraptor/varlociraptor-evaluation/blob/master/config.yaml#L34) and [here](https://github.com/varlociraptor/varlociraptor-evaluation/blob/master/config.yaml#L37).
+
+### Step 6: Run the workflow
 
 Execute the analysis workflow with Snakemake
 
