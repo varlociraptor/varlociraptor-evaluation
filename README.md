@@ -1,4 +1,5 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3361700.svg)](https://doi.org/10.5281/zenodo.3361700)
+[![Manuscript](https://img.shields.io/badge/Manuscript-10.1101%2F741256-blueviolet.svg)](https://doi.org/10.1101/741256)
 [![Snakemake](https://img.shields.io/badge/snakemake-≥5.4.0-brightgreen.svg)](https://snakemake.readthedocs.io)
 
 # Data analysis for the initial Varlociraptor paper
