@@ -34,8 +34,8 @@ rule varlociraptor_call:
         "logs/varlociraptor-{caller}/{run}.{chrom}.log"
     benchmark:
         "benchmarks/varlociraptor-{caller}/{run}.{chrom}.tsv"
-    # conda:
-    #     "../envs/varlociraptor.yaml"
+    conda:
+        "../envs/varlociraptor.yaml"
     shell:
         "bcftools view -Ou {input.calls} {params.chrom_prefix} | "
         "varlociraptor call variants {input.ref} "
@@ -61,6 +61,8 @@ rule varlociraptor_filter_by_odds:
         "varlociraptor-{caller}/{run}.all.bcf"
     output:
         "varlociraptor-{caller}/{run}.oddsfiltered.bcf"
+    conda:
+        "../envs/varlociraptor.yaml"
     shell:
         "varlociraptor filter-calls posterior-odds positive --events SOMATIC_TUMOR < {input} > {output}"
 
@@ -70,8 +72,8 @@ rule varlociraptor_control_fdr:
         "varlociraptor-{caller}/{run}.all.bcf"
     output:
         "varlociraptor-{caller}/{run}.{type}.{minlen}-{maxlen}.{fdr}.bcf"
-    # conda:
-    #     "../envs/varlociraptor.yaml"
+    conda:
+        "../envs/varlociraptor.yaml"
     shell:
         "varlociraptor filter-calls control-fdr {input} --events SOMATIC_TUMOR --var {wildcards.type} "
         "--minlen {wildcards.minlen} --maxlen {wildcards.maxlen} "
