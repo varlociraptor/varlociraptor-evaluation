@@ -75,11 +75,11 @@ datasets:
 
 ref:
   hg18:
-    fasta: ../data/hg18.fasta
+    fasta: data/hg18.fasta
     date: 2006-03
     chrom_prefix: chr
   hg38:
-    fasta: ../data/Homo_sapiens.GRCh38.dna.primary_assembly.fa
+    fasta: data/Homo_sapiens.GRCh38.dna.primary_assembly.fa
     date: 2013-12
     chrom_prefix: ""
     exons: resources/hg38.exons.bed

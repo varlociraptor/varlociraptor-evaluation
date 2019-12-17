@@ -12,6 +12,7 @@ rule get_region_bed:
 rule neusomatic:
     input:
         ref=get_ref,
+        fai=lambda w: get_ref(w) + ".fai",
         bed="neusomatic/{run}.region.bed",
         bams=get_bams,
         bais=get_bais,
@@ -28,10 +29,10 @@ rule neusomatic:
     shell:
         """
         export PATH=/opt/neusomatic/neusomatic/python/:$PATH
-        preprocess.py --mode call --reference {input.ref} \
+        (preprocess.py --mode call --reference {input.ref} \
                       --region_bed {input.bed} --tumor_bam {input.bams[0]} \
                       --normal_bam {input.bams[1]} --work {output.workdir} \
-                      --min_mapq 10 --number_threads {threads} \
+                      --min_mapq 10 --num_threads {threads} \
                       --scan_alignments_binary /opt/neusomatic/neusomatic/bin/scan_alignments
 
         call.py --candidates_tsv {output.workdir}/daataset/*/candidates*.tsv \
@@ -44,7 +45,7 @@ rule neusomatic:
                        --pref_vcf {output.workdir}/pred.vcf \
                        --candidates_vcf {output.workdir}/work_tumor/filtered_candidates.vcf \
                        --output_vcf {output.vcf} \
-                       --work {output.workdir}
+                       --work {output.workdir}) 2> {log}
         """
 
 
