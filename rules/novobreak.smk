@@ -38,5 +38,5 @@ rule novobreak_all:
         "bcftools concat -Ob {input}/split/*.sp.vcf > {output}"
 
 
-ruleorder: neusomatic_adhoc > adhoc_filter
+ruleorder: novobreak_adhoc > adhoc_filter
 
