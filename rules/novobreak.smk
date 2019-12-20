@@ -11,6 +11,7 @@ rule novobreak:
         "benchmarks/novobreak/{run}.tsv"
     conda:
         "../envs/novobreak.yaml"
+    threads: 16
     shell:
         "run_novobreak {input.ref} {input.bams[0]} {input.bams[1]} {threads} {output.workdir}"
 

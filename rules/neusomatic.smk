@@ -35,14 +35,14 @@ rule neusomatic:
                       --min_mapq 10 --num_threads {threads} \
                       --scan_alignments_binary /opt/neusomatic/neusomatic/bin/scan_alignments
 
-        call.py --candidates_tsv {output.workdir}/daataset/*/candidates*.tsv \
+        call.py --candidates_tsv {output.workdir}/dataset/*/candidates*.tsv \
                 --reference {input.ref} --out {output.workdir} \
                 --checkpoint /opt/neusomatic/models/NeuSomatic_v0.1.4_standalone_SEQC-WGS-Spike.pth \
                 --num_threads {threads} \
-                --bach_size 100
+                --batch_size 100
 
         postprocess.py --reference {input.ref} --tumor_bam {input.bams[0]} \
-                       --pref_vcf {output.workdir}/pred.vcf \
+                       --pred_vcf {output.workdir}/pred.vcf \
                        --candidates_vcf {output.workdir}/work_tumor/filtered_candidates.vcf \
                        --output_vcf {output.vcf} \
                        --work {output.workdir}) 2> {log}
