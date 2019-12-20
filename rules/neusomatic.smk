@@ -25,7 +25,7 @@ rule neusomatic:
         "benchmarks/neusomatic/{run}.tsv"
     singularity:
         "docker://msahraeian/neusomatic:0.2.1"
-    threads: 10
+    threads: 20
     shell:
         """
         export PATH=/opt/neusomatic/neusomatic/python/:$PATH
