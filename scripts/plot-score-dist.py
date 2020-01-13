@@ -41,7 +41,7 @@ def plot_len_range(minlen, maxlen):
 common.plot_ranges(
     snakemake.params.len_ranges,
     plot_len_range,
-    xlabel="$-10 \log_10 Pr(somatic)$",
+    xlabel=r"$-10 \log_{10}$ Pr(somatic)",
     ylabel="density")
 
 plt.savefig(snakemake.output[0], bbox_inches="tight")
