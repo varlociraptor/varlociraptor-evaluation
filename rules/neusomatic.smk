@@ -28,7 +28,7 @@ rule neusomatic:
     threads: 20
     shell:
         """
-        export PATH=/opt/neusomatic/neusomatic/python/:$PATH
+        call.py --help
         (preprocess.py --mode call --reference {input.ref} \
                       --region_bed {input.bed} --tumor_bam {input.bams[0]} \
                       --normal_bam {input.bams[1]} --work {output.workdir} \
@@ -37,7 +37,7 @@ rule neusomatic:
 
         call.py --candidates_tsv {output.workdir}/dataset/*/candidates*.tsv \
                 --reference {input.ref} --out {output.workdir} \
-                --checkpoint /opt/neusomatic/models/NeuSomatic_v0.1.4_standalone_SEQC-WGS-Spike.pth \
+                --checkpoint /opt/neusomatic/neusomatic/models/NeuSomatic_v0.1.4_standalone_SEQC-WGS-Spike.pth \
                 --num_threads {threads} \
                 --batch_size 100
 

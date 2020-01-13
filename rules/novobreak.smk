@@ -13,7 +13,7 @@ rule novobreak:
         "../envs/novobreak.yaml"
     threads: 16
     shell:
-        "run_novobreak {input.ref} {input.bams[0]} {input.bams[1]} {threads} {output.workdir}"
+        "run_novobreak {input.ref} {input.bams[0]} {input.bams[1]} {threads} {output.workdir} > {log} 2>&1"
 
 
 rule novobreak_adhoc:
