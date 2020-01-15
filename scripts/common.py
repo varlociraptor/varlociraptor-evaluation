@@ -1,37 +1,46 @@
 import matplotlib
 matplotlib.use("agg")
 from matplotlib import pyplot as plt
+import matplotlib.gridspec as gridspec
 import pandas as pd
 import numpy as np
 import seaborn as sns
 import math
 
 
-def plot_ranges(ranges, plot_range, xlabel, ylabel):
-    ncols = 4 if len(ranges) == 4 else 3
-    nrows = int(math.ceil(len(ranges) / ncols))
-    plt.figure(figsize=(4 * ncols, 4 * nrows))
+def plot_ranges(ranges, plot_range, xlabel, ylabel, row_offset=0, nrow_offset=0, row_span=1, fig=None, gs=None, legend=True, fig_height=None):
+    ncols = 4 if len(ranges) == 4 else min(3, len(ranges))
+    nrows = int(math.ceil(len(ranges) / ncols)) + nrow_offset
+    if fig is None:
+        if fig_height is None:
+            fig_height = 4 * nrows
+        fig = plt.figure(figsize=(4 * ncols, fig_height))
+        gs = gridspec.GridSpec(nrows, ncols, figure=fig)
     axes = []
     all_handles = []
     seen = set()
     for i, (lower, upper) in enumerate(ranges):
-        plt.subplot(nrows, ncols, i + 1)
+        row = i // ncols + row_offset
+        col = i % ncols
+        fig.add_subplot(gs[row:row+row_span, col]) 
         ax, handles = plot_range(lower, upper)
 
-        if i % ncols == 0:
+        if col == 0:
             plt.ylabel(ylabel)
         else:
             plt.ylabel("")
-        if (i // ncols) == (nrows - 1):
+        if row + row_span == nrows:
             plt.xlabel(xlabel)
         else:
             plt.xlabel("")
-        if lower == upper:
-            if isinstance(lower, float):
-                lower = "{:.3g}".format(lower)
-            plt.title(lower)
-        else:
-            plt.title("{} - {}".format(lower, upper))
+
+        if row_offset == 0:
+            if lower == upper:
+                if isinstance(lower, float):
+                    lower = "{:.3g}".format(lower)
+                plt.title(lower)
+            else:
+                plt.title("{} - {}".format(lower, upper))
 
         axes.append(ax)
         for handle in handles:
@@ -40,9 +49,10 @@ def plot_ranges(ranges, plot_range, xlabel, ylabel):
                 seen.add(label)
                 all_handles.append(handle)
 
-
-    axes[0].legend(handles=all_handles, loc="best")
+    if legend:
+        axes[0].legend(handles=all_handles, loc="best")
     plt.tight_layout()
+    return fig, gs
 
 
 def load_variants(path,

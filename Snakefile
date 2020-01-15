@@ -76,11 +76,11 @@ rule all:
                plt=["precision-recall", "fdr-control", "allelefreqs", "score-dist", "allelefreq-recall", "allelefreq-scatter"],
                vartype=vartypes,
                run=config["plots"]["known-truth"],
-               ext=["svg", "pdf"]),
+               ext=["pdf"]),
         expand("plots/concordance/{run}.{vartype}.concordance.{ext}",
                run=config["plots"]["concordance"],
                vartype=vartypes,
-               ext=["svg", "pdf"])
+               ext=["pdf"])
 
 
 include: "rules/mapping.smk"

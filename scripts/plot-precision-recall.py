@@ -1,4 +1,5 @@
 from itertools import product
+from functools import partial
 import matplotlib
 matplotlib.use("agg")
 from matplotlib import pyplot as plt
@@ -19,7 +20,7 @@ def props(callers):
     return product(callers, snakemake.params.len_ranges)
 
 
-def plot_len_range(minlen, maxlen):
+def plot_len_range(minlen, maxlen, min_precision=0.0):
 
     truth = common.load_variants(
         snakemake.input.truth, minlen, maxlen, vartype=vartype)
@@ -30,7 +31,8 @@ def plot_len_range(minlen, maxlen):
              line=True,
              style="-",
              invert=False,
-             markersize=4):
+             markersize=4,
+             endmarker=False):
         calls = pd.read_table(calls, index_col=0)
         if len(calls) < 10:
             return
@@ -59,13 +61,17 @@ def plot_len_range(minlen, maxlen):
             recall = [common.recall(calls, truth)]
             style = "."
             print(label, calls.shape[0], precision, recall)
+
         plt.plot(
             recall,
             precision,
             style,
             color=color,
             label=label,
-            markersize=markersize)
+            markersize=markersize
+        )
+        if endmarker:
+            plt.plot(recall[-1], precision[-1], "s", color=color, markersize=markersize)
 
     handles = []
     for calls, (caller,
@@ -74,7 +80,7 @@ def plot_len_range(minlen, maxlen):
         if len_range[0] != minlen and len_range[1] != maxlen:
             continue
         label = "varlociraptor+{}".format(caller)
-        plot(calls, label, colors[caller])
+        plot(calls, label, colors[caller], endmarker=True)
         handles.append(Line2D([0], [0], color=colors[caller], label=label))
 
     for calls, (caller,
@@ -105,13 +111,29 @@ def plot_len_range(minlen, maxlen):
 
     sns.despine()
     ax = plt.gca()
+    plt.ylim((min_precision, 1.01 if min_precision == 0.0 else 1.001))
     return ax, handles
 
-
-common.plot_ranges(
+fig, gs = common.plot_ranges(
     snakemake.params.len_ranges,
     plot_len_range,
     xlabel="recall",
-    ylabel="precision")
+    ylabel="precision",
+    nrow_offset=2,
+    row_span=2,
+    fig_height=6,
+)
+
+common.plot_ranges(
+    snakemake.params.len_ranges,
+    partial(plot_len_range, min_precision=0.99 if vartype == "INS" else 0.95),
+    xlabel="recall",
+    ylabel="precision",
+    row_offset=2,
+    nrow_offset=2,
+    fig=fig,
+    gs=gs,
+    legend=False,
+)
 
 plt.savefig(snakemake.output[0], bbox_inches="tight")

@@ -85,12 +85,14 @@ ref:
     exons: resources/hg38.exons.bed
 
 caller:
-  #neusomatic:
-  #  params: ""
-  #  adhoc: true
-  #  genotypes: true
-  #  info:
-  #    - SOMATIC
+  neusomatic:
+    params: ""
+    score: SCORE
+    invert: true
+    adhoc: true
+    genotypes: false
+    info:
+      - SCORE
   delly:
     params: ""
     adhoc: true

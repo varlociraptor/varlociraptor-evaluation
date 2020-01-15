@@ -41,7 +41,7 @@ rule neusomatic:
                 --num_threads {threads} \
                 --batch_size 100
 
-        postprocess.py --reference {input.ref} --tumor_bam {input.bams[0]} \
+        python `which postprocess.py` --reference {input.ref} --tumor_bam {input.bams[0]} \
                        --pred_vcf {output.workdir}/pred.vcf \
                        --candidates_vcf {output.workdir}/work_tumor/filtered_candidates.vcf \
                        --output_vcf {output.vcf} \
@@ -49,15 +49,28 @@ rule neusomatic:
         """
 
 
+rule fix_neusomatic:
+    input:
+        header=lambda w: "resources/neusomatic.{}.header.txt".format(config["runs"][w.run]["ref"]),
+        vcf="neusomatic/{run}.all.vcf"
+    output:
+        "default-neusomatic/{run}.all.bcf"
+    conda:
+        "../envs/tools.yaml"
+    shell:
+        "bcftools annotate -Ob -o {output} -h {input.header} {input.vcf}"
+ 
+
+
 ruleorder: neusomatic_adhoc > adhoc_filter
 
 
 rule neusomatic_adhoc:
     input:
-        "neusomatic/{run}.all.vcf"
+        "default-neusomatic/{run}.all.bcf"
     output:
         "adhoc-neusomatic/{run}.all.bcf"
     params:
-        "-f PASS -i INFO/SOMATIC"
+        "-f PASS -Ob"
     wrapper:
         "0.19.3/bio/bcftools/view"

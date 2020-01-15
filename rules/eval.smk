@@ -183,7 +183,7 @@ rule plot_precision_recall:
         adhoc_calls=get_calls("adhoc"),
         truth=lambda wc: "truth/{dataset}.annotated.tsv".format(**config["runs"][wc.run])
     output:
-        report("plots/precision-recall/{run}.{vartype}.svg", category="Precision and Recall", caption="../report/precision-recall.rst")
+        report("plots/precision-recall/{run}.{vartype}.pdf", category="Precision and Recall", caption="../report/precision-recall.rst")
     params:
         varlociraptor_callers=get_callers("varlociraptor"),
         default_callers=get_callers("default"),
