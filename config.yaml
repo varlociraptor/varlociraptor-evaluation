@@ -1,6 +1,16 @@
 gdc-manifest: gdc_manifest_20171012_060907.txt
 
 runs:
+  synthetic-5:
+    mapper: bwa
+    dataset: synthetic-5
+    ref: hg38
+    purity: 1.0
+  synthetic-20:
+    mapper: bwa
+    dataset: synthetic-20
+    ref: hg38
+    purity: 1.0
   simulated-bwa:
     mapper: bwa
     dataset: simulated
@@ -29,6 +39,26 @@ runs:
 
 
 datasets:
+  synthetic-5:
+    tumor:
+      fq1: /vol/tiny/prosic/chm-synthetic-tumor-normal/dataset/mix5/tumor_1.fastq
+      fq2: /vol/tiny/prosic/chm-synthetic-tumor-normal/dataset/mix5/tumor_2.fastq
+      name: Cancer
+    normal:
+      fq1: /vol/tiny/prosic/chm-synthetic-tumor-normal/dataset/mix5/normal_1.fastq
+      fq2: /vol/tiny/prosic/chm-synthetic-tumor-normal/dataset/mix5/normal_2.fastq
+      name: Control
+    truth: /vol/tiny/prosic/chm-synthetic-tumor-normal/dataset/mix5/truth.vcf
+  synthetic-20:
+    tumor:
+      fq1: /vol/tiny/prosic/chm-synthetic-tumor-normal/dataset/mix20/tumor_1.fastq
+      fq2: /vol/tiny/prosic/chm-synthetic-tumor-normal/dataset/mix20/tumor_2.fastq
+      name: Cancer
+    normal:
+      fq1: /vol/tiny/prosic/chm-synthetic-tumor-normal/dataset/mix20/normal_1.fastq
+      fq2: /vol/tiny/prosic/chm-synthetic-tumor-normal/dataset/mix20/normal_2.fastq
+      name: Control
+    truth: /vol/tiny/prosic/chm-synthetic-tumor-normal/dataset/mix20/truth.vcf
   simulated:
     tumor:
       bam: ../data/hiseq.Cancer80.wholegenome.bwamemm.cat.sorted.smtag.bam
