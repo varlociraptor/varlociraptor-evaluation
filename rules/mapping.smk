@@ -37,7 +37,7 @@ rule bwa_index:
     params:
         prefix=lambda wc, output: os.path.splitext(output[0])[0]
     conda:
-        "../envs/qtip.yaml"
+        "../envs/bwa.yaml"
     shell:
         "bwa index -p {params.prefix} {input}"
 
@@ -45,41 +45,18 @@ rule bwa_index:
 bwa_params = r'-Y -R "@RG\\tID:{tissue}\\tSM:{tissue}"'
 
 
-rule qtip:
-    input:
-        index="index/{ref}/genome.bwt",
-        ref=lambda wc: config["ref"][wc.ref]["fasta"],
-        m1="reads/{dataset}.{tissue}.1.fastq",
-        m2="reads/{dataset}.{tissue}.2.fastq"
-    output:
-        temp("mapped-qtip/{dataset}.{tissue}.{ref}.bam")
-    params:
-        index=lambda wc, input: os.path.splitext(input.index)[0],
-        out="mapped-qtip/{dataset}.{tissue}.{ref}",
-        tmp="mapped-qtip",
-        bwa=bwa_params
-    conda:
-        "../envs/qtip.yaml"
-    log:
-        "logs/qtip/{dataset}.{tissue}.{ref}.log"
-    benchmark:
-        "benchmarks/qtip/{dataset}.{tissue}.{ref}.tsv"
-    threads: 8
-    resources:
-        disk=1  # constrain number of qtip instances
-    shell:
-        "rm -rf {params.out}; "
-        "(resources/qtip --bwa-exe 'resources/bwa mem {params.bwa} -t {threads}' "
-        "--output-directory {params.out} --temp-directory {params.tmp} --input-model-size 30000 "
-        "--aligner bwa-mem --m1 {input.m1} --m2 {input.m2} --index {params.index} --ref {input.ref}; "
-        "samtools view -Sb {params.out}/final.sam > {output}; "
-        "rm -r {params.out}) 2> {log}"
+def get_reads(wildcards):
+    ds = config["datasets"][wildcards.dataset][wildcards.tissue]
+    if "fq1" in ds:
+        return [ds["fq1"], ds["fq2"]]
+    else:
+        return expand("reads/{{dataset}}.{{tissue}}.{mate}.fastq.gz", mate=[1, 2])
 
 
 rule bwa:
     input:
         index="index/{ref}/genome.bwt",
-        sample=expand("reads/{{dataset}}.{{tissue}}.{mate}.fastq.gz", mate=[1, 2])
+        sample=get_reads
     output:
         temp("mapped-bwa/{dataset}.{tissue}.{ref}.bam")
     log:
@@ -90,7 +67,7 @@ rule bwa:
         index=lambda wc, input: os.path.splitext(input.index)[0],
         extra=bwa_params
     conda:
-        "../envs/qtip.yaml"
+        "../envs/bwa.yaml"
     threads: 8
     shell:
         "(resources/bwa mem -t {threads} {params.extra} {params.index} {input.sample} | "

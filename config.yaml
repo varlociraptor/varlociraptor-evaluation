@@ -221,3 +221,5 @@ plots:
       - COLO_829-EBI
   known-truth:
     - simulated-bwa
+    - synthetic-5
+    - synthetic-20
