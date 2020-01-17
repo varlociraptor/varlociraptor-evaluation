@@ -38,13 +38,19 @@ for rec in vcf_in:
     if len(rec.ALT) > 1:
         raise ValueError("multiallelic sites are not supported at the moment")
 
-    # calculate AF
-    tumor_vaf = sum(fraction * subclone_vaf(rec.genotypes[idx])
-                    for idx, fraction in zip(subclone_idx, fractions))
-    normal_vaf = subclone_vaf(rec.genotypes[control_idx])
 
-    rec.INFO["TAF"] = tumor_vaf
-    rec.INFO["NAF"] = normal_vaf
+    if "TAF" not in rec.INFO:
+        # calculate AF
+        tumor_vaf = sum(fraction * subclone_vaf(rec.genotypes[idx])
+                        for idx, fraction in zip(subclone_idx, fractions))
+        normal_vaf = subclone_vaf(rec.genotypes[control_idx])
+
+        rec.INFO["TAF"] = tumor_vaf
+        rec.INFO["NAF"] = normal_vaf
+    else:
+        tumor_vaf = rec.INFO["TAF"]
+        normal_vaf = rec.INFO["NAF"]
+
     # only keep somatic variants
     if normal_vaf == 0.0 and tumor_vaf > 0.0:
         bcf_out.write_record(rec)
