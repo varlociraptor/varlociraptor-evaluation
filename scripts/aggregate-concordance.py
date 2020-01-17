@@ -49,8 +49,10 @@ for dataset_id, calls in representatives.items():
         is_varlociraptor = True
     calls = calls[cols]
     if snakemake.wildcards.mode != "varlociraptor":
-        caseaf = calls.set_index(cols, drop=False).join(varlociraptor_representatives[dataset_id][["CASE_AF"]], how="left")["CASE_AF"]
+        idx_calls = calls.set_index(cols, drop=False)
+        caseaf = idx_calls.join(varlociraptor_representatives[dataset_id][["CASE_AF"]], how="left")["CASE_AF"]
         caseaf = caseaf[~caseaf.index.duplicated()]
+        calls = calls[~idx_calls.index.duplicated()]
         calls["CASE_AF"] = caseaf.values
 
     calls.columns = [c + suffix(dataset_name(dataset_id)) for c in calls.columns]

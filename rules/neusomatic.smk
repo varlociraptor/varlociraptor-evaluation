@@ -28,7 +28,6 @@ rule neusomatic:
     threads: 20
     shell:
         """
-        call.py --help
         (preprocess.py --mode call --reference {input.ref} \
                       --region_bed {input.bed} --tumor_bam {input.bams[0]} \
                       --normal_bam {input.bams[1]} --work {output.workdir} \
