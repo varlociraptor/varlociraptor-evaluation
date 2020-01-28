@@ -73,9 +73,14 @@ wildcard_constraints:
 rule all:
     input:
         expand("plots/{plt}/{run}.{vartype}.{ext}",
-               plt=["precision-recall", "fdr-control", "allelefreqs", "score-dist", "allelefreq-recall", "allelefreq-scatter"],
+               plt=["fdr-control", "allelefreqs", "score-dist", "allelefreq-recall", "allelefreq-scatter"],
+               vartype=vartypes,
+               run=config["plots"]["known-truth-full-afs"],
+               ext=["pdf"]),
+        expand("plots/precision-recall/{run}.{vartype}.{zoom}.{ext}",
                vartype=vartypes,
                run=config["plots"]["known-truth"],
+               zoom=["zoom", "nozoom"],
                ext=["pdf"]),
         expand("plots/concordance/{run}.{vartype}.concordance.{ext}",
                run=config["plots"]["concordance"],

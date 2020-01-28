@@ -6,11 +6,13 @@ runs:
     dataset: synthetic-5
     ref: hg38
     purity: 1.0
+    legend-outside: true
   synthetic-20:
     mapper: bwa
     dataset: synthetic-20
     ref: hg38
     purity: 1.0
+    legend-outside: true
   simulated-bwa:
     mapper: bwa
     dataset: simulated
@@ -48,7 +50,8 @@ datasets:
       fq1: /vol/tiny/prosic/chm-synthetic-tumor-normal/dataset/mix5/normal_1.fastq
       fq2: /vol/tiny/prosic/chm-synthetic-tumor-normal/dataset/mix5/normal_2.fastq
       name: Control
-    truth: /vol/tiny/prosic/chm-synthetic-tumor-normal/dataset/mix5/truth.vcf
+    truth: /vol/tiny/prosic/chm-synthetic-tumor-normal/dataset/mix5/truth.nochr.vcf
+    regions: /vol/tiny/prosic/chm-synthetic-tumor-normal/dataset/mix5/confident-regions.nochr.bed
   synthetic-20:
     tumor:
       fq1: /vol/tiny/prosic/chm-synthetic-tumor-normal/dataset/mix20/tumor_1.fastq
@@ -58,7 +61,8 @@ datasets:
       fq1: /vol/tiny/prosic/chm-synthetic-tumor-normal/dataset/mix20/normal_1.fastq
       fq2: /vol/tiny/prosic/chm-synthetic-tumor-normal/dataset/mix20/normal_2.fastq
       name: Control
-    truth: /vol/tiny/prosic/chm-synthetic-tumor-normal/dataset/mix20/truth.vcf
+    truth: /vol/tiny/prosic/chm-synthetic-tumor-normal/dataset/mix20/truth.nochr.vcf
+    regions: /vol/tiny/prosic/chm-synthetic-tumor-normal/dataset/mix20/confident-regions.nochr.bed
   simulated:
     tumor:
       bam: ../data/hiseq.Cancer80.wholegenome.bwamemm.cat.sorted.smtag.bam
@@ -191,6 +195,18 @@ caller:
 vcf-match-params: "--max-dist 50 --max-len-diff 50"
 
 len-ranges:
+  synthetic-20:
+    DEL:
+      - [1, 30]
+      - [30, 250]
+    INS:
+      - [1, 30]
+      - [30, 250]
+  synthetic-5:
+    DEL:
+      - [1, 250]
+    INS:
+      - [1, 250]
   DEL:
     - [1, 30]
     - [30, 50]
@@ -213,13 +229,15 @@ depth-ranges:
 
 
 plots:
-  concordance:
+  concordance: # runs where we can do concordance analysis
     colo1:
       - COLO_829-GSC
       - COLO_829-Ill
       - COLO_829-TGen
       - COLO_829-EBI
-  known-truth:
+  known-truth: # runs with a known truth
     - simulated-bwa
     - synthetic-5
     - synthetic-20
+  known-truth-full-afs: # runs where variants exhibit the full allele frequency spectrum
+    - simulated-bwa

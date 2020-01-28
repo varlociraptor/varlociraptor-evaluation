@@ -1,3 +1,22 @@
+rule build_lancet:
+    output:
+        "resources/lancet"
+    conda:
+        "../envs/lancet.yaml"
+    params:
+        commit="c3d08f58a681279539ed55178ae42a3625905cd5"
+    shell:
+        """
+        cd resources
+        curl -L https://github.com/nygenome/lancet/archive/{params.commit}.tar.gz | tar -xz
+        cd lancet-{params.commit}
+        sed -i 's/-Wl,-rpath,$(ABS_BAMTOOLS_DIR)\/lib\///' Makefile
+        make clean
+        prefix=$(dirname $(dirname $(which $CXX)))
+        make CXX=$CXX INCLUDES="-I$prefix/include/ -I$prefix/include/bamtools -L$prefix/lib"
+        cp lancet ..
+        """
+
 def get_whole_chrom_region(wildcards, input):
     if config["runs"][wildcards.run]["ref"] == "hg18":
         chrom = "chr" + wildcards.chrom
@@ -64,6 +83,6 @@ rule lancet_adhoc:
     output:
         "adhoc-lancet/{run}.all.bcf"
     params:
-        "-f PASS -i INFO/SOMATIC"
+        "-Ob -f PASS -i INFO/SOMATIC"
     wrapper:
         "0.19.3/bio/bcftools/view"

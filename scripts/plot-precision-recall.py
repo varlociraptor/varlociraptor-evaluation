@@ -10,8 +10,6 @@ import numpy as np
 import math
 from matplotlib.lines import Line2D
 
-MIN_CALLS = 10
-
 vartype = snakemake.wildcards.vartype
 colors = common.get_colors(snakemake.config)
 
@@ -114,26 +112,23 @@ def plot_len_range(minlen, maxlen, min_precision=0.0):
     plt.ylim((min_precision, 1.01 if min_precision == 0.0 else 1.001))
     return ax, handles
 
-fig, gs = common.plot_ranges(
-    snakemake.params.len_ranges,
-    plot_len_range,
-    xlabel="recall",
-    ylabel="precision",
-    nrow_offset=2,
-    row_span=2,
-    fig_height=6,
-)
+
+plot = plot_len_range
+fig_height = None
+legend_outside = snakemake.params.legend_outside
+if snakemake.wildcards.zoom == "zoom":
+    plot = partial(plot_len_range, min_precision=0.99 if vartype == "INS" else 0.95)
+    fig_height = 3
+    legend_outside = True
+
 
 common.plot_ranges(
     snakemake.params.len_ranges,
-    partial(plot_len_range, min_precision=0.99 if vartype == "INS" else 0.95),
+    plot,
     xlabel="recall",
     ylabel="precision",
-    row_offset=2,
-    nrow_offset=2,
-    fig=fig,
-    gs=gs,
-    legend=False,
+    fig_height=fig_height,
+    legend_outside=legend_outside,
 )
 
 plt.savefig(snakemake.output[0], bbox_inches="tight")

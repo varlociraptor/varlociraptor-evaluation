@@ -8,43 +8,56 @@ rule annotate_truth:
     input:
         lambda wc: config["datasets"][wc.dataset]["truth"]
     output:
-        "truth/{dataset}.annotated.bcf"
+        "truth/{dataset}.annotated.vcf"
     conda:
         "../envs/cyvcf2.yaml"
     script:
         "../scripts/annotate-truth.py"
 
 
-def get_truth(wildcards, ext="bcf"):
-    return "truth/{dataset}.annotated.{ext}".format(ext=ext, **config["runs"][wildcards.run])
+def get_truth(wildcards):
+    return "truth/{dataset}.annotated.vcf".format(**config["runs"][wildcards.run])
+
+
+def get_restrict_regions(wildcards):
+    dataset = config["runs"][wildcards.run]["dataset"]
+    regions = config["datasets"][dataset].get("regions")
+    if regions:
+        return "--regions-file {}".format(regions)
+    else:
+        return ""
 
 
 rule match_varlociraptor_calls:
     input:
         calls="varlociraptor-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.bcf",
+        idx="varlociraptor-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.bcf.csi",
         truth=get_truth
     output:
         "matched-calls/varlociraptor-{caller}/{run}.{vartype}.{minlen}-{maxlen}.{fdr}.bcf"
     params:
-        config["vcf-match-params"]
+        match=config["vcf-match-params"],
+        regions=get_restrict_regions
     conda:
         "../envs/rbt.yaml"
     shell:
-        "rbt vcf-match {params} {input.truth} < {input.calls} > {output}"
+        "bcftools view {params.regions} {input.calls} | rbt vcf-match {params.match} {input.truth} > {output}"
 
 
 rule match_other_calls:
     input:
         calls="{mode}-{caller}/{run}.all.bcf",
+        idx="{mode}-{caller}/{run}.all.bcf.csi",
         truth=get_truth
     output:
         "matched-calls/{mode}-{caller}/{run}.all.bcf"
     params:
-        config["vcf-match-params"]
+        match=config["vcf-match-params"],
+        regions=get_restrict_regions
     conda:
         "../envs/rbt.yaml"
     shell:
-        "rbt vcf-match {params} {input.truth} < {input.calls} > {output}"
+        "bcftools view {params.regions} {input.calls} | rbt vcf-match {params.match} {input.truth} > {output}"
 
 
 rule truth_to_tsv:
@@ -161,7 +174,8 @@ def get_caller_runs(mode, runs):
 
 
 def get_len_ranges(wildcards):
-    return config["len-ranges"][wildcards.vartype]
+    ranges = config["len-ranges"].get(wildcards.run, config["len-ranges"])
+    return ranges[wildcards.vartype]
 
 
 def get_calls(mode, runs=None, fdr=[1.0]):
@@ -183,12 +197,15 @@ rule plot_precision_recall:
         adhoc_calls=get_calls("adhoc"),
         truth=lambda wc: "truth/{dataset}.annotated.tsv".format(**config["runs"][wc.run])
     output:
-        report("plots/precision-recall/{run}.{vartype}.pdf", category="Precision and Recall", caption="../report/precision-recall.rst")
+        report("plots/precision-recall/{run}.{vartype}.{zoom}.pdf", category="Precision and Recall", caption="../report/precision-recall.rst")
+    wildcard_constraints:
+        zoom="zoom|nozoom"
     params:
         varlociraptor_callers=get_callers("varlociraptor"),
         default_callers=get_callers("default"),
         adhoc_callers=get_callers("adhoc"),
-        len_ranges=get_len_ranges
+        len_ranges=get_len_ranges,
+        legend_outside=lambda w: config["runs"][w.run].get("legend-outside", False)
     conda:
         "../envs/eval.yaml"
     script:

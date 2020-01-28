@@ -8,13 +8,16 @@ import seaborn as sns
 import math
 
 
-def plot_ranges(ranges, plot_range, xlabel, ylabel, row_offset=0, nrow_offset=0, row_span=1, fig=None, gs=None, legend=True, fig_height=None):
+def plot_ranges(ranges, plot_range, xlabel, ylabel, row_offset=0, nrow_offset=0, row_span=1, fig=None, gs=None, legend=True, fig_height=None, legend_outside=False):
     ncols = 4 if len(ranges) == 4 else min(3, len(ranges))
     nrows = int(math.ceil(len(ranges) / ncols)) + nrow_offset
     if fig is None:
         if fig_height is None:
             fig_height = 4 * nrows
-        fig = plt.figure(figsize=(4 * ncols, fig_height))
+        fig_width = 4 * ncols
+        if legend_outside:
+            fig_width += 2.5
+        fig = plt.figure(figsize=(fig_width, fig_height))
         gs = gridspec.GridSpec(nrows, ncols, figure=fig)
     axes = []
     all_handles = []
@@ -34,7 +37,7 @@ def plot_ranges(ranges, plot_range, xlabel, ylabel, row_offset=0, nrow_offset=0,
         else:
             plt.xlabel("")
 
-        if row_offset == 0:
+        if row_offset == 0 and len(ranges) > 1:
             if lower == upper:
                 if isinstance(lower, float):
                     lower = "{:.3g}".format(lower)
@@ -50,7 +53,10 @@ def plot_ranges(ranges, plot_range, xlabel, ylabel, row_offset=0, nrow_offset=0,
                 all_handles.append(handle)
 
     if legend:
-        axes[0].legend(handles=all_handles, loc="best")
+        if legend_outside:
+            axes[-1].legend(handles=all_handles, loc="upper left", bbox_to_anchor=(1.01, 1.0))
+        else:
+            axes[0].legend(handles=all_handles, loc="best")
     plt.tight_layout()
     return fig, gs
 

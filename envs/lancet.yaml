@@ -1,5 +1,10 @@
 channels:
   - bioconda
   - conda-forge
+  - defaults
 dependencies:
-  - bamtools =2.3.0
+  - gxx_linux-64
+  - make
+  - cmake
+  - bamtools =2.5.1
+  - htslib =1.3
