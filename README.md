@@ -6,7 +6,7 @@
 
 This Snakemake workflow automatically generates all results and figures from the [initial Varlociraptor paper focusing on somatic variant calling](https://doi.org/10.1101/741256).
 
-Rerunning the workflow requires a lot of computation time and some unavoidable [external resources that have to be manually deployed](#resources).
+Rerunning the workflow requires a lot of computation time and some unavoidable [external resources that have to be manually deployed](#step-5-obtain-additional-resources-resources).
 We therefore hope that the [Snakemake report in the supplementary material of the paper](https://www.biorxiv.org/content/10.1101/741256v1.supplementary-material), providing all results together with comprehensive provenance information (workflow steps, parameters, software versions, code) will already yield sufficient information in most of the cases.
 If you nevertheless intend to rerun the analysis, feel free to follow the steps below, and please inform us about any potential issues.
 
@@ -75,13 +75,15 @@ Then, download the workflow archive from https://doi.org/10.5281/zenodo.3361700 
 
     tar -xf workflow.tar.gz
     
-### Step 5: Obtain additional resources {#resources}
+### Step 5: Obtain additional resources
 
 In this special case there are unfortunately unavoidable additional requirements, due to licensing restrictions and data size.
 
 1. The required real data has to be obtained [from EGA (EGAD00001002142)](https://ega-archive.org/datasets/EGAD00001002142). After downloading it, edit the [config.yaml](https://github.com/varlociraptor/varlociraptor-evaluation/blob/master/config.yaml) in order to point to the right paths [here and below](https://github.com/varlociraptor/varlociraptor-evaluation/blob/master/config.yaml#L45).
-2. The [Lancet](https://github.com/nygenome/lancet) variant caller has to be manually installed (and available in your PATH). It cannot be automatically deployed by Snakemake+Conda due to licensing restrictions.
-3. The required simulated data has to be obtained from Zenodo: https://doi.org/10.5281/zenodo.1421298. Download it, convert back to BAM, and edit the [config.yaml](https://github.com/varlociraptor/varlociraptor-evaluation/blob/master/config.yaml) in order to point to the right paths [here](https://github.com/varlociraptor/varlociraptor-evaluation/blob/master/config.yaml#L34) and [here](https://github.com/varlociraptor/varlociraptor-evaluation/blob/master/config.yaml#L37).
+2. The required simulated data has to be obtained from Zenodo: https://doi.org/10.5281/zenodo.1421298. Download it, convert back to BAM, and edit the [config.yaml](https://github.com/varlociraptor/varlociraptor-evaluation/blob/master/config.yaml) in order to point to the right paths [here](https://github.com/varlociraptor/varlociraptor-evaluation/blob/master/config.yaml#L34) and [here](https://github.com/varlociraptor/varlociraptor-evaluation/blob/master/config.yaml#L37).
+3. The synthetic data can be obtained by running a separate workflow: https://doi.org/10.5281/zenodo.3630241.
+
+Once all data is obtained, edit the ``config.yaml`` under ``datasets:`` to point to the right file paths in your system.
 
 ### Step 6: Run the workflow
 
